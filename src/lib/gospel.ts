@@ -4,6 +4,7 @@ import mark from "../../data/gospel/mark.json";
 import luke from "../../data/gospel/luke.json";
 import john from "../../data/gospel/john.json";
 import type { Assembly, GospelSettings } from "./types";
+import { GOSPEL_BODY, GOSPEL_MIN_SIZE, readingFits } from "./layout";
 
 type Verse = { chapter: number; verse: number; paragraph: number; text: string };
 const books: Record<string, { verses: Verse[] }> = { matthew, mark, luke, john };
@@ -71,19 +72,61 @@ export function gospelForAssembly(a: Pick<Assembly, "date" | "gospel">) {
   };
 }
 
-export function paginateReading(text: string, maxCharacters = 240): string[] {
-  const tokens = text.match(/\s+|\S+/g) ?? [];
+export function paginateReading(text: string): string[] {
   const pages: string[] = [];
   let page = "";
-  const rows = (value: string) => value.split("\n").reduce((total, line) => total + Math.max(1, Math.ceil(line.length / 43)), 0);
-  for (const token of tokens) {
-    if (page && /\S/.test(page) && (page.length + token.length > maxCharacters || rows(page + token) > 5)) {
-      pages.push(page);
-      page = "";
-    }
-    page += token;
+  const fits = (value: string) => readingFits(GOSPEL_BODY, value, GOSPEL_MIN_SIZE);
+  const segments: string[] = [];
+  let start = 0;
+  for (const match of text.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/g)) {
+    const end = match.index + match[0].length;
+    segments.push(text.slice(start, end));
+    start = end;
   }
-  if (page && /\S/.test(page)) pages.push(page);
-  else if (page && pages.length) pages[pages.length - 1] += page;
+  segments.push(text.slice(start));
+  const flush = () => { if (page) { pages.push(page); page = ""; } };
+  const flushAtSentence = () => {
+    let boundary = 0;
+    for (const match of page.matchAll(/[.!?]["')\]]*\s+/g)) {
+      const end = match.index + match[0].length;
+      if (end >= page.length * 0.6) boundary = end;
+    }
+    if (boundary && /\S/.test(page.slice(boundary))) {
+      pages.push(page.slice(0, boundary));
+      page = page.slice(boundary);
+    } else {
+      flush();
+    }
+  };
+
+  for (const segment of segments) {
+    if (fits(page + segment)) {
+      page += segment;
+      continue;
+    }
+    flush();
+    if (fits(segment)) {
+      page = segment;
+      continue;
+    }
+    const tokens = segment.match(/\s+|\S+/gu) ?? [];
+    for (const token of tokens) {
+      if (fits(page + token)) {
+        page += token;
+        continue;
+      }
+      if (/\S/.test(page)) flushAtSentence();
+      if (!fits(page + token) && /\S/.test(page)) flush();
+      if (fits(page + token)) {
+        page += token;
+        continue;
+      }
+      for (const character of token) {
+        if (page && !fits(page + character) && /\S/.test(page)) flush();
+        page += character;
+      }
+    }
+  }
+  flush();
   return pages;
 }

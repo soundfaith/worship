@@ -1,4 +1,4 @@
-import { fitSize } from "./layout";
+import { fitSize, readingFontSize } from "./layout";
 import { renderArt, renderBackground } from "./art";
 import { backgroundFor, DEFAULT_FONT, getTemplate, layoutFor, songIndexes } from "./templates";
 import type { Assembly, Rect, Slide, SlideKind } from "./types";
@@ -38,19 +38,20 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       slide.addImage({ data: (await (background ? renderBackground(t, background) : renderArt(t, found.name, layout))).slice(5), x: 0, y: 0, w: SW, h: SH });
       if (sl.image && layout.image) slide.addImage({ data: sl.image.slice(5), ...inch(layout.image), sizing: { type: "cover", ...inch(layout.image) } });
       if (sl.image2 && layout.image2) slide.addImage({ data: sl.image2.slice(5), ...inch(layout.image2), sizing: { type: "cover", ...inch(layout.image2) } });
-      for (const [box, text, boxFont, fit] of [
-        [layout.title, sl.title, slideFont, !!layout.fitTitle],
-        ...(!layout.hideBody ? [[layout.body, sl.body, slideFont, true] as const] : []),
+      for (const [box, text, boxFont, fit, reading] of [
+        [layout.title, sl.title, slideFont, !!layout.fitTitle, false],
+        ...(!layout.hideBody ? [[layout.body, sl.body, slideFont, true, sl.kind === "gospel"] as const] : []),
       ] as const) {
-        slide.addText(box.caps ? text.toUpperCase() : text, {
+        const content = reading ? text.trim() : text;
+        slide.addText(box.caps ? content.toUpperCase() : content, {
           ...inch(box),
           fontFace: boxFont,
-          fontSize: fit ? fitSize(box, text) : box.size,
+          fontSize: fit ? (reading ? readingFontSize(box, text) : fitSize(box, text)) : box.size,
           color: box.color,
           align: box.align,
           valign: "middle",
           charSpacing: box.spacing,
-          lineSpacingMultiple: 1.1,
+          lineSpacingMultiple: reading ? 1.3 : 1.1,
           margin: 0,
         });
       }

@@ -17,7 +17,10 @@ function load(file, imports) {
   return exports;
 }
 
-const { backgroundFor, songIndexes } = load("templates.ts", { "./templates.generated.json": [] });
+const { backgroundFor, songIndexes, layoutFor, LAYOUT_OPTIONS } = load("templates.ts", {
+  "./templates.generated.json": [],
+  "./layout": load("layout.ts", {}),
+});
 const template = {
   id: "test",
   backgrounds: ["one", "two", "three", "base", "image"].map((id) => ({ id })),
@@ -58,4 +61,21 @@ test("generated lyric slides retain their distinct assembly song identities", ()
   const slides = buildSlides(a).filter((slide) => slide.kind === "song");
   assert.deepEqual(Array.from(slides, (slide) => slide.songUid), ["first", "first", "first", "second", "second"]);
   assert.deepEqual(Array.from(slides, (slide) => slide.layout ?? null), ["title-only", null, null, "title-only", null]);
+});
+
+test("layout rectangles remain within the slide and do not overlap", () => {
+  const overlaps = (a, b) => a.x < b.x + b.w - 0.00001 && b.x < a.x + a.w - 0.00001 &&
+    a.y < b.y + b.h - 0.00001 && b.y < a.y + a.h - 0.00001;
+  for (const kind of ["custom", "gospel"]) {
+    for (const { id } of LAYOUT_OPTIONS) {
+      const { layout } = layoutFor({ ...template, fg: "FFFFFF" }, { kind, layout: id });
+      const boxes = [layout.title, ...(!layout.hideBody ? [layout.body] : []), layout.image, layout.image2].filter(Boolean);
+      for (const box of boxes) {
+        assert.ok(box.x >= 0 && box.y >= 0 && box.w > 0 && box.h > 0 && box.x + box.w <= 1 && box.y + box.h <= 1, `${kind}: ${id}`);
+      }
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) assert.ok(!overlaps(boxes[i], boxes[j]), `${kind}: ${id}`);
+      }
+    }
+  }
 });

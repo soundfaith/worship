@@ -1,4 +1,5 @@
 import packs from "./templates.generated.json";
+import { GOSPEL_BODY } from "./layout";
 import type { Layout, LayoutName, Slide, SlideKind, Template } from "./types";
 
 export const TEMPLATES: Template[] = packs as Template[];
@@ -91,7 +92,12 @@ function contentLayout(name: LayoutName, color: string): Layout {
 export function layoutFor(t: Template, slide: Pick<Slide, "kind" | "image" | "layout" | "textColor">) {
   const name = layoutNameFor(slide);
   if (t.backgrounds?.length) {
-    return { name, layout: contentLayout(name, slide.textColor ?? t.fg) };
+    const layout = contentLayout(name, slide.textColor ?? t.fg);
+    if (slide.kind === "gospel" && name === "content") {
+      layout.title = { ...layout.title, y: 0.08, h: 0.15, size: 30 };
+      layout.body = { ...GOSPEL_BODY, color: slide.textColor ?? t.fg };
+    }
+    return { name, layout };
   }
   const layout = t.layouts?.[name] ?? t.layouts?.content;
   if (!layout) return null;

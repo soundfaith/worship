@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import { renderArt } from "@/lib/art";
-import { fitSize } from "@/lib/layout";
+import { fitSize, readingFontSize } from "@/lib/layout";
 import { backgroundFor, DEFAULT_FONT, layoutFor } from "@/lib/templates";
 import type { Layout, Rect, Slide, Template, TextBox } from "@/lib/types";
 
@@ -17,23 +17,24 @@ const pct = (r: Rect): CSSProperties => ({
 // 1pt on a 10in-wide slide = 100/720 of the slide width.
 const cq = (pt: number) => `${(pt * 100) / 720}cqw`;
 
-function Box({ box, text, font, fit }: { box: TextBox; text: string; font: string; fit: boolean }) {
-  const size = fit ? fitSize(box, text) : box.size;
+function Box({ box, text, font, fit, reading = false }: { box: TextBox; text: string; font: string; fit: boolean; reading?: boolean }) {
+  const size = fit ? (reading ? readingFontSize(box, text) : fitSize(box, text)) : box.size;
   return (
     <div
-      className="flex flex-col justify-center whitespace-pre-line"
+      className={`flex flex-col justify-center ${reading ? "whitespace-pre-wrap" : "whitespace-pre-line"}`}
       style={{
         ...pct(box),
         color: `#${box.color}`,
         fontFamily: font === "Inter" ? "var(--font-inter), sans-serif" : `"${font}", Arial, sans-serif`,
         fontSize: cq(size),
         lineHeight: 1.3,
+        overflowWrap: reading ? "anywhere" : undefined,
         textAlign: box.align,
         letterSpacing: box.spacing ? `${box.spacing / 100}em` : undefined,
         textTransform: box.caps ? "uppercase" : undefined,
       }}
     >
-      {text}
+      {reading ? text.trim() : text}
     </div>
   );
 }
@@ -81,7 +82,7 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
           <img src={slide.image2} alt="" className="object-cover" style={pct(layout.image2)} />
         )}
         <Box box={layout.title} text={slide.title} font={slide.font ?? font} fit={!!layout.fitTitle} />
-        {!layout.hideBody && <Box box={layout.body} text={slide.body} font={slide.font ?? font} fit />}
+        {!layout.hideBody && <Box box={layout.body} text={slide.body} font={slide.font ?? font} fit reading={slide.kind === "gospel"} />}
       </div>
     );
   }

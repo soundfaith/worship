@@ -11,7 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 function load(file, imports) {
   const source = fs.readFileSync(path.join(root, "src", "lib", file), "utf8");
-  const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText;
+  const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
   const exports = {};
   vm.runInNewContext(code, { exports, require: (name) => name in imports ? imports[name] : require(name) });
   return exports;
@@ -19,7 +19,8 @@ function load(file, imports) {
 
 const data = Object.fromEntries(["daily-readings", "matthew", "mark", "luke", "john"].map((name) =>
   [`../../data/gospel/${name}.json`, require(path.join(root, "data", "gospel", `${name}.json`))]));
-const { readingForDate, gospelForAssembly, paginateReading } = load("gospel.ts", data);
+const layout = load("layout.ts", {});
+const { readingForDate, gospelForAssembly, paginateReading } = load("gospel.ts", { ...data, "./layout": layout });
 
 test("resolves every indexed reference, including cross-chapter and alternate readings", () => {
   const entries = data["../../data/gospel/daily-readings.json"].entries;
@@ -78,13 +79,51 @@ test("pagination preserves all characters, including newlines and long words", (
   const pages = Array.from(paginateReading(text));
   assert.ok(pages.length > 2);
   assert.equal(pages.join(""), text);
-  assert.equal(pages.filter((page) => page.length > 240).length, 1);
+  assert.ok(pages.every((page) => layout.readingFits(layout.GOSPEL_BODY, page, layout.GOSPEL_MIN_SIZE)));
   const shortLines = Array.from({ length: 12 }, (_, i) => `${i + 1} short verse`).join("\n");
   const linePages = Array.from(paginateReading(shortLines));
-  assert.ok(linePages.length >= 3);
+  assert.ok(linePages.length > 1);
   assert.equal(linePages.join(""), shortLines);
 });
 
+test("keeps paragraphs intact whenever they fit at the minimum size", () => {
+  const first = "A paragraph of readable text. ".repeat(7).trim();
+  const second = "Another paragraph follows. ".repeat(7).trim();
+  const text = `${first}\n\n${second}`;
+  const pages = Array.from(paginateReading(text));
+  assert.equal(pages.join(""), text);
+  for (const paragraph of [first, second]) assert.ok(pages.some((page) => page.includes(paragraph)));
+  assert.ok(pages.every((page) => layout.readingFontSize(layout.GOSPEL_BODY, page) >= 22));
+});
+
+test("chooses a readable font and splits oversized paragraphs at a sentence where possible", () => {
+  const short = "Short reading.";
+  assert.equal(layout.readingFontSize(layout.GOSPEL_BODY, short), 30);
+  const sentence = `${"Reading words ".repeat(18)}ends.`;
+  const text = `${sentence} ${"Additional words ".repeat(30)}`;
+  assert.equal(layout.readingFits(layout.GOSPEL_BODY, sentence, 22), true);
+  const pages = Array.from(paginateReading(text));
+  assert.ok(pages.length > 1);
+  assert.equal(pages.join(""), text);
+  assert.ok(pages[0].trimEnd().endsWith("ends."));
+  assert.ok(pages.every((page) => layout.readingFits(layout.GOSPEL_BODY, page, 22)));
+  assert.ok(layout.readingFontSize(layout.GOSPEL_BODY, pages[0]) >= 22);
+});
+
+test("all indexed readings preserve text and fit the default Gospel box", () => {
+  const entries = data["../../data/gospel/daily-readings.json"].entries;
+  for (const date of Object.keys(entries)) {
+    const text = readingForDate(date).text;
+    const pages = Array.from(paginateReading(text));
+    assert.equal(pages.join(""), text, date);
+    for (const page of pages) assert.ok(layout.readingFits(layout.GOSPEL_BODY, page, layout.GOSPEL_MIN_SIZE), date);
+    for (const paragraph of text.split("\n\n")) {
+      if (layout.readingFits(layout.GOSPEL_BODY, paragraph, layout.GOSPEL_MIN_SIZE)) {
+        assert.ok(pages.some((page) => page.includes(paragraph)), date);
+      }
+    }
+  }
+});
 test("builds editable Gospel slides and song title slides in order", () => {
   let next = 0;
   const { buildSlides } = load("slides.ts", {

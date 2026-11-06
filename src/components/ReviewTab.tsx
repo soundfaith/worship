@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { buildSlides } from "@/lib/slides";
 import { gospelForAssembly } from "@/lib/gospel";
+import { GOSPEL_MIN_SIZE, readingFits } from "@/lib/layout";
 import { uid } from "@/lib/store";
 import { backgroundFor, FONTS, getTemplate, LAYOUT_OPTIONS, layoutFor, layoutNameFor, songIndexes, TEMPLATES } from "@/lib/templates";
 import type { LayoutName, Rect, Slide, Template } from "@/lib/types";
@@ -137,6 +138,7 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
           <div className="card min-w-0 space-y-4 p-3 sm:p-5">
             <input className="input" aria-label="Slide title" value={slide.title} onChange={(e) => patch({ title: e.target.value })} />
             <textarea className="input h-36" aria-label="Slide text" value={slide.body} onChange={(e) => patch({ body: e.target.value })} />
+            {slide.kind === "gospel" && currentLayout && !currentLayout.hideBody && !readingFits(currentLayout.body, slide.body, GOSPEL_MIN_SIZE) && <p role="status" className="text-sm text-amber-700">This reading may not fit at the minimum readable font size. Shorten it or choose a larger text layout.</p>}
             {currentLayout?.hideBody && slide.body && <p className="text-xs text-stone-500">This layout hides the slide text; it is preserved if you switch layouts.</p>}
             {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
               <div key={field} className="flex flex-wrap items-center gap-3 text-sm text-stone-600">

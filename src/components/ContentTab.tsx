@@ -1,8 +1,11 @@
 "use client";
+import { useState } from "react";
 import { useAssemblies, useRecurring } from "@/lib/assemblies";
+import { gospelForAssembly } from "@/lib/gospel";
 import { uid } from "@/lib/store";
 import type { Announcement, Celebrant } from "@/lib/types";
 import { IconButton } from "./Icon";
+import { ConfirmDialog } from "./Modal";
 import { Field, Section, type TabProps } from "./ui";
 
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -34,7 +37,14 @@ function CelebrantList({
 export function ContentTab({ a, update }: TabProps) {
   const [all] = useAssemblies();
   const [recurring, setRecurring] = useRecurring();
+  const [pendingGospelDate, setPendingGospelDate] = useState<string | null>(null);
   const set = (patch: Parameters<TabProps["update"]>[0]) => update({ ...patch, slides: null });
+  const gospel = gospelForAssembly(a);
+  const changeGospelDate = (date: string) => {
+    if (gospel.custom) setPendingGospelDate(date);
+    else set({ gospel: { ...a.gospel, date: date || undefined } });
+  };
+  const loadGospelDate = (date: string) => set({ gospel: { include: gospel.include, date: date || undefined } });
 
   const setAnn = (list: Announcement[]) => set({ announcements: list });
   const previous = all
@@ -59,6 +69,7 @@ export function ContentTab({ a, update }: TabProps) {
 
   return (
     <div className="space-y-8">
+      {a.slides && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">Changing content will regenerate slides and discard manual slide edits.</p>}
       <Section title="Sections" hint="Optional slides to include.">
         <div className="flex flex-wrap gap-6">
           <Check label="Welcome slide" checked={a.includeWelcome} onChange={(v) => set({ includeWelcome: v })} />
@@ -67,7 +78,38 @@ export function ContentTab({ a, update }: TabProps) {
         </div>
       </Section>
 
-      <Section title="Opening prayer" hint={a.prayerLeader ? `Led by ${a.prayerLeader}` : "Set the prayer leader in Details."}>
+      <section className="card min-w-0 space-y-5 p-4 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="display text-2xl text-stone-900">Gospel Reading</h2>
+            <p className="text-sm text-stone-500">Daily reading · World English Bible</p>
+          </div>
+          <label className="text-sm text-stone-500">
+            Reading date
+            <input type="date" aria-label="Gospel reading date" className="input mt-1 !w-auto" value={gospel.date} onChange={(e) => changeGospelDate(e.target.value)} />
+          </label>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <Check label="Include Gospel reading" checked={gospel.include} onChange={(include) => set({ gospel: { ...a.gospel, include } })} />
+          {a.gospel?.date && <button className="btn btn-ghost" onClick={() => changeGospelDate("")}>Use assembly date</button>}
+        </div>
+        <p className="text-xs text-stone-500">{a.gospel?.date ? "Using a separate reading date." : "Using the date from Details."}{gospel.custom ? " Your edits are preserved when the assembly date changes." : ""}</p>
+        {gospel.error && <p role="status" className="text-sm text-amber-700">{gospel.error}</p>}
+        {!gospel.custom && gospel.partial && <p className="text-xs text-stone-500">Where the reference specifies part of a verse, the full verse is included.</p>}
+        {!gospel.custom && gospel.missingVerses && <p role="status" className="text-sm text-amber-700">This translation skips a verse number in the selected passage. Review the text and edit it if needed.</p>}
+        {!gospel.custom && /\s+or\s+/i.test(gospel.reference) && <p className="text-xs text-stone-500">The first reading option is shown; you can edit it below.</p>}
+        <Field label="Reference">
+          <input className="input" value={gospel.reference} onChange={(e) => set({ gospel: { ...a.gospel, reference: e.target.value, text: gospel.text } })} />
+        </Field>
+        <Field label="Reading text">
+          <textarea className="input h-56" value={gospel.text} onChange={(e) => set({ gospel: { ...a.gospel, reference: gospel.reference, text: e.target.value } })} />
+        </Field>
+        {gospel.custom && <button className="btn" onClick={() => setPendingGospelDate(a.gospel?.date ?? "")}>Restore daily reading</button>}
+        <p className="text-xs text-stone-500">Long readings are split into multiple slides. The index covers August 25, 2025 through December 31, 2027; some dates may be missing.</p>
+      </section>
+      {pendingGospelDate !== null && <ConfirmDialog title="Replace edited reading?" message="Your edits to the Gospel reference and text will be replaced by the daily reading for the selected date." confirmLabel="Replace reading" onCancel={() => setPendingGospelDate(null)} onConfirm={() => { loadGospelDate(pendingGospelDate); setPendingGospelDate(null); }} />}
+
+      <Section title="Prayer texts" hint={a.prayerLeader ? `Opening prayer led by ${a.prayerLeader}` : "Set the opening prayer leader in Details."}>
         <Field label="Prayer text (optional)">
           <textarea className="input h-24" value={a.openingPrayerText} onChange={(e) => set({ openingPrayerText: e.target.value })} />
         </Field>

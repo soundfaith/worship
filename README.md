@@ -17,6 +17,9 @@ the deployed app.
 
 - `data/songs.json` – song library (563 songs), served by `/api/songs`. `data/report.json` – import report.
 - Export a song directly from its library preview with a chosen template and lines per slide.
+- Each song begins with a title slide. The Content tab can insert a daily Gospel reading based on the assembly date, select another date, or use edited text. Long readings are split into editable slides; opening and closing prayer text remains available.
+- Existing saved slide decks are not changed automatically. Use **Regenerate** in Review to add Gospel and song title slides; regeneration replaces manual slide edits.
+- `data/gospel/` contains the four Gospel books from the World English Bible (Updated) and the Gospel references from the [SoundFaith Bible project's Catholic Mass reading index](https://github.com/cpbjr/catholic-readings-api). Daily readings use source paragraph breaks without verse numbers. The copied index covers August 25, 2025–December 31, 2027, and uses US Catholic Mass readings; September 18, 2025 is missing from the source. When no reading is available, enter one manually. References with alternatives use the first option; partial-verse references show the whole verse. The interface flags skipped verse numbers in the source.
 - `docs/TEMPLATES.md` – how to import every slide of a PowerPoint as a background and choose independent content layouts. Presentations are prepared locally with Windows PowerPoint and committed as generated assets for Vercel.
 - `scripts/templates.mjs` – imports `templates/*.pptx` and indexes the packs in `public/templates/`.
 - `tools/song-import/` – Python scripts that regenerated the library from the source PPTX (`python build_library.py <file.pptx>`; output goes to `data/`).

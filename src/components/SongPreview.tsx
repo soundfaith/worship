@@ -39,10 +39,14 @@ export function SongPreview({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <LinesControl value={lines} onChange={onLines} />
         <span className="text-xs text-stone-500">
-          {pages.length} slides{lines !== DEFAULT_LINES ? ` · default is ${DEFAULT_LINES}` : ""}
+          {pages.length + 1} slides including title{lines !== DEFAULT_LINES ? ` · default is ${DEFAULT_LINES}` : ""}
         </span>
       </div>
       <div className="grid max-h-[28rem] grid-cols-2 gap-3 overflow-y-auto pr-1" tabIndex={0} role="region" aria-label="Song slide previews">
+        <div className="space-y-1">
+          <SlideView slide={{ id: "title", kind: "song", title, body: "", layout: "title-only" }} template={tpl} font={font} songIndex={songIndex} />
+          <p className="text-center text-[11px] text-stone-400">Title</p>
+        </div>
         {pages.map((body, i) => (
           <div key={i} className="space-y-1">
             <SlideView slide={{ id: `p${i}`, kind: "song", title, body }} template={tpl} font={font} songIndex={songIndex} />

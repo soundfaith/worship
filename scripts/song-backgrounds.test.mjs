@@ -51,10 +51,11 @@ test("groups legacy consecutive same-title song slides without changing saved da
 
 test("generated lyric slides retain their distinct assembly song identities", () => {
   let id = 0;
-  const { buildSlides } = load("slides.ts", { "./store": { uid: () => String(++id) }, "./lyrics": { chunkLines: (lines) => lines, DEFAULT_LINES: 4 } });
+  const { buildSlides } = load("slides.ts", { "./store": { uid: () => String(++id) }, "./lyrics": { chunkLines: (lines) => lines, DEFAULT_LINES: 4 }, "./gospel": { gospelForAssembly: () => ({ include: false }), paginateReading: () => [] } });
   const a = { includeWelcome: false, includeTheme: false, includeClosing: false, openingPrayerText: "", prayerLeader: "", songs: [
     { uid: "first", title: "Same", slides: ["a", "b"] }, { uid: "second", title: "Same", slides: ["c"] },
   ], announcements: [], birthdays: [], anniversaries: [] };
   const slides = buildSlides(a).filter((slide) => slide.kind === "song");
-  assert.deepEqual(Array.from(slides, (slide) => slide.songUid), ["first", "first", "second"]);
+  assert.deepEqual(Array.from(slides, (slide) => slide.songUid), ["first", "first", "first", "second", "second"]);
+  assert.deepEqual(Array.from(slides, (slide) => slide.layout ?? null), ["title-only", null, null, "title-only", null]);
 });

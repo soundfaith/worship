@@ -6,20 +6,26 @@ import { IconButton } from "./Icon";
 import { Field, Section, type TabProps } from "./ui";
 import { SlideView } from "./SlideView";
 import { usePreferredFont } from "@/lib/assemblies";
+import { ConfirmDialog } from "./Modal";
 
 export function DetailsTab({ a, update }: TabProps) {
   const [, setPreferredFont] = usePreferredFont();
   const [fontError, setFontError] = useState("");
+  const [pendingDate, setPendingDate] = useState<string | null>(null);
   return (
     <div className="space-y-8">
       <Section title="Assembly">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Title"><input className="input" value={a.title} onChange={(e) => update({ title: e.target.value })} /></Field>
           <Field label="Activity type"><input className="input" value={a.activity} onChange={(e) => update({ activity: e.target.value })} /></Field>
-          <Field label="Date"><input type="date" className="input" value={a.date} onChange={(e) => update({ date: e.target.value })} /></Field>
+          <Field label="Date"><input type="date" className="input" value={a.date} onChange={(e) => {
+            if (a.slides) setPendingDate(e.target.value);
+            else update({ date: e.target.value });
+          }} /></Field>
           <Field label="Theme (optional)"><input className="input" value={a.theme} onChange={(e) => update({ theme: e.target.value })} /></Field>
         </div>
       </Section>
+      {pendingDate !== null && <ConfirmDialog title="Change assembly date?" message="Slides will be regenerated for the new date, and manual slide edits will be lost. Custom Gospel text will be kept." confirmLabel="Change date" onCancel={() => setPendingDate(null)} onConfirm={() => { update({ date: pendingDate, slides: null }); setPendingDate(null); }} />}
 
       <Section title="Service assignments">
         <div className="grid gap-4 sm:grid-cols-3">

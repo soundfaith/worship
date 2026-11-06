@@ -5,6 +5,10 @@ import type { Announcement, Assembly } from "./types";
 
 const NONE: Assembly[] = [];
 const NO_ANN: Announcement[] = [];
+const localDate = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+};
 
 export function useAssemblies() {
   return useLocalStore<Assembly[]>("worship.assemblies", NONE);
@@ -24,7 +28,7 @@ export function blankAssembly(font = DEFAULT_FONT): Assembly {
     id: uid(),
     title: "",
     activity: "Prayer Assembly",
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     theme: "",
     presider: "",
     prayerLeader: "",
@@ -54,7 +58,7 @@ export function duplicateAssembly(a: Assembly): Assembly {
     ...structuredClone(a),
     id: uid(),
     title: a.title ? `${a.title} (copy)` : "",
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     slides: null,
     createdAt: Date.now(),
     updatedAt: Date.now(),

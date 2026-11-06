@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { buildSlides } from "@/lib/slides";
+import { gospelForAssembly } from "@/lib/gospel";
 import { uid } from "@/lib/store";
 import { backgroundFor, FONTS, getTemplate, LAYOUT_OPTIONS, layoutFor, layoutNameFor, songIndexes, TEMPLATES } from "@/lib/templates";
 import type { LayoutName, Rect, Slide, Template } from "@/lib/types";
@@ -77,6 +78,7 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
   const currentTemplate = tpl(slide);
   const currentLayout = layoutFor(currentTemplate, slide)?.layout;
   const currentBackground = backgroundFor(currentTemplate, slide, songPositions[idx]);
+  const gospel = gospelForAssembly(a);
 
   const upload = async (file: File, field: "image" | "image2", slideId: string) => {
     setError("");
@@ -105,6 +107,7 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{error}</p>}
       {exportError && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
+      {gospel.include && !gospel.text.trim() && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">No Gospel text is available for the selected date. Add a reading or turn it off in Content.</p>}
       {regenerate && <ConfirmDialog title="Regenerate slides?" message="All manual slide edits will be lost. This cannot be undone." confirmLabel="Regenerate" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
 
       <div className="flex h-[calc(100dvh-5rem)] min-h-[22rem] min-w-0 gap-2 sm:gap-4">

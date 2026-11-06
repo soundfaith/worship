@@ -142,7 +142,10 @@ export default function SongsPage() {
                       title: open.title,
                       templateId,
                       font,
-                      slides: chunkLines(open.slides, lines).map((body, i) => ({ id: `song-${i}`, kind: "song", title: open.title, body })),
+                      slides: [
+                        { id: "song-title", kind: "song", title: open.title, body: "", layout: "title-only" },
+                        ...chunkLines(open.slides, lines).map((body, i) => ({ id: `song-${i}`, kind: "song" as const, title: open.title, body })),
+                      ],
                     });
                   } catch (e) {
                     setError(`Export failed: ${e instanceof Error ? e.message : "unknown error"}`);

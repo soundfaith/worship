@@ -2,6 +2,7 @@ export type SlideKind =
   | "welcome"
   | "theme"
   | "prayer"
+  | "gospel"
   | "song"
   | "announcement"
   | "birthday"
@@ -71,6 +72,13 @@ export interface Assignment {
   name: string;
 }
 
+export interface GospelSettings {
+  date?: string;
+  include?: boolean;
+  reference?: string;
+  text?: string;
+}
+
 export interface Assembly {
   id: string;
   title: string;
@@ -88,6 +96,7 @@ export interface Assembly {
   includeTheme: boolean;
   includeClosing: boolean;
   openingPrayerText: string;
+  gospel?: GospelSettings;
   closingPrayerText: string;
   songs: AssemblySong[];
   announcements: Announcement[];

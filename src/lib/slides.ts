@@ -1,6 +1,7 @@
 import type { Assembly, Celebrant, Slide } from "./types";
 import { uid } from "./store";
 import { chunkLines, DEFAULT_LINES } from "./lyrics";
+import { gospelForAssembly, paginateReading } from "./gospel";
 
 const chunk = <T,>(arr: T[], n: number) => {
   const out: T[][] = [];
@@ -41,7 +42,13 @@ export function buildSlides(a: Assembly): Slide[] {
     .join("\n\n");
   add("prayer", "Opening Prayer", prayerBody);
 
+  const gospel = gospelForAssembly(a);
+  if (gospel.include && gospel.text.trim()) {
+    for (const body of paginateReading(gospel.text)) add("gospel", gospel.reference || "Gospel Reading", body);
+  }
+
   for (const song of a.songs) {
+    s.push({ id: uid(), kind: "song", songUid: song.uid, title: song.title, body: "", layout: "title-only" });
     for (const body of chunkLines(song.slides, song.lines ?? DEFAULT_LINES)) {
       s.push({ id: uid(), kind: "song", songUid: song.uid, title: song.title, body });
     }

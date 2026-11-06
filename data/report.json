@@ -1,0 +1,9 @@
+{
+  "totalSlides": 1777,
+  "totalSongs": 563,
+  "duplicateSongs": 0,
+  "orphanSlides": 0,
+  "warnings": [
+    "14 titles have multiple distinct versions (kept separately, marked version/versionCount)"
+  ]
+}

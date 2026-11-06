@@ -1,6 +1,6 @@
 "use client";
 import { uid, useLocalStore } from "./store";
-import { DEFAULT_TEMPLATE } from "./templates";
+import { DEFAULT_FONT, DEFAULT_TEMPLATE } from "./templates";
 import type { Announcement, Assembly } from "./types";
 
 const NONE: Assembly[] = [];
@@ -14,7 +14,11 @@ export function useRecurring() {
   return useLocalStore<Announcement[]>("worship.recurringAnnouncements", NO_ANN);
 }
 
-export function blankAssembly(): Assembly {
+export function usePreferredFont() {
+  return useLocalStore<string>("worship.preferredFont", DEFAULT_FONT);
+}
+
+export function blankAssembly(font = DEFAULT_FONT): Assembly {
   const now = Date.now();
   return {
     id: uid(),
@@ -27,7 +31,7 @@ export function blankAssembly(): Assembly {
     worshipLeader: "",
     assignments: [],
     templateId: DEFAULT_TEMPLATE,
-    font: "Inter",
+    font,
     sectionTemplates: {},
     includeWelcome: true,
     includeTheme: false,

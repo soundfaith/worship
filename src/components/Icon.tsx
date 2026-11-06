@@ -11,6 +11,7 @@ const PATHS = {
   edit: "M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4ZM14 6l4 4",
   cross: "M12 3v18M6 9h12",
   music: "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  menu: "M4 6h16M4 12h16M4 18h16",
 } as const;
 
 export type IconName = keyof typeof PATHS;

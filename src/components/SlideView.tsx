@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { renderArt } from "@/lib/art";
 import { fitSize } from "@/lib/layout";
-import { backgroundFor, layoutFor } from "@/lib/templates";
+import { backgroundFor, DEFAULT_FONT, layoutFor } from "@/lib/templates";
 import type { Layout, Rect, Slide, Template, TextBox } from "@/lib/types";
 
 const pct = (r: Rect): CSSProperties => ({
@@ -25,7 +25,7 @@ function Box({ box, text, font, fit }: { box: TextBox; text: string; font: strin
       style={{
         ...pct(box),
         color: `#${box.color}`,
-        fontFamily: font === "Inter" ? "var(--font-inter), sans-serif" : font,
+        fontFamily: font === "Inter" ? "var(--font-inter), sans-serif" : `"${font}", Arial, sans-serif`,
         fontSize: cq(size),
         lineHeight: 1.3,
         textAlign: box.align,
@@ -55,10 +55,10 @@ function useArt(template: Template, name: string | undefined, layout: Layout | u
   return art?.key === key ? art : undefined;
 }
 
-export function SlideView({ slide, template, className = "", font = "Inter" }: { slide: Slide; template: Template; className?: string; font?: string }) {
+export function SlideView({ slide, template, className = "", font = DEFAULT_FONT, songIndex = 0 }: { slide: Slide; template: Template; className?: string; font?: string; songIndex?: number }) {
   const frame = `relative aspect-video w-full overflow-hidden rounded-xl shadow-sm ring-1 ring-black/10 dark:ring-white/10 ${className}`;
   const found = layoutFor(template, slide);
-  const background = backgroundFor(template, slide);
+  const background = backgroundFor(template, slide, songIndex);
   const art = useArt(template, background ? undefined : found?.name, background ? undefined : found?.layout);
   const [failedSrc, setFailedSrc] = useState("");
   const backgroundSrc = background ? `${template.dir}/${background.src}` : undefined;

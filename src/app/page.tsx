@@ -2,26 +2,29 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { blankAssembly, duplicateAssembly, useAssemblies, useRecurring } from "@/lib/assemblies";
+import { blankAssembly, duplicateAssembly, useAssemblies, usePreferredFont, useRecurring } from "@/lib/assemblies";
 import { coverSlide, formatDate } from "@/lib/slides";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
 import { songLabel, useSongSearch } from "@/lib/useSongs";
 import type { Assembly } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SlideView } from "@/components/SlideView";
+import { ConfirmDialog } from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
   const [assemblies, setAssemblies] = useAssemblies();
   const [recurring] = useRecurring();
+  const [preferredFont] = usePreferredFont();
   const [q, setQ] = useState("");
+  const [deleteAssembly, setDeleteAssembly] = useState<Assembly | null>(null);
   const { results } = useSongSearch(q);
   const needle = q.trim().toLowerCase();
 
   const sorted = [...assemblies].sort((a, b) => b.date.localeCompare(a.date));
 
   const create = (from?: Assembly) => {
-    const a = from ? duplicateAssembly(from) : blankAssembly();
+    const a = from ? duplicateAssembly(from) : blankAssembly(preferredFont);
     setAssemblies((l) => [...l, a]);
     router.push(`/assembly/${a.id}`);
   };
@@ -47,7 +50,7 @@ export default function Home() {
     <div className="space-y-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow mb-2">Couples for Christ</p>
+          <p className="eyebrow mb-2">SoundFaith</p>
           <h1 className="display text-stone-900">Assemblies</h1>
           <p className="mt-2 text-stone-500">Prepare a full presentation in a few minutes.</p>
         </div>
@@ -84,7 +87,7 @@ export default function Home() {
       )}
 
       <section className="space-y-5">
-        <h2 className="eyebrow">{needle ? "Matching assemblies" : "History"}</h2>
+        <h2 className="eyebrow">{needle ? "Matching assemblies" : "My assembly slides"}</h2>
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {!needle && (
             <li>
@@ -104,12 +107,16 @@ export default function Home() {
               key={a.id}
               a={a}
               onDuplicate={() => create(a)}
-              onDelete={() => confirm("Delete this assembly?") && setAssemblies((l) => l.filter((x) => x.id !== a.id))}
+              onDelete={() => setDeleteAssembly(a)}
             />
           ))}
         </ul>
         {aHits.length === 0 && needle && <p className="py-8 text-center text-stone-500">No assemblies match.</p>}
       </section>
+      {deleteAssembly && <ConfirmDialog title="Delete assembly?" message={`“${deleteAssembly.title || "Untitled assembly"}” will be permanently deleted from this browser.`} confirmLabel="Delete assembly" onCancel={() => setDeleteAssembly(null)} onConfirm={() => {
+        setAssemblies((list) => list.filter((item) => item.id !== deleteAssembly.id));
+        setDeleteAssembly(null);
+      }} />}
     </div>
   );
 }

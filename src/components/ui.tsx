@@ -14,7 +14,7 @@ export function Field({ label, children }: { label: string; children: React.Reac
 
 export function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="card space-y-5 p-6">
+    <section className="card min-w-0 space-y-5 p-4 sm:p-6">
       <div>
         <h2 className="display text-2xl text-stone-900">{title}</h2>
         {hint && <p className="mt-0.5 text-sm text-stone-500">{hint}</p>}

@@ -167,6 +167,10 @@ main > * {
 .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .icon-btn-danger:hover:not(:disabled) { background: color-mix(in srgb, #d0453a 14%, transparent); color: #d0453a; }
 
+@media (min-width: 640px) {
+  .mobile-menu-trigger { display: none; }
+}
+
 .card {
   border-radius: 1.1rem;
   border: 1px solid var(--st-200);
@@ -183,3 +187,50 @@ main > * {
 }
 
 select.input { appearance: auto; }
+
+.app-modal {
+  position: fixed;
+  margin: auto;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  color: var(--st-800);
+  background: var(--surface);
+}
+.app-modal::backdrop {
+  background: rgb(0 0 0 / 0.4);
+  backdrop-filter: blur(5px);
+}
+.confirm-modal {
+  width: min(28rem, calc(100% - 2rem));
+  border-radius: 1.1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lift);
+}
+.menu-drawer {
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(20rem, 85vw);
+  height: 100dvh;
+  overflow-y: auto;
+  box-shadow: -8px 0 32px rgb(0 0 0 / 0.18);
+  animation: drawer-in 0.2s ease-out;
+}
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  *:focus, *:focus-within, *.is-scrolling {
+    scrollbar-color: var(--st-400) transparent;
+  }
+  *::-webkit-scrollbar { width: 7px; height: 7px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: transparent; border-radius: 9999px; }
+  *:focus::-webkit-scrollbar-thumb, *:focus-within::-webkit-scrollbar-thumb, *.is-scrolling::-webkit-scrollbar-thumb { background: var(--st-400); }
+}

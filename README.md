@@ -1,4 +1,4 @@
-# CFC Assembly Slide Generator
+# Assembly by SoundFaith
 
 Next.js (App Router) + TypeScript + Tailwind. Assemblies and custom songs persist in the browser (localStorage); PowerPoint export uses PptxGenJS.
 
@@ -16,6 +16,7 @@ so data created on the computer is not automatically shared with the phone or
 the deployed app.
 
 - `data/songs.json` – song library (563 songs), served by `/api/songs`. `data/report.json` – import report.
+- Export a song directly from its library preview with a chosen template and lines per slide.
 - `docs/TEMPLATES.md` – how to import every slide of a PowerPoint as a background and choose independent content layouts. Presentations are prepared locally with Windows PowerPoint and committed as generated assets for Vercel.
 - `scripts/templates.mjs` – imports `templates/*.pptx` and indexes the packs in `public/templates/`.
 - `tools/song-import/` – Python scripts that regenerated the library from the source PPTX (`python build_library.py <file.pptx>`; output goes to `data/`).

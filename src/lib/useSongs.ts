@@ -22,7 +22,7 @@ export function useSongs() {
     () => [
       ...custom.map((s) => ({ id: s.id, title: s.title, slideCount: s.slides.length, custom: true })),
       ...library,
-    ],
+    ].sort(compareSongs),
     [custom, library],
   );
 
@@ -72,7 +72,7 @@ export function useSongSearch(q: string) {
         snippet: hit!.snippet,
       }));
     const lib = remote.q === query ? remote.hits : [];
-    return [...local, ...lib].sort((a, b) => (a.rank ?? 9) - (b.rank ?? 9));
+    return [...local, ...lib].sort((a, b) => (a.rank ?? 9) - (b.rank ?? 9) || compareSongs(a, b));
   }, [query, index, custom, remote]);
 
   const searching = !!query && remote.q !== query;
@@ -81,4 +81,8 @@ export function useSongSearch(q: string) {
 
 export function songLabel(s: SongIndexEntry) {
   return s.versionCount && s.versionCount > 1 ? `${s.title} (v${s.version})` : s.title;
+}
+
+function compareSongs(a: SongIndexEntry, b: SongIndexEntry) {
+  return a.title.localeCompare(b.title, undefined, { sensitivity: "base" }) || a.id.localeCompare(b.id);
 }

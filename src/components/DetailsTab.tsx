@@ -1,11 +1,15 @@
 "use client";
+import { useState } from "react";
 import { uid } from "@/lib/store";
-import { FONTS, TEMPLATES, getTemplate } from "@/lib/templates";
+import { DEFAULT_FONT, FONTS, TEMPLATES, getTemplate } from "@/lib/templates";
 import { IconButton } from "./Icon";
 import { Field, Section, type TabProps } from "./ui";
 import { SlideView } from "./SlideView";
+import { usePreferredFont } from "@/lib/assemblies";
 
 export function DetailsTab({ a, update }: TabProps) {
+  const [, setPreferredFont] = usePreferredFont();
+  const [fontError, setFontError] = useState("");
   return (
     <div className="space-y-8">
       <Section title="Assembly">
@@ -49,10 +53,15 @@ export function DetailsTab({ a, update }: TabProps) {
           ))}
         </div>
         <Field label="Presentation font">
-          <select className="input max-w-xs" value={a.font ?? "Inter"} onChange={(e) => update({ font: e.target.value })}>
+          <select className="input max-w-xs" value={a.font ?? DEFAULT_FONT} onChange={(e) => {
+            const font = e.target.value;
+            update({ font });
+            try { setPreferredFont(font); setFontError(""); } catch { setFontError("Could not save your default font in this browser."); }
+          }}>
             {FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
           </select>
         </Field>
+        {fontError && <p role="alert" className="text-sm text-red-600">{fontError}</p>}
         <p className="text-xs text-stone-500">For PowerPoint to display your chosen font, install it on the presenting computer.</p>
       </Section>
     </div>

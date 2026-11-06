@@ -4,6 +4,7 @@ import type { Layout, LayoutName, Slide, SlideKind, Template } from "./types";
 export const TEMPLATES: Template[] = packs as Template[];
 export const DEFAULT_TEMPLATE = TEMPLATES[0]?.id ?? "";
 export const FONTS = ["Inter", "Arial", "Calibri", "Georgia", "Times New Roman", "Verdana"] as const;
+export const DEFAULT_FONT = "Calibri";
 
 export const LAYOUT_OPTIONS: { id: LayoutName; label: string }[] = [
   { id: "cover", label: "Title slide" },
@@ -35,8 +36,8 @@ function contentLayout(name: LayoutName, color: string): Layout {
   const box = (x: number, y: number, w: number, h: number, size: number, align: "left" | "center" = "left") =>
     ({ x, y, w, h, size, align, color });
   const result: Layout = {
-    title: box(0.06, 0.1, 0.48, 0.18, 35),
-    body: box(0.06, 0.32, 0.48, 0.5, 28),
+    title: box(0.06, 0.1, 0.88, 0.18, 35),
+    body: box(0.06, 0.32, 0.88, 0.5, 28),
     fitTitle: true,
   };
   switch (name) {
@@ -45,8 +46,8 @@ function contentLayout(name: LayoutName, color: string): Layout {
       result.body = box(0.07, 0.59, 0.46, 0.2, 23);
       break;
     case "song":
-      result.title = box(0.07, 0.12, 0.44, 0.12, 24);
-      result.body = box(0.07, 0.28, 0.44, 0.5, 32);
+      result.title = box(0.07, 0.12, 0.86, 0.12, 24);
+      result.body = box(0.07, 0.28, 0.86, 0.5, 32);
       break;
     case "centered":
       result.title = box(0.08, 0.1, 0.84, 0.18, 35, "center");
@@ -97,10 +98,37 @@ export function layoutFor(t: Template, slide: Pick<Slide, "kind" | "image" | "la
   return { name: t.layouts?.[name] ? name : "content", layout };
 }
 
-export function backgroundFor(t: Template, slide: Pick<Slide, "kind" | "image" | "layout" | "background">) {
+export function songIndexes(slides: Slide[]): number[] {
+  const seen = new Map<string, number>();
+  let count = 0;
+  let previous: Slide | undefined;
+  let previousIndex = 0;
+  return slides.map((slide) => {
+    if (slide.kind !== "song") {
+      previous = slide;
+      return 0;
+    }
+    let index = slide.songUid ? seen.get(slide.songUid) : undefined;
+    if (index === undefined) {
+      if (!slide.songUid && previous?.kind === "song" && !previous.songUid && previous.title === slide.title) {
+        index = previousIndex;
+      } else {
+        index = count++;
+      }
+      if (slide.songUid) seen.set(slide.songUid, index);
+    }
+    previous = slide;
+    previousIndex = index;
+    return index;
+  });
+}
+
+export function backgroundFor(t: Template, slide: Pick<Slide, "kind" | "image" | "image2" | "layout" | "background">, songIndex = 0) {
   const backgrounds = t.backgrounds ?? [];
   const selected = slide.background?.templateId === t.id ? slide.background.id : undefined;
-  const kind = slide.image ? "image" : slide.kind === "welcome" || slide.kind === "closing" ? "cover" : slide.kind === "song" ? "song" : "content";
-  const id = selected ?? t.defaultBackgrounds?.[kind];
+  const kind = slide.image || slide.image2 ? "image" : slide.kind === "welcome" || slide.kind === "closing" ? "cover" : slide.kind === "song" ? "song" : "content";
+  const songBackground = kind === "song" && t.songBackgrounds?.length
+    ? t.songBackgrounds[songIndex % t.songBackgrounds.length] : undefined;
+  const id = selected ?? songBackground ?? t.defaultBackgrounds?.[kind];
   return backgrounds.find((b) => b.id === id) ?? backgrounds[0];
 }

@@ -42,7 +42,9 @@ export function buildSlides(a: Assembly): Slide[] {
   add("prayer", "Opening Prayer", prayerBody);
 
   for (const song of a.songs) {
-    for (const body of chunkLines(song.slides, song.lines ?? DEFAULT_LINES)) add("song", song.title, body);
+    for (const body of chunkLines(song.slides, song.lines ?? DEFAULT_LINES)) {
+      s.push({ id: uid(), kind: "song", songUid: song.uid, title: song.title, body });
+    }
   }
 
   for (const ann of a.announcements.filter((x) => x.show && x.text.trim())) {

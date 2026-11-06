@@ -56,9 +56,14 @@
   "defaultBackgrounds": {
     "cover": "slide-1",
     "song": "slide-2",
-    "content": "slide-7",
-    "image": "slide-7"
+    "content": "slide-9",
+    "image": "slide-8"
   },
+  "songBackgrounds": [
+    "slide-2",
+    "slide-3",
+    "slide-7"
+  ],
   "layouts": {
     "cover": {
       "bg": {
@@ -142,14 +147,14 @@
           "y": 0,
           "w": 1,
           "h": 1,
-          "src": "slide-7.png"
+          "src": "slide-9.png"
         }
       ],
       "title": {
         "size": 36,
         "w": 0.48,
         "color": "FAFAFA",
-        "align": "left",
+        "align": "center",
         "y": 0.12,
         "x": 0.06,
         "h": 0.22
@@ -158,7 +163,7 @@
         "size": 28,
         "w": 0.48,
         "color": "FFFFFF",
-        "align": "left",
+        "align": "center",
         "y": 0.4,
         "x": 0.06,
         "h": 0.42
@@ -177,14 +182,14 @@
           "y": 0,
           "w": 1,
           "h": 1,
-          "src": "slide-7.png"
+          "src": "slide-8.png"
         }
       ],
       "title": {
         "size": 36,
         "w": 0.43,
         "color": "FAFAFA",
-        "align": "left",
+        "align": "center",
         "y": 0.12,
         "x": 0.06,
         "h": 0.22

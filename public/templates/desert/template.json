@@ -2,8 +2,8 @@
   "id": "desert",
   "name": "Desert",
   "bg": "FFFFFF",
-  "fg": "2A1B10",
-  "accent": "2A1B10",
+  "fg": "2E170B",
+  "accent": "2E170B",
   "fontTitle": "Open Sauce Semi-Bold",
   "fontBody": "Century Gothic Paneuropean",
   "backgrounds": [
@@ -61,9 +61,14 @@
   "defaultBackgrounds": {
     "cover": "slide-1",
     "song": "slide-2",
-    "content": "slide-3",
-    "image": "slide-3"
+    "content": "slide-8",
+    "image": "slide-7"
   },
+  "songBackgrounds": [
+    "slide-2",
+    "slide-3",
+    "slide-9"
+  ],
   "layouts": {
     "cover": {
       "bg": {
@@ -81,7 +86,7 @@
         }
       ],
       "title": {
-        "size": 55.81,
+        "size": 55.8,
         "w": 0.3514,
         "color": "2E1D12",
         "align": "left",
@@ -116,7 +121,7 @@
         }
       ],
       "title": {
-        "size": 59.86,
+        "size": 59.85,
         "w": 0.4861,
         "color": "2A1B10",
         "align": "left",
@@ -147,26 +152,61 @@
           "y": 0,
           "w": 1,
           "h": 1,
-          "src": "slide-3.png"
+          "src": "slide-8.png"
         }
       ],
       "title": {
-        "size": 59.86,
-        "w": 0.4421,
-        "color": "2A1B10",
+        "size": 56.575,
+        "w": 0.4418,
+        "color": "2E170B",
         "align": "left",
-        "y": 0.2979,
-        "x": 0.0542,
-        "h": 0.3023
+        "y": 0.2389,
+        "x": 0.0567,
+        "h": 0.254
       },
       "body": {
-        "size": 19.775,
-        "w": 0.3393,
-        "color": "2A1B10",
+        "size": 19.925,
+        "w": 0.3679,
+        "color": "2E170B",
         "align": "left",
-        "y": 0.6711,
-        "x": 0.0581,
-        "h": 0.1267
+        "y": 0.6721,
+        "x": 0.0535,
+        "h": 0.1329
+      },
+      "fitTitle": true
+    },
+    "image": {
+      "bg": {
+        "type": "solid",
+        "color": "FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "image",
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1,
+          "src": "slide-7.png"
+        }
+      ],
+      "title": {
+        "size": 59.25,
+        "w": 0.3302,
+        "color": "2F1D12",
+        "align": "left",
+        "y": 0.311,
+        "x": 0.0626,
+        "h": 0.2806
+      },
+      "body": {
+        "size": 18.275,
+        "w": 0.4138,
+        "color": "2F1D12",
+        "align": "left",
+        "y": 0.6727,
+        "x": 0.0632,
+        "h": 0.1897
       },
       "fitTitle": true
     }

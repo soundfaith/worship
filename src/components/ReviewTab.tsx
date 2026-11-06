@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { exportPptx } from "@/lib/export";
 import { buildSlides } from "@/lib/slides";
 import { uid } from "@/lib/store";
-import { backgroundFor, FONTS, getTemplate, LAYOUT_OPTIONS, layoutFor, TEMPLATES } from "@/lib/templates";
-import type { LayoutName, Slide } from "@/lib/types";
+import { backgroundFor, FONTS, getTemplate, LAYOUT_OPTIONS, layoutFor, layoutNameFor, songIndexes, TEMPLATES } from "@/lib/templates";
+import type { LayoutName, Rect, Slide, Template } from "@/lib/types";
 import { IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
+import { ConfirmDialog } from "./Modal";
 import type { TabProps } from "./ui";
 
 const NO_SLIDES: Slide[] = [];
@@ -28,10 +28,14 @@ async function shrinkImage(file: File, max = 1280): Promise<string> {
   }
 }
 
-export function ReviewTab({ a, update }: TabProps) {
+export function ReviewTab({ a, update, exporting, onExport, exportError }: TabProps & {
+  exporting: boolean;
+  onExport: () => void;
+  exportError: string;
+}) {
   const [cur, setCur] = useState(0);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [regenerate, setRegenerate] = useState(false);
   const latestSlides = useRef<Slide[]>(a.slides ?? []);
 
   useEffect(() => {
@@ -39,6 +43,7 @@ export function ReviewTab({ a, update }: TabProps) {
   }, [a, update]);
 
   const slides = a.slides ?? NO_SLIDES;
+  const songPositions = songIndexes(slides);
   useEffect(() => { latestSlides.current = slides; }, [slides]);
   const idx = Math.min(cur, Math.max(0, slides.length - 1));
   const slide = slides[idx];
@@ -60,7 +65,7 @@ export function ReviewTab({ a, update }: TabProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT") return;
+      if (t.closest("dialog") || t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT") return;
       if (e.key === "ArrowRight") setCur((c) => Math.min(c + 1, slides.length - 1));
       if (e.key === "ArrowLeft") setCur((c) => Math.max(c - 1, 0));
     };
@@ -71,7 +76,7 @@ export function ReviewTab({ a, update }: TabProps) {
   if (!slide) return <p className="text-stone-500">No slides yet. Add songs or content first.</p>;
   const currentTemplate = tpl(slide);
   const currentLayout = layoutFor(currentTemplate, slide)?.layout;
-  const currentBackground = backgroundFor(currentTemplate, slide);
+  const currentBackground = backgroundFor(currentTemplate, slide, songPositions[idx]);
 
   const upload = async (file: File, field: "image" | "image2", slideId: string) => {
     setError("");
@@ -88,28 +93,45 @@ export function ReviewTab({ a, update }: TabProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-stone-500">Slide {idx + 1} of {slides.length} · use ← → to navigate</p>
         <div className="flex gap-2">
-          <button className="btn" onClick={() => confirm("Regenerate all slides? Manual edits will be lost.") && update({ slides: null })}>Regenerate</button>
+          <button className="btn" onClick={() => setRegenerate(true)}>Regenerate</button>
           <button
             className="btn btn-primary"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try { await exportPptx(a); } catch (e) {
-                setError(`Export failed: ${e instanceof Error ? e.message : "unknown error"}`);
-              } finally { setBusy(false); }
-            }}
+            disabled={exporting}
+            onClick={onExport}
           >
-            {busy ? "Exporting…" : "Export PowerPoint"}
+            {exporting ? "Exporting…" : "Export PowerPoint"}
           </button>
         </div>
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{error}</p>}
+      {exportError && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
+      {regenerate && <ConfirmDialog title="Regenerate slides?" message="All manual slide edits will be lost. This cannot be undone." confirmLabel="Regenerate" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_16rem]">
-        <div className="space-y-4">
-          <SlideView slide={slide} template={currentTemplate} font={a.font} />
-          <div className="card space-y-4 p-5">
+      <div className="flex h-[calc(100dvh-5rem)] min-h-[22rem] min-w-0 gap-2 sm:gap-4">
+        <nav aria-label="Slide navigation" tabIndex={0} className="w-16 shrink-0 overflow-y-auto px-1 py-1 sm:w-32 lg:w-44">
+          <ol className="space-y-2">
+            {slides.map((s, i) => (
+              <li key={s.id}>
+                <button
+                  type="button"
+                  aria-label={`Slide ${i + 1}: ${s.title || "Untitled"}`}
+                  onClick={() => setCur(i)}
+                  aria-current={i === idx ? "true" : undefined}
+                  className={`block w-full rounded-xl p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
+                >
+                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} />
+                  <span className="block truncate px-1 pt-1 text-xs text-stone-500">{i + 1}. <span className="hidden sm:inline">{s.title}</span></span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+          <div className="mx-auto w-full max-w-xl shrink-0">
+            <SlideView slide={slide} template={currentTemplate} font={a.font} songIndex={songPositions[idx]} />
+          </div>
+          <div aria-label="Slide editing tools" tabIndex={0} className="min-h-0 min-w-0 flex-1 overflow-y-auto pr-1">
+          <div className="card min-w-0 space-y-4 p-3 sm:p-5">
             <input className="input" aria-label="Slide title" value={slide.title} onChange={(e) => patch({ title: e.target.value })} />
             <textarea className="input h-36" aria-label="Slide text" value={slide.body} onChange={(e) => patch({ body: e.target.value })} />
             {currentLayout?.hideBody && slide.body && <p className="text-xs text-stone-500">This layout hides the slide text; it is preserved if you switch layouts.</p>}
@@ -143,19 +165,7 @@ export function ReviewTab({ a, update }: TabProps) {
                   {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               </label>
-              {currentTemplate.backgrounds?.length ? (
-                <label className="text-sm text-stone-500">
-                  Content layout{" "}
-                  <select
-                    className="input !inline-block !w-auto"
-                    value={slide.layout ?? ""}
-                    onChange={(e) => patch({ layout: (e.target.value || undefined) as Slide["layout"] })}
-                  >
-                    <option value="">Auto</option>
-                    {LAYOUT_OPTIONS.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
-                  </select>
-                </label>
-              ) : currentTemplate.layouts && (
+              {!currentTemplate.backgrounds?.length && currentTemplate.layouts && (
                 <label className="text-sm text-stone-500">Page layout{" "}
                   <select className="input !inline-block !w-auto" value={slide.layout ?? ""} onChange={(e) => patch({ layout: (e.target.value || undefined) as LayoutName | undefined })}>
                     <option value="">Auto</option>
@@ -178,7 +188,23 @@ export function ReviewTab({ a, update }: TabProps) {
               <IconButton icon="trash" label="Remove slide" danger onClick={() => setSlides(slides.filter((_, i) => i !== idx))} />
             </div>
             {!!currentTemplate.backgrounds?.length && (
-              <section className="card space-y-4 p-5" aria-label="Slide backgrounds">
+              <section className="space-y-3" aria-label="Content layouts">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div><h3 className="display text-2xl">Content layout</h3><p className="text-sm text-stone-500">Choose how text and images are arranged.</p></div>
+                  <button className="btn btn-ghost" onClick={() => patch({ layout: undefined })}>Use automatic</button>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {LAYOUT_OPTIONS.map(({ id, label }) => (
+                    <button key={id} type="button" aria-label={`${label} layout`} aria-pressed={layoutNameFor(slide) === id} onClick={() => patch({ layout: id })} className={`h-full rounded-xl p-1 text-left ${layoutNameFor(slide) === id ? "ring-2 ring-accent" : "ring-1 ring-stone-200 hover:ring-accent"}`}>
+                      <LayoutDiagram template={currentTemplate} slide={slide} layout={id} />
+                      <span className="line-clamp-2 h-10 p-1 text-xs text-stone-600">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+            {!!currentTemplate.backgrounds?.length && (
+              <section className="space-y-4" aria-label="Slide backgrounds">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <h3 className="display text-2xl">Background</h3>
@@ -187,12 +213,12 @@ export function ReviewTab({ a, update }: TabProps) {
                   </div>
                   <button className="btn btn-ghost" onClick={() => patch({ background: undefined })}>Use automatic</button>
                 </div>
-                <div className="grid max-h-80 grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {currentTemplate.backgrounds.map((background) => (
-                    <button key={background.id} type="button" aria-label={`Use ${background.name} background`} aria-pressed={currentBackground?.id === background.id} onClick={() => patch({ background: { templateId: currentTemplate.id, id: background.id } })} className={`rounded-xl p-1 text-left ${currentBackground?.id === background.id ? "ring-2 ring-accent" : "ring-1 ring-stone-200 hover:ring-accent"}`}>
+                    <button key={background.id} type="button" aria-label={`Use ${background.name} background`} aria-pressed={currentBackground?.id === background.id} onClick={() => patch({ background: { templateId: currentTemplate.id, id: background.id } })} className={`h-full rounded-xl p-1 text-left ${currentBackground?.id === background.id ? "ring-2 ring-accent" : "ring-1 ring-stone-200 hover:ring-accent"}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={`${currentTemplate.dir}/${background.src}`} alt="" loading="lazy" className="aspect-video w-full rounded-lg object-cover" />
-                      <span className="block p-1 text-xs text-stone-600">{background.name}</span>
+                      <span className="line-clamp-2 h-10 p-1 text-xs text-stone-600">{background.name}</span>
                     </button>
                   ))}
                 </div>
@@ -200,7 +226,7 @@ export function ReviewTab({ a, update }: TabProps) {
             )}
           </div>
           <button
-            className="btn"
+            className="btn my-4"
             onClick={() => {
               const s: Slide = { id: uid(), kind: "custom", title: "Custom", body: "" };
               setSlides([...slides.slice(0, idx + 1), s, ...slides.slice(idx + 1)]);
@@ -209,23 +235,23 @@ export function ReviewTab({ a, update }: TabProps) {
           >
             + Add custom slide after this
           </button>
+          </div>
         </div>
-
-        <ol className="max-h-[40rem] space-y-2 overflow-y-auto pr-1">
-          {slides.map((s, i) => (
-            <li key={s.id}>
-              <button
-                onClick={() => setCur(i)}
-                aria-current={i === idx}
-                className={`block w-full rounded-xl p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
-              >
-                <SlideView slide={s} template={tpl(s)} font={a.font} />
-                <span className="block px-1 pt-1 text-xs text-stone-500">{i + 1}. {s.title}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
       </div>
     </div>
+  );
+}
+
+function LayoutDiagram({ template, slide, layout: name }: { template: Template; slide: Slide; layout: LayoutName }) {
+  const layout = layoutFor(template, { ...slide, layout: name })?.layout;
+  if (!layout) return null;
+  const position = (r: Rect) => ({ left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%` });
+  return (
+    <span aria-hidden="true" className="relative block aspect-video overflow-hidden rounded-lg bg-stone-100">
+      <span className="absolute rounded-sm bg-stone-500/70" style={position(layout.title)} />
+      {!layout.hideBody && <span className="absolute rounded-sm border border-stone-400 bg-stone-300/50" style={position(layout.body)} />}
+      {layout.image && <span className="absolute grid place-items-center rounded-sm bg-accent/30 text-xs text-accent" style={position(layout.image)}>▧</span>}
+      {layout.image2 && <span className="absolute grid place-items-center rounded-sm bg-accent/30 text-xs text-accent" style={position(layout.image2)}>▧</span>}
+    </span>
   );
 }

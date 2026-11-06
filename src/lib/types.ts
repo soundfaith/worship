@@ -12,6 +12,7 @@ export type SlideKind =
 export interface Slide {
   id: string;
   kind: SlideKind;
+  songUid?: string;
   title: string;
   body: string;
   image?: string;
@@ -109,6 +110,7 @@ export interface Template {
   layouts?: Partial<Record<LayoutName, Layout>>;
   backgrounds?: TemplateBackground[];
   defaultBackgrounds?: Partial<Record<"cover" | "song" | "content" | "image", string>>;
+  songBackgrounds?: string[];
 }
 
 export interface TemplateBackground {

@@ -22,6 +22,7 @@ export function SongPreview({
   onLines,
   template,
   font,
+  songIndex = 0,
 }: {
   title: string;
   source: string[];
@@ -29,6 +30,7 @@ export function SongPreview({
   onLines: (n: number) => void;
   template?: Template;
   font?: string;
+  songIndex?: number;
 }) {
   const tpl = template ?? getTemplate("");
   const pages = chunkLines(source, lines);
@@ -40,10 +42,10 @@ export function SongPreview({
           {pages.length} slides{lines !== DEFAULT_LINES ? ` · default is ${DEFAULT_LINES}` : ""}
         </span>
       </div>
-      <div className="grid max-h-[28rem] grid-cols-2 gap-3 overflow-y-auto pr-1">
+      <div className="grid max-h-[28rem] grid-cols-2 gap-3 overflow-y-auto pr-1" tabIndex={0} role="region" aria-label="Song slide previews">
         {pages.map((body, i) => (
           <div key={i} className="space-y-1">
-            <SlideView slide={{ id: `p${i}`, kind: "song", title, body }} template={tpl} font={font} />
+            <SlideView slide={{ id: `p${i}`, kind: "song", title, body }} template={tpl} font={font} songIndex={songIndex} />
             <p className="text-center text-[11px] tabular-nums text-stone-400">{i + 1}</p>
           </div>
         ))}

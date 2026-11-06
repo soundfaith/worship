@@ -1,13 +1,16 @@
 "use client";
 import { Fragment, useState } from "react";
 import { uid } from "@/lib/store";
-import { DEFAULT_LINES, splitLyrics } from "@/lib/lyrics";
-import { getTemplate } from "@/lib/templates";
+import { chunkLines, DEFAULT_LINES, splitLyrics } from "@/lib/lyrics";
+import { DEFAULT_TEMPLATE, getTemplate, TEMPLATES } from "@/lib/templates";
+import { usePreferredFont } from "@/lib/assemblies";
+import { exportSlides } from "@/lib/export";
 import { songLabel, useSongSearch } from "@/lib/useSongs";
 import type { Song } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SongPreview } from "@/components/SongPreview";
 import { SongResult } from "@/components/SongResult";
+import { ConfirmDialog } from "@/components/Modal";
 
 const letterOf = (label: string) => {
   const c = label.trim().charAt(0).toUpperCase();
@@ -16,10 +19,15 @@ const letterOf = (label: string) => {
 
 export default function SongsPage() {
   const [q, setQ] = useState("");
-  const { results, total, custom, setCustom, getSong, loading, searching } = useSongSearch(q);
+  const { results, total, setCustom, getSong, loading, searching } = useSongSearch(q);
   const [open, setOpen] = useState<Song | null>(null);
   const [lines, setLines] = useState(DEFAULT_LINES);
+  const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE);
+  const [font] = usePreferredFont();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const [draft, setDraft] = useState<{ id?: string; title: string; lyrics: string } | null>(null);
+  const [deleteSong, setDeleteSong] = useState<{ id: string; title: string } | null>(null);
   const searchingNow = q.trim().length > 0;
 
   const view = async (id: string) => setOpen(await getSong(id));
@@ -79,8 +87,8 @@ export default function SongsPage() {
         <input className="input !py-3 !pl-11" placeholder="Search by title or any line of the lyrics…" aria-label="Search songs" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <div className="card max-h-[38rem] overflow-y-auto p-2">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <div className="card min-w-0 max-h-[38rem] overflow-y-auto p-2" tabIndex={0} role="region" aria-label="Songs list">
           <ul className="space-y-0.5">
             {results.map((s, i) => {
               const letter = letterOf(songLabel(s));
@@ -94,12 +102,12 @@ export default function SongsPage() {
                     <div className="min-w-0 flex-1">
                       <SongResult s={s} active={open?.id === s.id} onClick={() => view(s.id)} />
                     </div>
-                    <span className="flex opacity-0 transition-opacity focus-within:opacity-100 group-hover/row:opacity-100">
+                    <span className="flex shrink-0 transition-opacity sm:opacity-0 sm:focus-within:opacity-100 sm:group-hover/row:opacity-100">
                       <IconButton icon="copy" label="Duplicate song" onClick={() => toDraft(s.id, true)} />
                       {s.custom && (
                         <>
                           <IconButton icon="edit" label="Edit song" onClick={() => toDraft(s.id, false)} />
-                          <IconButton icon="trash" label="Delete song" danger onClick={() => confirm("Delete song?") && setCustom(custom.filter((x) => x.id !== s.id))} />
+                          <IconButton icon="trash" label="Delete song" danger onClick={() => setDeleteSong({ id: s.id, title: s.title })} />
                         </>
                       )}
                     </span>
@@ -110,12 +118,39 @@ export default function SongsPage() {
             {!loading && !searching && results.length === 0 && <li className="p-6 text-center text-sm text-stone-400">No songs found.</li>}
           </ul>
         </div>
+        {deleteSong && <ConfirmDialog title="Delete song?" message={`“${deleteSong.title}” will be permanently deleted from this browser's song library.`} confirmLabel="Delete song" onCancel={() => setDeleteSong(null)} onConfirm={() => {
+          setCustom((songs) => songs.filter((song) => song.id !== deleteSong.id));
+          if (open?.id === deleteSong.id) setOpen(null);
+          setDeleteSong(null);
+        }} />}
 
-        <div className="card p-6 lg:sticky lg:top-24">
+        <div className="card min-w-0 p-4 sm:p-6 lg:sticky lg:top-24">
           {open ? (
             <div className="space-y-5">
               <h2 className="display text-3xl text-stone-900">{open.title}</h2>
-              <SongPreview title={open.title} source={open.slides} lines={lines} onLines={setLines} template={getTemplate("")} />
+              <div className="flex flex-wrap items-end gap-3">
+                <label className="min-w-0 flex-1 text-sm text-stone-500">Template
+                  <select className="input mt-1" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+                    {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                </label>
+                <button className="btn btn-primary" disabled={busy} onClick={async () => {
+                  setBusy(true);
+                  setError("");
+                  try {
+                    await exportSlides({
+                      title: open.title,
+                      templateId,
+                      font,
+                      slides: chunkLines(open.slides, lines).map((body, i) => ({ id: `song-${i}`, kind: "song", title: open.title, body })),
+                    });
+                  } catch (e) {
+                    setError(`Export failed: ${e instanceof Error ? e.message : "unknown error"}`);
+                  } finally { setBusy(false); }
+                }}>{busy ? "Exporting…" : "Export PowerPoint"}</button>
+              </div>
+              {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+              <SongPreview title={open.title} source={open.slides} lines={lines} onLines={setLines} template={getTemplate(templateId)} font={font} />
             </div>
           ) : (
             <div className="grid place-items-center gap-3 py-16 text-center text-stone-400">

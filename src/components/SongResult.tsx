@@ -14,12 +14,12 @@ export function SongResult({
 }) {
   return (
     <button
-      className={`group flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+      className={`group flex min-w-0 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
         active ? "bg-accent/12 text-stone-900" : "hover:bg-stone-100"
       }`}
       onClick={onClick}
     >
-      <span className="min-w-0">
+      <span className="min-w-0 flex-1">
         <span className="block truncate">
           {songLabel(s)}
           {s.custom && <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-[11px] text-accent">custom</span>}

@@ -15,7 +15,7 @@ test("renders all slides without changing sources, preserves packs, and validate
   const project = fs.mkdtempSync(path.join(root, ".template-test-"));
   try {
     for (const dir of ["scripts", "templates", "public/templates/fixture", "public/templates/glory", "src/lib"]) fs.mkdirSync(path.join(project, dir), { recursive: true });
-    for (const file of ["templates.mjs", "render-powerpoint.ps1"]) fs.copyFileSync(path.join(root, "scripts", file), path.join(project, "scripts", file));
+    for (const file of ["templates.mjs", "template-notes.mjs", "render-powerpoint.ps1"]) fs.copyFileSync(path.join(root, "scripts", file), path.join(project, "scripts", file));
     const pptx = new PptxGenJS();
     pptx.layout = "LAYOUT_WIDE";
     for (let i = 0; i < 4; i++) {
@@ -95,6 +95,25 @@ try {
     assert.match(badConfig.stderr, /existing slide number/);
     assert.equal(hash(source), before);
     assert.equal(fs.readFileSync(path.join(dest, "keep.txt"), "utf8"), "keep");
+
+    const marked = new PptxGenJS();
+    marked.layout = "LAYOUT_WIDE";
+    marked.addSlide().addNotes("layout:content\nlayout:image\nlayout:song3");
+    marked.addSlide().addNotes("layout:cover\nlayout:song1");
+    marked.addSlide().addNotes("layout:song\nlayout:song2");
+    await marked.writeFile({ fileName: source });
+    const markedResult = run();
+    assert.equal(markedResult.status, 0, markedResult.stderr);
+    const markedPack = JSON.parse(fs.readFileSync(path.join(dest, "template.json"), "utf8"));
+    assert.deepEqual(markedPack.defaultBackgrounds, { cover: "slide-2", song: "slide-3", content: "slide-1", image: "slide-1" });
+    assert.deepEqual(markedPack.songBackgrounds, ["slide-2", "slide-3", "slide-1"]);
+    const previousIndex = fs.readFileSync(path.join(project, "src", "lib", "templates.generated.json"), "utf8");
+    marked.addSlide().addNotes("layout:song");
+    await marked.writeFile({ fileName: source });
+    const duplicate = run();
+    assert.notEqual(duplicate.status, 0);
+    assert.match(duplicate.stderr, /Duplicate layout:song markers on slides 3 and 4/);
+    assert.equal(fs.readFileSync(path.join(project, "src", "lib", "templates.generated.json"), "utf8"), previousIndex);
 
     fs.unlinkSync(configPath);
     const backgroundOnly = new PptxGenJS();

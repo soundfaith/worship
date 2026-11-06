@@ -3,8 +3,8 @@
     "id": "desert",
     "name": "Desert",
     "bg": "FFFFFF",
-    "fg": "2A1B10",
-    "accent": "2A1B10",
+    "fg": "2E170B",
+    "accent": "2E170B",
     "fontTitle": "Open Sauce Semi-Bold",
     "fontBody": "Century Gothic Paneuropean",
     "backgrounds": [
@@ -62,9 +62,14 @@
     "defaultBackgrounds": {
       "cover": "slide-1",
       "song": "slide-2",
-      "content": "slide-3",
-      "image": "slide-3"
+      "content": "slide-8",
+      "image": "slide-7"
     },
+    "songBackgrounds": [
+      "slide-2",
+      "slide-3",
+      "slide-9"
+    ],
     "layouts": {
       "cover": {
         "bg": {
@@ -82,7 +87,7 @@
           }
         ],
         "title": {
-          "size": 55.81,
+          "size": 55.8,
           "w": 0.3514,
           "color": "2E1D12",
           "align": "left",
@@ -117,7 +122,7 @@
           }
         ],
         "title": {
-          "size": 59.86,
+          "size": 59.85,
           "w": 0.4861,
           "color": "2A1B10",
           "align": "left",
@@ -148,26 +153,61 @@
             "y": 0,
             "w": 1,
             "h": 1,
-            "src": "slide-3.png"
+            "src": "slide-8.png"
           }
         ],
         "title": {
-          "size": 59.86,
-          "w": 0.4421,
-          "color": "2A1B10",
+          "size": 56.575,
+          "w": 0.4418,
+          "color": "2E170B",
           "align": "left",
-          "y": 0.2979,
-          "x": 0.0542,
-          "h": 0.3023
+          "y": 0.2389,
+          "x": 0.0567,
+          "h": 0.254
         },
         "body": {
-          "size": 19.775,
-          "w": 0.3393,
-          "color": "2A1B10",
+          "size": 19.925,
+          "w": 0.3679,
+          "color": "2E170B",
           "align": "left",
-          "y": 0.6711,
-          "x": 0.0581,
-          "h": 0.1267
+          "y": 0.6721,
+          "x": 0.0535,
+          "h": 0.1329
+        },
+        "fitTitle": true
+      },
+      "image": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-7.png"
+          }
+        ],
+        "title": {
+          "size": 59.25,
+          "w": 0.3302,
+          "color": "2F1D12",
+          "align": "left",
+          "y": 0.311,
+          "x": 0.0626,
+          "h": 0.2806
+        },
+        "body": {
+          "size": 18.275,
+          "w": 0.4138,
+          "color": "2F1D12",
+          "align": "left",
+          "y": 0.6727,
+          "x": 0.0632,
+          "h": 0.1897
         },
         "fitTitle": true
       }
@@ -232,9 +272,14 @@
     "defaultBackgrounds": {
       "cover": "slide-1",
       "song": "slide-2",
-      "content": "slide-7",
-      "image": "slide-7"
+      "content": "slide-9",
+      "image": "slide-8"
     },
+    "songBackgrounds": [
+      "slide-2",
+      "slide-3",
+      "slide-7"
+    ],
     "layouts": {
       "cover": {
         "bg": {
@@ -318,14 +363,14 @@
             "y": 0,
             "w": 1,
             "h": 1,
-            "src": "slide-7.png"
+            "src": "slide-9.png"
           }
         ],
         "title": {
           "size": 36,
           "w": 0.48,
           "color": "FAFAFA",
-          "align": "left",
+          "align": "center",
           "y": 0.12,
           "x": 0.06,
           "h": 0.22
@@ -334,7 +379,7 @@
           "size": 28,
           "w": 0.48,
           "color": "FFFFFF",
-          "align": "left",
+          "align": "center",
           "y": 0.4,
           "x": 0.06,
           "h": 0.42
@@ -353,14 +398,14 @@
             "y": 0,
             "w": 1,
             "h": 1,
-            "src": "slide-7.png"
+            "src": "slide-8.png"
           }
         ],
         "title": {
           "size": 36,
           "w": 0.43,
           "color": "FAFAFA",
-          "align": "left",
+          "align": "center",
           "y": 0.12,
           "x": 0.06,
           "h": 0.22
@@ -384,5 +429,215 @@
       }
     },
     "dir": "/templates/ocean"
+  },
+  {
+    "id": "sage",
+    "name": "Sage",
+    "bg": "FFFFFF",
+    "fg": "6F796A",
+    "accent": "2B2B2B",
+    "fontTitle": "HK Grotesk Bold",
+    "fontBody": "HK Grotesk Medium",
+    "backgrounds": [
+      {
+        "id": "slide-1",
+        "name": "Slide 1",
+        "src": "slide-1.png"
+      },
+      {
+        "id": "slide-2",
+        "name": "Slide 2",
+        "src": "slide-2.png"
+      },
+      {
+        "id": "slide-3",
+        "name": "Slide 3",
+        "src": "slide-3.png"
+      },
+      {
+        "id": "slide-4",
+        "name": "Slide 4",
+        "src": "slide-4.png"
+      },
+      {
+        "id": "slide-5",
+        "name": "Slide 5",
+        "src": "slide-5.png"
+      },
+      {
+        "id": "slide-6",
+        "name": "Slide 6",
+        "src": "slide-6.png"
+      },
+      {
+        "id": "slide-7",
+        "name": "Slide 7",
+        "src": "slide-7.png"
+      },
+      {
+        "id": "slide-8",
+        "name": "Slide 8",
+        "src": "slide-8.png"
+      },
+      {
+        "id": "slide-9",
+        "name": "Slide 9",
+        "src": "slide-9.png"
+      }
+    ],
+    "defaultBackgrounds": {
+      "cover": "slide-1",
+      "song": "slide-2",
+      "content": "slide-5",
+      "image": "slide-2"
+    },
+    "songBackgrounds": [
+      "slide-7",
+      "slide-8",
+      "slide-9"
+    ],
+    "layouts": {
+      "cover": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-1.png"
+          }
+        ],
+        "title": {
+          "size": 96.75,
+          "w": 0.5474,
+          "color": "292929",
+          "align": "left",
+          "y": 0.1939,
+          "x": 0.0502,
+          "h": 0.4108
+        },
+        "body": {
+          "size": 20.875,
+          "w": 0.447,
+          "color": "6B7463",
+          "align": "left",
+          "y": 0.6216,
+          "x": 0.0512,
+          "h": 0.0616
+        },
+        "fitTitle": true
+      },
+      "song": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-2.png"
+          }
+        ],
+        "title": {
+          "size": 74.45,
+          "w": 0.4266,
+          "color": "242424",
+          "align": "left",
+          "y": 0.1729,
+          "x": 0.0543,
+          "h": 0.3251
+        },
+        "body": {
+          "size": 18.725,
+          "w": 0.4947,
+          "color": "6F7968",
+          "align": "left",
+          "y": 0.513,
+          "x": 0.0405,
+          "h": 0.2188
+        },
+        "fitTitle": true
+      },
+      "content": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-5.png"
+          }
+        ],
+        "title": {
+          "size": 61.95,
+          "w": 0.7701,
+          "color": "2B2B2B",
+          "align": "center",
+          "y": 0.2359,
+          "x": 0.1059,
+          "h": 0.1601
+        },
+        "body": {
+          "size": 18.1,
+          "w": 0.5264,
+          "color": "6F796A",
+          "align": "center",
+          "y": 0.3993,
+          "x": 0.2305,
+          "h": 0.1594
+        },
+        "fitTitle": true
+      },
+      "image": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-2.png"
+          }
+        ],
+        "title": {
+          "size": 74.45,
+          "w": 0.4266,
+          "color": "242424",
+          "align": "left",
+          "y": 0.1729,
+          "x": 0.0543,
+          "h": 0.3251
+        },
+        "body": {
+          "size": 18.725,
+          "w": 0.4947,
+          "color": "6F7968",
+          "align": "left",
+          "y": 0.513,
+          "x": 0.0405,
+          "h": 0.2188
+        },
+        "fitTitle": true
+      }
+    },
+    "dir": "/templates/sage"
   }
 ]

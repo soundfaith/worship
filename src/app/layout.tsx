@@ -2,12 +2,13 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
+import { Scrollbars } from "@/components/Scrollbars";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-cormorant", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "CFC Assembly Slide Generator",
+  title: "Assembly by SoundFaith",
   description: "Prepare a complete prayer assembly presentation in minutes.",
 };
 
@@ -21,8 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen antialiased">
+        <Scrollbars />
         <Header />
-        <main className="mx-auto max-w-6xl px-6 py-12">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">{children}</main>
       </body>
     </html>
   );

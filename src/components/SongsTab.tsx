@@ -39,13 +39,13 @@ export function SongsTab({ a, update }: TabProps) {
       : `${total} songs · search by title or any line of the lyrics`;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
       <Section title="Library" hint={hint}>
         <div className="relative">
           <Icon name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input className="input !pl-10" placeholder="Search title or lyrics…" aria-label="Search songs" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <ul className="-mx-2 max-h-[30rem] space-y-0.5 overflow-y-auto px-2">
+        <ul className="-mx-2 max-h-[30rem] space-y-0.5 overflow-y-auto px-2" tabIndex={0} aria-label="Available songs">
           {results.map((s) => (
             <li key={s.id}>
               <SongResult s={s} onClick={() => add(s.id)} right={<Icon name="plus" className="h-4 w-4 shrink-0 text-stone-300 group-hover:text-accent" />} />
@@ -62,7 +62,7 @@ export function SongsTab({ a, update }: TabProps) {
             <li key={s.uid} className="rounded-xl border border-stone-200 bg-stone-50/60 text-sm">
               <div className="flex items-center gap-1 py-1 pl-4 pr-1.5">
                 <span className="w-6 text-stone-400 tabular-nums">{i + 1}</span>
-                <button className="flex-1 truncate py-1.5 text-left hover:text-accent" aria-expanded={openUid === s.uid} onClick={() => setOpenUid(openUid === s.uid ? null : s.uid)}>
+                <button className="min-w-0 flex-1 truncate py-1.5 text-left hover:text-accent" aria-expanded={openUid === s.uid} onClick={() => setOpenUid(openUid === s.uid ? null : s.uid)}>
                   {s.title}
                 </button>
                 <IconButton icon="up" label="Move up" onClick={() => move(i, -1)} disabled={i === 0} />
@@ -71,7 +71,7 @@ export function SongsTab({ a, update }: TabProps) {
               </div>
               {openUid === s.uid && (
                 <div className="border-t border-stone-200 p-4">
-                  <SongPreview title={s.title} source={s.slides} lines={s.lines ?? DEFAULT_LINES} onLines={(n) => setLines(s.uid, n)} template={template} font={a.font} />
+                  <SongPreview title={s.title} source={s.slides} lines={s.lines ?? DEFAULT_LINES} onLines={(n) => setLines(s.uid, n)} template={template} font={a.font} songIndex={i} />
                 </div>
               )}
             </li>

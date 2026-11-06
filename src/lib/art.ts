@@ -1,4 +1,4 @@
-import type { Fill, Layout, Template } from "./types";
+import type { Fill, Layout, Template, TemplateBackground } from "./types";
 
 const W = 1920;
 const H = 1080;
@@ -49,6 +49,26 @@ export function renderArt(template: Template, layoutName: string, layout: Layout
     rendered.set(key, p);
   }
   return p;
+}
+
+export function renderBackground(template: Template, background: TemplateBackground): Promise<string> {
+  const key = `${template.id}/background/${background.id}`;
+  let result = rendered.get(key);
+  if (!result) {
+    result = (async () => {
+      const image = await loadImage(`${template.dir}/${background.src}`);
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Cannot create a canvas to export the background.");
+      context.drawImage(image, 0, 0, W, H);
+      return canvas.toDataURL("image/jpeg", 0.92);
+    })();
+    result.catch(() => rendered.delete(key));
+    rendered.set(key, result);
+  }
+  return result;
 }
 
 async function draw(template: Template, layout: Layout): Promise<string> {

@@ -1,7 +1,8 @@
-// Template packs: imports templates/*.pptx into public/templates/<id>/ and indexes every pack.
-// Usage: node scripts/templates.mjs [--force]
+// Render templates/*.pptx into independent background images and index the imported packs.
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import JSZip from "jszip";
 
@@ -9,226 +10,182 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(root, "templates");
 const OUT = path.join(root, "public", "templates");
 const INDEX = path.join(root, "src", "lib", "templates.generated.json");
+const RENDERER = path.join(root, "scripts", "render-powerpoint.ps1");
 const force = process.argv.includes("--force");
-
 const LAYOUTS = ["cover", "song", "content", "image"];
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const attr = (s, name) => s.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
-const round = (n) => Math.round(n * 10000) / 10000;
+const baseName = (file) => path.basename(file).replace(/\.pptx$/i, "");
 
-function themeColors(xml) {
-  const map = {};
-  for (const n of ["dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"]) {
-    const block = xml.match(new RegExp(`<a:${n}>([\\s\\S]*?)</a:${n}>`))?.[1] ?? "";
-    map[n] = block.includes("srgbClr") ? attr(block, "val") : attr(block, "lastClr");
+function isPng(file) {
+  let fd;
+  try {
+    fd = fs.openSync(file, "r");
+    const header = Buffer.alloc(8);
+    return fs.fstatSync(fd).size > 8 && fs.readSync(fd, header, 0, 8, 0) === 8 &&
+      header.equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  } catch {
+    return false;
+  } finally {
+    if (fd !== undefined) fs.closeSync(fd);
   }
-  return { ...map, tx1: map.dk1, bg1: map.lt1, tx2: map.dk2, bg2: map.lt2 };
 }
 
-async function importPptx(file) {
-  const warnings = [];
-  const warn = (m) => warnings.push(m);
-  const zip = await JSZip.loadAsync(fs.readFileSync(file));
-  const text = async (p) => (zip.file(p) ? zip.file(p).async("string") : "");
-  const theme = themeColors(await text("ppt/theme/theme1.xml"));
-
-  const pres = await text("ppt/presentation.xml");
-  const sz = pres.match(/<p:sldSz[^>]*>/)?.[0] ?? "";
-  const SW = Number(attr(sz, "cx")) || 9144000;
-  const SH = Number(attr(sz, "cy")) || 5143500;
-  const widthPt = SW / 12700;
-
-  const presRels = await text("ppt/_rels/presentation.xml.rels");
-  const relTarget = (rels, id) => {
-    for (const m of rels.matchAll(/<Relationship\b[^>]*>/g)) if (attr(m[0], "Id") === id) return attr(m[0], "Target");
-  };
-  const slidePaths = [...pres.matchAll(/<p:sldId\b[^>]*>/g)]
-    .map((m) => {
-      const t = relTarget(presRels, attr(m[0], "r:id"));
-      return t && "ppt/" + t.replace(/^\/?(ppt\/)?/, "");
-    })
-    .filter(Boolean);
-
-  const id = slug(path.basename(file, ".pptx"));
-  const outDir = path.join(OUT, id);
-  fs.rmSync(outDir, { recursive: true, force: true });
-  fs.mkdirSync(outDir, { recursive: true });
-  let mediaCount = 0;
-
-  const color = (frag) => {
-    const m = frag.match(/<a:(srgbClr|schemeClr)\b([^>]*?)(\/>|>([\s\S]*?)<\/a:\1>)/);
-    if (!m) return null;
-    const val = attr(m[2], "val");
-    const hex = m[1] === "srgbClr" ? val : theme[val];
-    if (!hex) return null;
-    const a = m[4]?.match(/<a:alpha val="(\d+)"/)?.[1];
-    if (m[4]?.match(/<a:(lumMod|lumOff|tint|shade)/)) warn(`Colour "${val}" uses a tint/shade modifier, which is ignored; use a plain RGB colour.`);
-    return { color: hex.toUpperCase(), alpha: a ? Number(a) / 100000 : undefined };
-  };
-
-  const fill = (frag) => {
-    const grad = frag.match(/<a:gradFill\b[\s\S]*?<\/a:gradFill>/)?.[0];
-    if (grad) {
-      const stops = [...grad.matchAll(/<a:gs pos="(\d+)">([\s\S]*?)<\/a:gs>/g)]
-        .map((m) => ({ pos: round(Number(m[1]) / 100000), ...color(m[2]) }))
-        .filter((s) => s.color);
-      if (grad.includes("<a:path")) warn("Radial gradient approximated as linear.");
-      const ang = grad.match(/<a:lin\b[^>]*\bang="(\d+)"/)?.[1];
-      return stops.length ? { type: "gradient", angle: ang ? Number(ang) / 60000 : 90, stops } : null;
-    }
-    const solid = frag.match(/<a:solidFill>([\s\S]*?)<\/a:solidFill>/)?.[1];
-    const c = solid && color(solid);
-    return c ? { type: "solid", ...c } : null;
-  };
-
-  const rect = (frag) => {
-    const xf = frag.match(/<a:xfrm\b([^>]*)>([\s\S]*?)<\/a:xfrm>/);
-    if (!xf) return null;
-    const off = xf[2].match(/<a:off\b[^>]*>/)?.[0];
-    const ext = xf[2].match(/<a:ext\b[^>]*>/)?.[0];
-    if (!off || !ext) return null;
-    const r = {
-      x: round(Number(attr(off, "x")) / SW),
-      y: round(Number(attr(off, "y")) / SH),
-      w: round(Number(attr(ext, "cx")) / SW),
-      h: round(Number(attr(ext, "cy")) / SH),
-    };
-    const rot = attr(xf[1], "rot");
-    return rot ? { ...r, rot: Number(rot) / 60000 } : r;
-  };
-
-  const saveMedia = async (rels, rid, slideNo) => {
-    const t = relTarget(rels, rid);
-    if (!t) return null;
-    const p = "ppt/" + t.replace(/^(\.\.\/|\/)+(ppt\/)?/, "");
-    const ext = path.extname(p).toLowerCase();
-    if (![".jpg", ".jpeg", ".png", ".webp", ".gif"].includes(ext) || !zip.file(p)) {
-      warn(`Slide ${slideNo}: picture ${path.basename(p)} is not a web image (use PNG or JPG).`);
-      return null;
-    }
-    const name = `media-${++mediaCount}${ext}`;
-    fs.writeFileSync(path.join(outDir, name), await zip.file(p).async("nodebuffer"));
-    return name;
-  };
-
-  const textStyle = (sp) => {
-    const rpr = sp.match(/<a:rPr\b[^>]*\/>|<a:rPr\b[^>]*>[\s\S]*?<\/a:rPr>/)?.[0] ?? "";
-    const size = Number(attr(rpr, "sz")) / 100;
-    if (!size) warn("A text placeholder has no explicit font size; defaulted to 24pt.");
-    return {
-      size: round(((size || 24) * 720) / widthPt),
-      align: /algn="(ctr|just)"/.test(sp) ? "center" : "left",
-      color: color(rpr)?.color ?? "FFFFFF",
-      ...(attr(rpr, "cap") === "all" ? { caps: true } : {}),
-      ...(attr(rpr, "spc") ? { spacing: round(Number(attr(rpr, "spc")) / 100) } : {}),
-      font: rpr.match(/<a:latin\b[^>]*typeface="([^"]*)"/)?.[1],
-    };
-  };
-
-  const layouts = {};
-  const fonts = {};
-  for (const [i, sp] of slidePaths.entries()) {
-    const xml = await text(sp);
-    const rels = await text(sp.replace("slides/", "slides/_rels/") + ".rels");
-    const marker = xml.match(/<a:t>\s*layout:\s*([a-z]+)\s*<\/a:t>/i)?.[1]?.toLowerCase();
-    const name = marker ?? LAYOUTS[i];
-    if (!LAYOUTS.includes(name)) {
-      warn(`Slide ${i + 1} ignored (only the first 4 slides, or slides marked "layout:<name>", are used).`);
-      continue;
-    }
-    if (xml.includes("<p:grpSp>")) warn(`Slide ${i + 1}: grouped shapes are not supported; ungroup them.`);
-
-    const layout = { shapes: [] };
-    const bgBlock = xml.match(/<p:bg>([\s\S]*?)<\/p:bg>/)?.[1];
-    if (bgBlock) {
-      const blip = bgBlock.match(/<a:blip\b[^>]*r:embed="([^"]+)"/)?.[1];
-      if (blip) {
-        const src = await saveMedia(rels, blip, i + 1);
-        if (src) layout.shapes.push({ type: "image", x: 0, y: 0, w: 1, h: 1, src });
-      } else {
-        const f = fill(bgBlock);
-        if (f) layout.bg = f;
-      }
-    } else warn(`Slide ${i + 1}: no slide background set (Format Background on this slide); a blank colour is used.`);
-
-    for (const m of xml.matchAll(/<p:(sp|pic)>([\s\S]*?)<\/p:\1>/g)) {
-      const [, kind, body] = m;
-      const r = rect(body);
-      if (!r) continue;
-      if (kind === "pic") {
-        const rid = body.match(/<a:blip\b[^>]*r:embed="([^"]+)"/)?.[1];
-        const src = rid && (await saveMedia(rels, rid, i + 1));
-        if (src) layout.shapes.push({ type: "image", ...r, src });
-        continue;
-      }
-      const label = [...body.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map((t) => t[1]).join("").trim().toLowerCase();
-      if (label === `layout:${name}`) continue;
-      const ph = label.match(/^\{\{(title|body|image)\}\}$/)?.[1];
-      if (ph === "image") {
-        layout.image = r;
-        continue;
-      }
-      if (ph) {
-        const { font, ...style } = textStyle(body);
-        layout[ph] = { x: r.x, y: r.y, w: r.w, h: r.h, ...style };
-        if (font && !fonts[ph]) fonts[ph] = font;
-        continue;
-      }
-      if (label) warn(`Slide ${i + 1}: text "${label.slice(0, 20)}" is not a placeholder and is not imported (use {{title}} / {{body}}).`);
-      const spPr = body.match(/<p:spPr>([\s\S]*?)<\/p:spPr>/)?.[1] ?? "";
-      const prst = attr(spPr.match(/<a:prstGeom\b[^>]*>/)?.[0] ?? "", "prst") ?? "rect";
-      const type = prst === "ellipse" ? "ellipse" : prst === "roundRect" ? "roundRect" : "rect";
-      if (!["rect", "ellipse", "roundRect"].includes(prst)) warn(`Slide ${i + 1}: shape "${prst}" drawn as a rectangle.`);
-      const f = fill(spPr.replace(/<a:ln\b[\s\S]*?<\/a:ln>/g, ""));
-      if (f) layout.shapes.push({ type, ...r, fill: f });
-      else if (!/<a:noFill/.test(spPr)) warn(`Slide ${i + 1}: a shape has a theme/style fill that is not imported; give it an explicit fill.`);
-    }
-    if (!layout.title || !layout.body) {
-      warn(`Slide ${i + 1} (${name}): needs text boxes containing exactly {{title}} and {{body}}; layout skipped.`);
-      continue;
-    }
-    layouts[name] = layout;
+function validateConfig(config, slideCount) {
+  if (!config || typeof config !== "object" || !config.layouts || typeof config.layouts !== "object" || !config.layouts.content) {
+    throw new Error("The .template.json file must contain layouts.content with a slide number.");
   }
-  for (const n of LAYOUTS) if (!layouts[n] && n !== "image") warn(`No "${n}" layout found.`);
-  if (!layouts.content) throw new Error("A template needs at least a content layout (3rd slide, or one marked layout:content).");
+  for (const [name, layout] of Object.entries(config.layouts)) {
+    if (!LAYOUTS.includes(name) || !layout || !Number.isInteger(layout.slide) || layout.slide < 1 || layout.slide > slideCount) {
+      throw new Error(`Invalid layout "${name}": specify an existing slide number from 1 to ${slideCount}.`);
+    }
+    for (const field of ["titleShape", "bodyShape"]) {
+      if (layout[field] !== undefined && (typeof layout[field] !== "string" || !layout[field])) throw new Error(`${name}.${field} must be a non-empty shape name.`);
+    }
+    for (const field of ["title", "body", "image"]) {
+      const box = layout[field];
+      if (box === undefined) continue;
+      if (!box || typeof box !== "object" || Array.isArray(box)) throw new Error(`${name}.${field} must be an object.`);
+      const allowed = field === "image" ? ["x", "y", "w", "h"] : ["x", "y", "w", "h", "size", "color", "align"];
+      for (const [key, value] of Object.entries(box)) {
+        if (!allowed.includes(key)) throw new Error(`Unknown property ${name}.${field}.${key}.`);
+        if (key === "color") {
+          if (typeof value !== "string" || !/^[0-9a-f]{6}$/i.test(value)) throw new Error(`${name}.${field}.color must be a six-digit RGB color.`);
+        } else if (key === "align") {
+          if (!["left", "center"].includes(value)) throw new Error(`${name}.${field}.align must be left or center.`);
+        } else if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || (key !== "size" && value > 1) || (["w", "h", "size"].includes(key) && value === 0)) {
+          throw new Error(`Invalid number in ${name}.${field}.${key}.`);
+        }
+      }
+      if (field === "image" && !["x", "y", "w", "h"].every((key) => key in box)) throw new Error(`${name}.image requires x, y, w and h.`);
+    }
+  }
+}
 
-  const first = layouts.cover ?? layouts.content;
-  const base = first.bg ?? { type: "solid", color: "FFFFFF" };
-  const song = layouts.song ?? layouts.content;
+async function getConfig(file, configPath) {
+  const zip = await JSZip.loadAsync(fs.readFileSync(file));
+  const presentation = zip.file("ppt/presentation.xml");
+  if (!presentation) throw new Error("The presentation is missing ppt/presentation.xml.");
+  const slideCount = [...(await presentation.async("string")).matchAll(/<p:sldId\b/g)].length;
+  if (!slideCount) throw new Error("The presentation has no slides.");
+  const config = fs.existsSync(configPath)
+    ? JSON.parse(fs.readFileSync(configPath, "utf8"))
+    : { layouts: { cover: { slide: 1 }, song: { slide: Math.min(2, slideCount) }, content: { slide: Math.min(3, slideCount) } } };
+  validateConfig(config, slideCount);
+  config.layouts.cover ??= { slide: 1 };
+  config.layouts.song ??= { slide: Math.min(2, slideCount) };
+  return { config, slideCount };
+}
+
+function cacheValid(dest, hash, slideCount, config) {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(dest, "source.json"), "utf8"));
+    const pack = JSON.parse(fs.readFileSync(path.join(dest, "template.json"), "utf8"));
+    if (manifest.sourceHash !== hash || !Array.isArray(pack.backgrounds) || pack.backgrounds.length !== slideCount) return false;
+    for (let i = 0; i < slideCount; i++) {
+      const background = pack.backgrounds[i];
+      if (background.id !== `slide-${i + 1}` || background.src !== `slide-${i + 1}.png` || !isPng(path.join(dest, background.src))) return false;
+    }
+    return LAYOUTS.every((name) => pack.defaultBackgrounds?.[name] === `slide-${(config.layouts[name] ?? config.layouts.content).slide}`) &&
+      Object.values(pack.layouts ?? {}).every((layout) => (layout.shapes ?? []).every((shape) => shape.type !== "image" || (typeof shape.src === "string" && fs.existsSync(path.join(dest, shape.src)))));
+  } catch {
+    return false;
+  }
+}
+
+function importRendered(file, config, slideCount, outDir, sourceHash) {
+  if (process.platform !== "win32") {
+    throw new Error("This presentation needs to be prepared on Windows with Microsoft PowerPoint. Run npm run templates there and commit the generated public/templates folder before deploying.");
+  }
+  const configPath = path.join(outDir, "input.json");
+  fs.writeFileSync(configPath, JSON.stringify(config));
+  const result = spawnSync("powershell.exe", [
+    "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+    "-File", RENDERER, "-Source", file, "-OutputDir", outDir, "-ConfigPath", configPath,
+  ], { encoding: "utf8" });
+  if (result.error || result.status !== 0) {
+    throw new Error(`PowerPoint rendering failed: ${result.error?.message ?? (result.stderr.trim() || result.stdout.trim() || `exit ${result.status}`)}`);
+  }
+  const rendered = JSON.parse(fs.readFileSync(path.join(outDir, "rendered.json"), "utf8").replace(/^\uFEFF/, ""));
+  const backgrounds = Array.from({ length: slideCount }, (_, i) => ({
+    id: `slide-${i + 1}`, name: `Slide ${i + 1}`, src: `slide-${i + 1}.png`,
+  }));
+  for (const background of backgrounds) {
+    if (!isPng(path.join(outDir, background.src))) throw new Error(`PowerPoint did not produce a valid ${background.src}.`);
+  }
+  const layouts = {};
+  let titleFont;
+  let bodyFont;
+  for (const name of LAYOUTS) {
+    const item = rendered.layouts[name];
+    if (!item) continue;
+    const { font: title, ...titleBox } = item.title;
+    const { font: body, ...bodyBox } = item.body;
+    titleFont ??= title;
+    bodyFont ??= body;
+    layouts[name] = {
+      bg: { type: "solid", color: "FFFFFF" },
+      shapes: [{ type: "image", x: 0, y: 0, w: 1, h: 1, src: `slide-${config.layouts[name].slide}.png` }],
+      title: titleBox, body: bodyBox, fitTitle: true,
+      ...(item.image ? { image: item.image } : {}),
+    };
+  }
+  const defaultBackgrounds = Object.fromEntries(LAYOUTS.map((name) => [name, `slide-${(config.layouts[name] ?? config.layouts.content).slide}`]));
   const pack = {
-    id,
-    name: path.basename(file, ".pptx").replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-    bg: (base.type === "solid" ? base.color : base.stops[0].color).toUpperCase(),
-    fg: song.body.color,
-    accent: song.title.color,
-    fontTitle: fonts.title ?? "Georgia",
-    fontBody: fonts.body ?? "Georgia",
-    layouts,
+    id: slug(baseName(file)),
+    name: baseName(file).replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    bg: "FFFFFF",
+    fg: layouts.content.body.color,
+    accent: layouts.content.title.color,
+    fontTitle: titleFont || "Inter",
+    fontBody: bodyFont || "Inter",
+    backgrounds, defaultBackgrounds, layouts,
   };
   fs.writeFileSync(path.join(outDir, "template.json"), JSON.stringify(pack, null, 2) + "\n");
-  return { id, warnings };
+  fs.writeFileSync(path.join(outDir, "source.json"), JSON.stringify({ sourceHash }, null, 2) + "\n");
+  fs.unlinkSync(configPath);
+  fs.unlinkSync(path.join(outDir, "rendered.json"));
+  return rendered.warnings ?? [];
 }
 
-if (fs.existsSync(SRC)) {
-  for (const f of fs.readdirSync(SRC).filter((f) => /\.pptx$/i.test(f) && !f.startsWith("~$"))) {
-    const out = path.join(OUT, slug(path.basename(f, ".pptx")), "template.json");
-    if (!force && fs.existsSync(out) && fs.statSync(out).mtimeMs >= fs.statSync(path.join(SRC, f)).mtimeMs) continue;
-    try {
-      const { id, warnings } = await importPptx(path.join(SRC, f));
-      console.log(`Imported ${f} -> public/templates/${id}`);
-      for (const w of warnings) console.log(`  ! ${w}`);
-    } catch (e) {
-      console.log(`Failed to import ${f}: ${e.message}`);
+const indexed = [];
+const files = fs.existsSync(SRC) ? fs.readdirSync(SRC).filter((f) => /\.pptx$/i.test(f) && !f.startsWith("~$")) : [];
+const ids = files.map((f) => slug(baseName(f)));
+for (const [index, f] of files.entries()) {
+  const file = path.join(SRC, f);
+  const id = ids[index];
+  const dest = path.join(OUT, id);
+  const configPath = path.join(SRC, `${baseName(f)}.template.json`);
+  let staging;
+  try {
+    if (!id) throw new Error("The file name needs at least one letter or number.");
+    if (ids.indexOf(id) !== ids.lastIndexOf(id)) throw new Error(`Multiple presentation names resolve to the same pack id "${id}".`);
+    const { config, slideCount } = await getConfig(file, configPath);
+    const scriptContent = (script) => fs.readFileSync(script, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+    const hash = createHash("sha256").update(fs.readFileSync(file)).update(JSON.stringify(config))
+      .update(scriptContent(fileURLToPath(import.meta.url))).update(scriptContent(RENDERER)).digest("hex");
+    if (!force && cacheValid(dest, hash, slideCount, config)) {
+      indexed.push({ ...JSON.parse(fs.readFileSync(path.join(dest, "template.json"), "utf8")), dir: `/templates/${id}` });
+      continue;
     }
+    fs.mkdirSync(OUT, { recursive: true });
+    staging = fs.mkdtempSync(path.join(OUT, ".worship-template-"));
+    const warnings = importRendered(file, config, slideCount, staging, hash);
+    fs.mkdirSync(dest, { recursive: true });
+    for (const entry of fs.readdirSync(staging).filter((entry) => entry !== "source.json")) {
+      fs.copyFileSync(path.join(staging, entry), path.join(dest, entry));
+    }
+    fs.copyFileSync(path.join(staging, "source.json"), path.join(dest, "source.json"));
+    indexed.push({ ...JSON.parse(fs.readFileSync(path.join(dest, "template.json"), "utf8")), dir: `/templates/${id}` });
+    console.log(`Rendered ${f} -> public/templates/${id}`);
+    for (const warning of warnings) console.warn(`  ! ${warning}`);
+  } catch (e) {
+    console.error(`Failed to import ${f}: ${e.message}`);
+    process.exitCode = 1;
+  } finally {
+    if (staging) fs.rmSync(staging, { recursive: true, force: true });
   }
 }
-
-const packs = fs.existsSync(OUT)
-  ? fs
-      .readdirSync(OUT, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && fs.existsSync(path.join(OUT, d.name, "template.json")))
-      .map((d) => ({ ...JSON.parse(fs.readFileSync(path.join(OUT, d.name, "template.json"), "utf8")), dir: `/templates/${d.name}` }))
-      .sort((a, b) => a.name.localeCompare(b.name))
-  : [];
-fs.writeFileSync(INDEX, JSON.stringify(packs, null, 2) + "\n");
-console.log(`Templates indexed: ${packs.map((p) => p.name).join(", ") || "none"}`);
+indexed.sort((a, b) => a.name.localeCompare(b.name));
+fs.mkdirSync(path.dirname(INDEX), { recursive: true });
+fs.writeFileSync(INDEX, JSON.stringify(indexed, null, 2) + "\n");
+console.log(`Templates indexed: ${indexed.map((p) => p.name).join(", ") || "none"}`);

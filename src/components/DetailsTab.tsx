@@ -1,6 +1,6 @@
 "use client";
 import { uid } from "@/lib/store";
-import { TEMPLATES } from "@/lib/templates";
+import { FONTS, TEMPLATES, getTemplate } from "@/lib/templates";
 import { IconButton } from "./Icon";
 import { Field, Section, type TabProps } from "./ui";
 import { SlideView } from "./SlideView";
@@ -34,6 +34,7 @@ export function DetailsTab({ a, update }: TabProps) {
       </Section>
 
       <Section title="Template" hint="Applies to the whole presentation. You can override per section when reviewing.">
+        {!TEMPLATES.some((t) => t.id === a.templateId) && <p className="text-sm text-amber-700">The saved template is no longer available. {getTemplate(a.templateId).name} will be used until you select a template.</p>}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {TEMPLATES.map((t) => (
             <button
@@ -42,11 +43,17 @@ export function DetailsTab({ a, update }: TabProps) {
               aria-pressed={a.templateId === t.id}
               className={`rounded-xl p-1.5 text-left transition ${a.templateId === t.id ? "ring-2 ring-accent" : "ring-1 ring-transparent hover:ring-stone-300"}`}
             >
-              <SlideView template={t} slide={{ id: t.id, kind: "welcome", title: t.name, body: "Prayer Assembly" }} />
+              <SlideView template={t} font={a.font} slide={{ id: t.id, kind: "welcome", title: t.name, body: "Prayer Assembly" }} />
               <span className="mt-1 block text-center text-sm">{t.name}</span>
             </button>
           ))}
         </div>
+        <Field label="Presentation font">
+          <select className="input max-w-xs" value={a.font ?? "Inter"} onChange={(e) => update({ font: e.target.value })}>
+            {FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+          </select>
+        </Field>
+        <p className="text-xs text-stone-500">For PowerPoint to display your chosen font, install it on the presenting computer.</p>
       </Section>
     </div>
   );

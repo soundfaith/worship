@@ -1,0 +1,174 @@
+{
+  "id": "desert",
+  "name": "Desert",
+  "bg": "FFFFFF",
+  "fg": "2A1B10",
+  "accent": "2A1B10",
+  "fontTitle": "Open Sauce Semi-Bold",
+  "fontBody": "Century Gothic Paneuropean",
+  "backgrounds": [
+    {
+      "id": "slide-1",
+      "name": "Slide 1",
+      "src": "slide-1.png"
+    },
+    {
+      "id": "slide-2",
+      "name": "Slide 2",
+      "src": "slide-2.png"
+    },
+    {
+      "id": "slide-3",
+      "name": "Slide 3",
+      "src": "slide-3.png"
+    },
+    {
+      "id": "slide-4",
+      "name": "Slide 4",
+      "src": "slide-4.png"
+    },
+    {
+      "id": "slide-5",
+      "name": "Slide 5",
+      "src": "slide-5.png"
+    },
+    {
+      "id": "slide-6",
+      "name": "Slide 6",
+      "src": "slide-6.png"
+    },
+    {
+      "id": "slide-7",
+      "name": "Slide 7",
+      "src": "slide-7.png"
+    },
+    {
+      "id": "slide-8",
+      "name": "Slide 8",
+      "src": "slide-8.png"
+    },
+    {
+      "id": "slide-9",
+      "name": "Slide 9",
+      "src": "slide-9.png"
+    },
+    {
+      "id": "slide-10",
+      "name": "Slide 10",
+      "src": "slide-10.png"
+    }
+  ],
+  "defaultBackgrounds": {
+    "cover": "slide-1",
+    "song": "slide-2",
+    "content": "slide-3",
+    "image": "slide-3"
+  },
+  "layouts": {
+    "cover": {
+      "bg": {
+        "type": "solid",
+        "color": "FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "image",
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1,
+          "src": "slide-1.png"
+        }
+      ],
+      "title": {
+        "size": 55.81,
+        "w": 0.3514,
+        "color": "2E1D12",
+        "align": "left",
+        "y": 0.2226,
+        "x": 0.0536,
+        "h": 0.4184
+      },
+      "body": {
+        "size": 16.45,
+        "w": 0.2099,
+        "color": "2E1D12",
+        "align": "left",
+        "y": 0.7424,
+        "x": 0.0594,
+        "h": 0.0415
+      },
+      "fitTitle": true
+    },
+    "song": {
+      "bg": {
+        "type": "solid",
+        "color": "FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "image",
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1,
+          "src": "slide-2.png"
+        }
+      ],
+      "title": {
+        "size": 59.86,
+        "w": 0.4861,
+        "color": "2A1B10",
+        "align": "left",
+        "y": 0.3008,
+        "x": 0.0567,
+        "h": 0.3023
+      },
+      "body": {
+        "size": 19.925,
+        "w": 0.3273,
+        "color": "2A1B10",
+        "align": "left",
+        "y": 0.6736,
+        "x": 0.0582,
+        "h": 0.1329
+      },
+      "fitTitle": true
+    },
+    "content": {
+      "bg": {
+        "type": "solid",
+        "color": "FFFFFF"
+      },
+      "shapes": [
+        {
+          "type": "image",
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1,
+          "src": "slide-3.png"
+        }
+      ],
+      "title": {
+        "size": 59.86,
+        "w": 0.4421,
+        "color": "2A1B10",
+        "align": "left",
+        "y": 0.2979,
+        "x": 0.0542,
+        "h": 0.3023
+      },
+      "body": {
+        "size": 19.775,
+        "w": 0.3393,
+        "color": "2A1B10",
+        "align": "left",
+        "y": 0.6711,
+        "x": 0.0581,
+        "h": 0.1267
+      },
+      "fitTitle": true
+    }
+  }
+}

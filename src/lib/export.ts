@@ -1,6 +1,6 @@
 import { fitSize } from "./layout";
-import { renderArt } from "./art";
-import { getTemplate, layoutFor } from "./templates";
+import { renderArt, renderBackground } from "./art";
+import { backgroundFor, getTemplate, layoutFor } from "./templates";
 import type { Assembly, Rect } from "./types";
 
 const SW = 10;
@@ -20,16 +20,19 @@ export async function exportPptx(a: Assembly) {
 
     if (found) {
       const { layout } = found;
+      const background = backgroundFor(t, sl);
+      const font = sl.font ?? a.font ?? "Inter";
       slide.background = { color: t.bg };
-      slide.addImage({ data: (await renderArt(t, found.name, layout)).slice(5), x: 0, y: 0, w: SW, h: SH });
+      slide.addImage({ data: (await (background ? renderBackground(t, background) : renderArt(t, found.name, layout))).slice(5), x: 0, y: 0, w: SW, h: SH });
       if (sl.image && layout.image) slide.addImage({ data: sl.image.slice(5), ...inch(layout.image), sizing: { type: "cover", ...inch(layout.image) } });
-      for (const [box, text, font, fit] of [
-        [layout.title, sl.title, t.fontTitle, false],
-        [layout.body, sl.body, t.fontBody, true],
+      if (sl.image2 && layout.image2) slide.addImage({ data: sl.image2.slice(5), ...inch(layout.image2), sizing: { type: "cover", ...inch(layout.image2) } });
+      for (const [box, text, boxFont, fit] of [
+        [layout.title, sl.title, font, !!layout.fitTitle],
+        ...(!layout.hideBody ? [[layout.body, sl.body, font, true] as const] : []),
       ] as const) {
         slide.addText(box.caps ? text.toUpperCase() : text, {
           ...inch(box),
-          fontFace: font,
+          fontFace: boxFont,
           fontSize: fit ? fitSize(box, text) : box.size,
           color: box.color,
           align: box.align,

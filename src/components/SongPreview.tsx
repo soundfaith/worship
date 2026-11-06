@@ -21,12 +21,14 @@ export function SongPreview({
   lines,
   onLines,
   template,
+  font,
 }: {
   title: string;
   source: string[];
   lines: number;
   onLines: (n: number) => void;
   template?: Template;
+  font?: string;
 }) {
   const tpl = template ?? getTemplate("");
   const pages = chunkLines(source, lines);
@@ -41,7 +43,7 @@ export function SongPreview({
       <div className="grid max-h-[28rem] grid-cols-2 gap-3 overflow-y-auto pr-1">
         {pages.map((body, i) => (
           <div key={i} className="space-y-1">
-            <SlideView slide={{ id: `p${i}`, kind: "song", title, body }} template={tpl} />
+            <SlideView slide={{ id: `p${i}`, kind: "song", title, body }} template={tpl} font={font} />
             <p className="text-center text-[11px] tabular-nums text-stone-400">{i + 1}</p>
           </div>
         ))}

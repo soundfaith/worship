@@ -1,53 +1,45 @@
-# Making a PowerPoint template
+# PowerPoint backgrounds and content layouts
 
-Drop a `.pptx` into the `templates/` folder (project root) and run `npm run templates`
-(this also runs automatically before `npm run dev` and `npm run build`). It appears in the app's
-template list. Commit the generated `public/templates/<name>/` folder so Vercel serves it.
+## Import a presentation
 
-Start from `templates/starter/starter-template.pptx` (regenerate with `node scripts/make-starter.mjs`).
-The file name becomes the template name (`warm-advent.pptx` → "Warm Advent").
+1. Put a 16:9 `.pptx` file in the project's `templates/` folder.
+2. On Windows with desktop Microsoft PowerPoint installed, close that presentation in PowerPoint
+   and run `npm run templates`. This also runs before `npm run dev` and `npm run build`.
+3. Choose the new template in the assembly editor. Each source slide becomes a selectable background.
+4. Commit the source PPTX, generated `public/templates/<name>/` folder, and
+   `src/lib/templates.generated.json` together before deploying to Vercel. PowerPoint is not needed
+   on Vercel when the generated assets match the source.
 
-## Slides
+The importer removes editable slide text before rendering the artwork. Each background is flattened
+to a PNG: original shapes, animations and text formatting are not editable in the output.
+Text embedded in an image cannot be removed, and text inherited from slide masters or layouts may
+remain. Review each background before use. Only use presentations and images you have permission
+to include in your repository.
 
-| Slide | Layout | Used for |
-|-------|--------|----------|
-| 1 | `cover` | Welcome, theme and closing slides |
-| 2 | `song` | Every song slide |
-| 3 | `content` | Prayer, announcements, birthdays, anniversaries, scripture, custom slides, and any page missing from the template |
-| 4 | `image` | Slides with an uploaded picture (optional) |
+Use `npm run templates -- --force` to regenerate everything. If a source file changes, prepare it
+again on Windows before deploying; the build fails if it cannot prepare missing or stale assets.
 
-Only `content` is required. To use another order, add a small text box `layout:cover` (or `song`,
-`content`, `image`) to a slide; it is removed on import.
+## Choose slide designs
 
-In the editor, **Page layout** on each slide picks one of these (Auto picks by slide type), so
-"+ Add custom slide" gives a `content` page unless you choose another layout or add an image.
+In **Review & Export**, select a slide and choose a background from its template. Content layouts
+are independent of backgrounds: choose a title slide, song lyrics, title and text, centered text,
+title only, text with an image on either side, title with one image, or title with two images.
+There is also a layout for a title, text and two images.
+Add images using the upload buttons shown for that layout. Content hidden by a layout is preserved
+if you switch back. Custom slides initially use the content layout and its automatic background.
 
-## Placeholders
+The automatic background uses slide 1 for cover slides, slide 2 for songs and slide 3 for content
+(or the last available slide for short decks). Ocean uses slide 7 for content and image slides.
+To change Ocean's defaults, edit the `slide` numbers in
+`templates/Ocean.template.json` and run the importer again. Changing a slide's content layout does
+not replace an explicitly selected background. Section template overrides are set in Review.
 
-Each slide needs two text boxes with exactly this text. Set the font, size, colour, alignment and position in PowerPoint;
-those are imported.
+Inter is the default presentation font. Change it in the assembly's Details tab or override it
+per slide in Review. Install the selected font on the computer that opens the exported PowerPoint.
+The slide text color can also be adjusted to improve contrast against the selected background.
+Use **Apply design to all** to copy a slide's layout, background, font and text color to other
+slides of the same kind without changing their text or images.
 
-- `{{title}}`: song title, slide heading
-- `{{body}}`: lyrics or text. The text shrinks automatically if long, so leave plenty of room (a 4-line song at 36pt is the target).
-- `{{image}}` (image slide only): a box marking where the uploaded picture goes (it is not drawn).
-
-## What is imported
-
-- Slide background: solid colour, gradient (linear), or a picture (Format Background → Picture)
-- Rectangles, rounded rectangles and ellipses with a solid or gradient fill (transparency works)
-- Pictures (PNG/JPG), drawn in place, cropped to fit. Put a photo behind a semi-transparent shape for readability
-- Use plain RGB colours (no "lighter 40%" tints) and set a fill explicitly on every shape
-
-Not imported: outlines/borders, shadows, text other than the placeholders, grouped shapes (ungroup), SVG/EMF
-pictures, WordArt, animations. The import prints a warning for anything skipped.
-
-## Design guide
-
-Keep slides minimal: a background, at most a couple of soft shapes, lots of free space for text,
-and good contrast (projected rooms are bright). Use fonts installed on the projecting computer
-(Georgia, Calibri, Arial…). 16:9 slide size.
-
-## Alternative: hand-made pack
-
-A folder `public/templates/<id>/template.json` (same JSON the importer writes, see `public/templates/glory/`)
-plus any images works too.
+Existing assemblies that used a removed template automatically display the first available
+template; select a new template in Details to update the saved choice. Uploaded images and
+assemblies are stored in the browser, so very large images or many slides can exhaust its storage.

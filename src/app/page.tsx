@@ -121,7 +121,7 @@ function AssemblyCard({ a, onDuplicate, onDelete }: { a: Assembly; onDuplicate: 
     <li className="card group overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
       <Link href={`/assembly/${a.id}`} className="block" aria-label={`Open ${a.title || "assembly"}`}>
         <div className="overflow-hidden p-2.5 pb-0">
-          <SlideView slide={coverSlide(a)} template={template} className="!shadow-none transition duration-500 group-hover:scale-[1.015]" />
+          <SlideView slide={a.slides?.find((s) => s.kind === "welcome") ?? coverSlide(a)} template={template} font={a.font} className="!shadow-none transition duration-500 group-hover:scale-[1.015]" />
         </div>
         <div className="px-5 pb-1 pt-4">
           <p className="truncate font-medium text-stone-900">{a.title || "Untitled assembly"}</p>

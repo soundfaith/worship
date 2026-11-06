@@ -15,6 +15,10 @@ export interface Slide {
   title: string;
   body: string;
   image?: string;
+  image2?: string;
+  background?: { templateId: string; id: string };
+  font?: string;
+  textColor?: string;
   layout?: LayoutName; // overrides the page layout chosen from the slide kind
 }
 
@@ -77,6 +81,7 @@ export interface Assembly {
   worshipLeader: string;
   assignments: Assignment[];
   templateId: string;
+  font?: string;
   sectionTemplates: Partial<Record<SlideKind, string>>;
   includeWelcome: boolean;
   includeTheme: boolean;
@@ -102,9 +107,17 @@ export interface Template {
   fontBody: string;
   dir?: string; // public URL of a template pack folder
   layouts?: Partial<Record<LayoutName, Layout>>;
+  backgrounds?: TemplateBackground[];
+  defaultBackgrounds?: Partial<Record<"cover" | "song" | "content" | "image", string>>;
 }
 
-export type LayoutName = "cover" | "song" | "content" | "image";
+export interface TemplateBackground {
+  id: string;
+  name: string;
+  src: string;
+}
+
+export type LayoutName = "cover" | "song" | "content" | "image" | "image-left" | "two-images" | "text-two-images" | "title-image" | "title-only" | "centered";
 
 // Rect in fractions of the slide (0-1).
 export interface Rect {
@@ -144,7 +157,10 @@ export interface Shape extends Rect {
 export interface Layout {
   bg?: Fill;
   shapes?: Shape[];
+  fitTitle?: boolean;
   title: TextBox;
   body: TextBox;
   image?: Rect;
+  image2?: Rect;
+  hideBody?: boolean;
 }

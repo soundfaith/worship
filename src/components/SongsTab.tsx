@@ -71,7 +71,7 @@ export function SongsTab({ a, update }: TabProps) {
               </div>
               {openUid === s.uid && (
                 <div className="border-t border-stone-200 p-4">
-                  <SongPreview title={s.title} source={s.slides} lines={s.lines ?? DEFAULT_LINES} onLines={(n) => setLines(s.uid, n)} template={template} />
+                  <SongPreview title={s.title} source={s.slides} lines={s.lines ?? DEFAULT_LINES} onLines={(n) => setLines(s.uid, n)} template={template} font={a.font} />
                 </div>
               )}
             </li>

@@ -27,6 +27,7 @@ export function blankAssembly(): Assembly {
     worshipLeader: "",
     assignments: [],
     templateId: DEFAULT_TEMPLATE,
+    font: "Inter",
     sectionTemplates: {},
     includeWelcome: true,
     includeTheme: false,

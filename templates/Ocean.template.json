@@ -1,0 +1,33 @@
+{
+  "layouts": {
+    "cover": {
+      "slide": 1,
+      "titleShape": "TextBox 3",
+      "bodyShape": "TextBox 5",
+      "title": { "x": 0.07, "y": 0.15, "w": 0.45, "h": 0.38, "size": 45 },
+      "body": { "x": 0.07, "y": 0.63, "w": 0.45, "h": 0.18, "size": 22, "color": "F8F8F8" }
+    },
+    "song": {
+      "slide": 2,
+      "titleShape": "TextBox 4",
+      "bodyShape": "TextBox 6",
+      "title": { "x": 0.07, "y": 0.12, "w": 0.43, "h": 0.12, "size": 24 },
+      "body": { "x": 0.07, "y": 0.28, "w": 0.43, "h": 0.48, "size": 32, "color": "FFFFFF" }
+    },
+    "content": {
+      "slide": 7,
+      "titleShape": "TextBox 4",
+      "bodyShape": "TextBox 6",
+      "title": { "x": 0.06, "y": 0.12, "w": 0.48, "h": 0.22, "size": 36 },
+      "body": { "x": 0.06, "y": 0.4, "w": 0.48, "h": 0.42, "size": 28, "color": "FFFFFF" }
+    },
+    "image": {
+      "slide": 7,
+      "titleShape": "TextBox 4",
+      "bodyShape": "TextBox 6",
+      "title": { "x": 0.06, "y": 0.12, "w": 0.43, "h": 0.22, "size": 36 },
+      "body": { "x": 0.06, "y": 0.4, "w": 0.43, "h": 0.42, "size": 28, "color": "FFFFFF" },
+      "image": { "x": 0.55, "y": 0.2, "w": 0.4, "h": 0.55 }
+    }
+  }
+}

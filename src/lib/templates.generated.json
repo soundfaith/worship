@@ -1,177 +1,388 @@
 [
   {
-    "id": "glory",
-    "name": "Glory",
-    "bg": "0B1A38",
-    "fg": "F7F1E3",
-    "accent": "E3B968",
-    "fontTitle": "Georgia",
-    "fontBody": "Georgia",
+    "id": "desert",
+    "name": "Desert",
+    "bg": "FFFFFF",
+    "fg": "2A1B10",
+    "accent": "2A1B10",
+    "fontTitle": "Open Sauce Semi-Bold",
+    "fontBody": "Century Gothic Paneuropean",
+    "backgrounds": [
+      {
+        "id": "slide-1",
+        "name": "Slide 1",
+        "src": "slide-1.png"
+      },
+      {
+        "id": "slide-2",
+        "name": "Slide 2",
+        "src": "slide-2.png"
+      },
+      {
+        "id": "slide-3",
+        "name": "Slide 3",
+        "src": "slide-3.png"
+      },
+      {
+        "id": "slide-4",
+        "name": "Slide 4",
+        "src": "slide-4.png"
+      },
+      {
+        "id": "slide-5",
+        "name": "Slide 5",
+        "src": "slide-5.png"
+      },
+      {
+        "id": "slide-6",
+        "name": "Slide 6",
+        "src": "slide-6.png"
+      },
+      {
+        "id": "slide-7",
+        "name": "Slide 7",
+        "src": "slide-7.png"
+      },
+      {
+        "id": "slide-8",
+        "name": "Slide 8",
+        "src": "slide-8.png"
+      },
+      {
+        "id": "slide-9",
+        "name": "Slide 9",
+        "src": "slide-9.png"
+      },
+      {
+        "id": "slide-10",
+        "name": "Slide 10",
+        "src": "slide-10.png"
+      }
+    ],
+    "defaultBackgrounds": {
+      "cover": "slide-1",
+      "song": "slide-2",
+      "content": "slide-3",
+      "image": "slide-3"
+    },
     "layouts": {
       "cover": {
         "bg": {
-          "type": "gradient",
-          "angle": 90,
-          "stops": [
-            {
-              "pos": 0,
-              "color": "0B1A38"
-            },
-            {
-              "pos": 0.7,
-              "color": "1B2F5C"
-            },
-            {
-              "pos": 1,
-              "color": "C98F4B"
-            }
-          ]
+          "type": "solid",
+          "color": "FFFFFF"
         },
         "shapes": [
           {
-            "type": "ellipse",
-            "x": 0.3,
-            "y": 0.82,
-            "w": 0.4,
-            "h": 0.36,
-            "fill": {
-              "type": "gradient",
-              "angle": 90,
-              "stops": [
-                {
-                  "pos": 0,
-                  "color": "F6E3B0",
-                  "alpha": 0.28
-                },
-                {
-                  "pos": 1,
-                  "color": "F6E3B0",
-                  "alpha": 0
-                }
-              ]
-            }
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-1.png"
           }
         ],
         "title": {
-          "x": 0.1,
-          "y": 0.22,
-          "w": 0.8,
-          "h": 0.26,
-          "size": 48,
-          "align": "center",
-          "color": "F6E3B0"
+          "size": 55.81,
+          "w": 0.3514,
+          "color": "2E1D12",
+          "align": "left",
+          "y": 0.2226,
+          "x": 0.0536,
+          "h": 0.4184
         },
         "body": {
-          "x": 0.15,
-          "y": 0.5,
-          "w": 0.7,
-          "h": 0.14,
-          "size": 22,
-          "align": "center",
-          "color": "F7F1E3"
-        }
+          "size": 16.45,
+          "w": 0.2099,
+          "color": "2E1D12",
+          "align": "left",
+          "y": 0.7424,
+          "x": 0.0594,
+          "h": 0.0415
+        },
+        "fitTitle": true
       },
       "song": {
         "bg": {
-          "type": "gradient",
-          "angle": 90,
-          "stops": [
-            {
-              "pos": 0,
-              "color": "0B1A38"
-            },
-            {
-              "pos": 1,
-              "color": "142850"
-            }
-          ]
+          "type": "solid",
+          "color": "FFFFFF"
         },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-2.png"
+          }
+        ],
         "title": {
-          "x": 0.1,
-          "y": 0.04,
-          "w": 0.8,
-          "h": 0.08,
-          "size": 14,
-          "align": "center",
-          "color": "E3B968",
-          "caps": true,
-          "spacing": 4
+          "size": 59.86,
+          "w": 0.4861,
+          "color": "2A1B10",
+          "align": "left",
+          "y": 0.3008,
+          "x": 0.0567,
+          "h": 0.3023
         },
         "body": {
-          "x": 0.08,
-          "y": 0.16,
-          "w": 0.84,
-          "h": 0.74,
-          "size": 36,
-          "align": "center",
-          "color": "F7F1E3"
-        }
+          "size": 19.925,
+          "w": 0.3273,
+          "color": "2A1B10",
+          "align": "left",
+          "y": 0.6736,
+          "x": 0.0582,
+          "h": 0.1329
+        },
+        "fitTitle": true
       },
       "content": {
         "bg": {
-          "type": "gradient",
-          "angle": 90,
-          "stops": [
-            {
-              "pos": 0,
-              "color": "0B1A38"
-            },
-            {
-              "pos": 1,
-              "color": "142850"
-            }
-          ]
+          "type": "solid",
+          "color": "FFFFFF"
         },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-3.png"
+          }
+        ],
         "title": {
-          "x": 0.1,
-          "y": 0.07,
-          "w": 0.8,
-          "h": 0.13,
-          "size": 36,
-          "align": "center",
-          "color": "F6E3B0"
+          "size": 59.86,
+          "w": 0.4421,
+          "color": "2A1B10",
+          "align": "left",
+          "y": 0.2979,
+          "x": 0.0542,
+          "h": 0.3023
         },
         "body": {
-          "x": 0.1,
-          "y": 0.26,
-          "w": 0.8,
-          "h": 0.64,
-          "size": 26,
-          "align": "center",
-          "color": "F7F1E3"
-        }
+          "size": 19.775,
+          "w": 0.3393,
+          "color": "2A1B10",
+          "align": "left",
+          "y": 0.6711,
+          "x": 0.0581,
+          "h": 0.1267
+        },
+        "fitTitle": true
+      }
+    },
+    "dir": "/templates/desert"
+  },
+  {
+    "id": "ocean",
+    "name": "Ocean",
+    "bg": "FFFFFF",
+    "fg": "FFFFFF",
+    "accent": "FAFAFA",
+    "fontTitle": "Inter Semi-Bold",
+    "fontBody": "Inter",
+    "backgrounds": [
+      {
+        "id": "slide-1",
+        "name": "Slide 1",
+        "src": "slide-1.png"
+      },
+      {
+        "id": "slide-2",
+        "name": "Slide 2",
+        "src": "slide-2.png"
+      },
+      {
+        "id": "slide-3",
+        "name": "Slide 3",
+        "src": "slide-3.png"
+      },
+      {
+        "id": "slide-4",
+        "name": "Slide 4",
+        "src": "slide-4.png"
+      },
+      {
+        "id": "slide-5",
+        "name": "Slide 5",
+        "src": "slide-5.png"
+      },
+      {
+        "id": "slide-6",
+        "name": "Slide 6",
+        "src": "slide-6.png"
+      },
+      {
+        "id": "slide-7",
+        "name": "Slide 7",
+        "src": "slide-7.png"
+      },
+      {
+        "id": "slide-8",
+        "name": "Slide 8",
+        "src": "slide-8.png"
+      },
+      {
+        "id": "slide-9",
+        "name": "Slide 9",
+        "src": "slide-9.png"
+      }
+    ],
+    "defaultBackgrounds": {
+      "cover": "slide-1",
+      "song": "slide-2",
+      "content": "slide-7",
+      "image": "slide-7"
+    },
+    "layouts": {
+      "cover": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-1.png"
+          }
+        ],
+        "title": {
+          "size": 45,
+          "w": 0.45,
+          "color": "F8F8F8",
+          "align": "left",
+          "y": 0.15,
+          "x": 0.07,
+          "h": 0.38
+        },
+        "body": {
+          "size": 22,
+          "w": 0.45,
+          "color": "F8F8F8",
+          "align": "left",
+          "y": 0.63,
+          "x": 0.07,
+          "h": 0.18
+        },
+        "fitTitle": true
+      },
+      "song": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-2.png"
+          }
+        ],
+        "title": {
+          "size": 24,
+          "w": 0.43,
+          "color": "FFFFFF",
+          "align": "left",
+          "y": 0.12,
+          "x": 0.07,
+          "h": 0.12
+        },
+        "body": {
+          "size": 32,
+          "w": 0.43,
+          "color": "FFFFFF",
+          "align": "left",
+          "y": 0.28,
+          "x": 0.07,
+          "h": 0.48
+        },
+        "fitTitle": true
+      },
+      "content": {
+        "bg": {
+          "type": "solid",
+          "color": "FFFFFF"
+        },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-7.png"
+          }
+        ],
+        "title": {
+          "size": 36,
+          "w": 0.48,
+          "color": "FAFAFA",
+          "align": "left",
+          "y": 0.12,
+          "x": 0.06,
+          "h": 0.22
+        },
+        "body": {
+          "size": 28,
+          "w": 0.48,
+          "color": "FFFFFF",
+          "align": "left",
+          "y": 0.4,
+          "x": 0.06,
+          "h": 0.42
+        },
+        "fitTitle": true
       },
       "image": {
         "bg": {
           "type": "solid",
-          "color": "0B1A38"
+          "color": "FFFFFF"
         },
+        "shapes": [
+          {
+            "type": "image",
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "src": "slide-7.png"
+          }
+        ],
         "title": {
-          "x": 0.52,
-          "y": 0.14,
-          "w": 0.4,
-          "h": 0.17,
-          "size": 30,
+          "size": 36,
+          "w": 0.43,
+          "color": "FAFAFA",
           "align": "left",
-          "color": "F6E3B0"
+          "y": 0.12,
+          "x": 0.06,
+          "h": 0.22
         },
         "body": {
-          "x": 0.52,
-          "y": 0.4,
-          "w": 0.4,
-          "h": 0.48,
-          "size": 22,
+          "size": 28,
+          "w": 0.43,
+          "color": "FFFFFF",
           "align": "left",
-          "color": "F7F1E3"
+          "y": 0.4,
+          "x": 0.06,
+          "h": 0.42
         },
+        "fitTitle": true,
         "image": {
-          "x": 0,
-          "y": 0,
-          "w": 0.46,
-          "h": 1
+          "x": 0.55,
+          "y": 0.2,
+          "w": 0.4,
+          "h": 0.55
         }
       }
     },
-    "dir": "/templates/glory"
+    "dir": "/templates/ocean"
   }
 ]

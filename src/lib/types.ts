@@ -19,6 +19,15 @@ export interface Slide {
   image?: string;
   image2?: string;
   background?: { templateId: string; id: string };
+  backgroundImage?: {
+    data: string;
+    title: string;
+    artist: string;
+    license: string;
+    licenseUrl: string;
+    sourceUrl: string;
+    providerLabel?: string;
+  };
   font?: string;
   textColor?: string;
   layout?: LayoutName; // overrides the page layout chosen from the slide kind
@@ -90,8 +99,10 @@ export interface Assembly {
   worshipLeader: string;
   assignments: Assignment[];
   templateId: string;
+  backgroundColor?: string;
   font?: string;
   sectionTemplates: Partial<Record<SlideKind, string>>;
+  logo?: LogoPlacement;
   includeWelcome: boolean;
   includeTheme: boolean;
   includeClosing: boolean;
@@ -105,6 +116,29 @@ export interface Assembly {
   slides: Slide[] | null;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface LogoPlacement {
+  data: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type ImageProvider = "library" | "commons" | "unsplash" | "pexels";
+
+export interface PhotoSearchResult {
+  id: string;
+  title: string;
+  artist: string;
+  license: string;
+  licenseUrl: string;
+  sourceUrl: string;
+  thumbnailUrl: string;
+  provider: ImageProvider;
+  providerLabel: string;
+  downloadUrl?: string;
 }
 
 export interface Template {

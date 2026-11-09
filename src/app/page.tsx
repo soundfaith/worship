@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { blankAssembly, duplicateAssembly, useAssemblies, usePreferredFont, useRecurring } from "@/lib/assemblies";
+import { useEffect, useState } from "react";
+import { blankAssembly, duplicateAssembly, useAssemblies, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { coverSlide, formatDate } from "@/lib/slides";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
 import { songLabel, useSongSearch } from "@/lib/useSongs";
@@ -14,6 +14,7 @@ import { ConfirmDialog } from "@/components/Modal";
 export default function Home() {
   const router = useRouter();
   const [assemblies, setAssemblies] = useAssemblies();
+  const [discoveryEligible, setDiscoveryEligible] = useSoundFaithDiscoveryEligibility();
   const [recurring] = useRecurring();
   const [preferredFont] = usePreferredFont();
   const [q, setQ] = useState("");
@@ -21,11 +22,16 @@ export default function Home() {
   const { results } = useSongSearch(q);
   const needle = q.trim().toLowerCase();
 
+  useEffect(() => {
+    if (assemblies.length > 0 && !discoveryEligible) setDiscoveryEligible(true);
+  }, [assemblies.length, discoveryEligible, setDiscoveryEligible]);
+
   const sorted = [...assemblies].sort((a, b) => b.date.localeCompare(a.date));
 
   const create = (from?: Assembly) => {
     const a = from ? duplicateAssembly(from) : blankAssembly(preferredFont);
     setAssemblies((l) => [...l, a]);
+    setDiscoveryEligible(true);
     router.push(`/assembly/${a.id}`);
   };
 
@@ -113,6 +119,18 @@ export default function Home() {
         </ul>
         {aHits.length === 0 && needle && <p className="py-8 text-center text-stone-500">No assemblies match.</p>}
       </section>
+      {!needle && discoveryEligible && (
+        <aside aria-labelledby="about-soundfaith-title" className="card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 id="about-soundfaith-title" className="font-medium text-stone-900">About SoundFaith</h2>
+            <p className="mt-1 text-sm text-stone-600">SoundFaith helps Catholics build a daily rhythm of prayer, Scripture, and formation.</p>
+            <p className="mt-1 text-sm text-stone-500">Explore Bible journeys, daily readings, saints, and more.</p>
+          </div>
+          <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="shrink-0 text-sm font-medium text-accent hover:underline">
+            Explore SoundFaith →
+          </a>
+        </aside>
+      )}
       {deleteAssembly && <ConfirmDialog title="Delete assembly?" message={`“${deleteAssembly.title || "Untitled assembly"}” will be permanently deleted from this browser.`} confirmLabel="Delete assembly" onCancel={() => setDeleteAssembly(null)} onConfirm={() => {
         setAssemblies((list) => list.filter((item) => item.id !== deleteAssembly.id));
         setDeleteAssembly(null);

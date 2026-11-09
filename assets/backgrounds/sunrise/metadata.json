@@ -1,0 +1,36 @@
+{
+  "provider": "Unsplash",
+  "generatedAt": "2026-11-09T13:10:29.132Z",
+  "photos": [
+    {
+      "id": "-G3rw6Y02D0",
+      "category": "sunrise",
+      "file": "sunrise--G3rw6Y02D0.jpg",
+      "title": "trees under cloudy sky during sunset",
+      "photographer": "Dawid Zawiła",
+      "photographerUrl": "https://unsplash.com/@davealmine?utm_source=assembly&utm_medium=referral",
+      "unsplashUrl": "https://unsplash.com/photos/trees-under-cloudy-sky-during-sunset--G3rw6Y02D0?utm_source=assembly&utm_medium=referral",
+      "unsplashReferralUrl": "https://unsplash.com/?utm_source=assembly&utm_medium=referral",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "width": 4159,
+      "height": 2773,
+      "attribution": "Photo by Dawid Zawiła on Unsplash"
+    },
+    {
+      "id": "-IMlv9Jlb24",
+      "category": "sunrise",
+      "file": "sunrise--IMlv9Jlb24.jpg",
+      "title": "sea under white clouds at golden hour",
+      "photographer": "Sebastien Gabriel",
+      "photographerUrl": "https://unsplash.com/@sgabriel?utm_source=assembly&utm_medium=referral",
+      "unsplashUrl": "https://unsplash.com/photos/sea-under-white-clouds-at-golden-hour--IMlv9Jlb24?utm_source=assembly&utm_medium=referral",
+      "unsplashReferralUrl": "https://unsplash.com/?utm_source=assembly&utm_medium=referral",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "width": 5347,
+      "height": 3565,
+      "attribution": "Photo by Sebastien Gabriel on Unsplash"
+    }
+  ]
+}

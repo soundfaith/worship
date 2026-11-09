@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "templates": "node scripts/templates.mjs",
+    "backgrounds:download": "node scripts/download-background-library.mjs",
     "predev": "node scripts/templates.mjs",
     "prebuild": "node scripts/templates.mjs",
     "dev": "next dev",

@@ -14,6 +14,10 @@ export function useAssemblies() {
   return useLocalStore<Assembly[]>("worship.assemblies", NONE);
 }
 
+export function useSoundFaithDiscoveryEligibility() {
+  return useLocalStore<boolean>("worship.soundfaithDiscoveryEligible", false);
+}
+
 export function useRecurring() {
   return useLocalStore<Announcement[]>("worship.recurringAnnouncements", NO_ANN);
 }
@@ -35,6 +39,7 @@ export function blankAssembly(font = DEFAULT_FONT): Assembly {
     worshipLeader: "",
     assignments: [],
     templateId: DEFAULT_TEMPLATE,
+    backgroundColor: "F7F5F0",
     font,
     sectionTemplates: {},
     includeWelcome: true,

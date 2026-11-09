@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useAssemblies } from "@/lib/assemblies";
+import { useAssemblies, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { exportPptx } from "@/lib/export";
 import type { Assembly } from "@/lib/types";
 import { DetailsTab } from "@/components/DetailsTab";
@@ -13,6 +13,7 @@ const TABS = ["Details", "Songs", "Content", "Review & Export"] as const;
 
 export function AssemblyEditor({ id }: { id: string }) {
   const [assemblies, setAssemblies] = useAssemblies();
+  const [, setDiscoveryEligible] = useSoundFaithDiscoveryEligibility();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Details");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
@@ -38,6 +39,7 @@ export function AssemblyEditor({ id }: { id: string }) {
     setExportError("");
     try {
       await exportPptx(a);
+      setDiscoveryEligible(true);
     } catch (e) {
       setExportError(`Export failed: ${e instanceof Error ? e.message : "unknown error"}`);
     } finally {

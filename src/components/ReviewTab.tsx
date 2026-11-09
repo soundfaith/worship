@@ -4,31 +4,15 @@ import { buildSlides } from "@/lib/slides";
 import { gospelForAssembly } from "@/lib/gospel";
 import { GOSPEL_MIN_SIZE, readingFits } from "@/lib/layout";
 import { uid } from "@/lib/store";
-import { backgroundFor, FONTS, getTemplate, LAYOUT_OPTIONS, layoutFor, layoutNameFor, songIndexes, TEMPLATES } from "@/lib/templates";
-import type { LayoutName, Rect, Slide, Template } from "@/lib/types";
+import { backgroundFor, FONTS, LAYOUT_OPTIONS, layoutFor, layoutNameFor, presentationTemplate, songIndexes, TEMPLATES } from "@/lib/templates";
+import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, Template } from "@/lib/types";
 import { IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
 import { ConfirmDialog } from "./Modal";
 import type { TabProps } from "./ui";
+import { shrinkImage } from "@/lib/image";
 
 const NO_SLIDES: Slide[] = [];
-
-// Downscale uploads so saved assemblies stay small enough for browser storage.
-async function shrinkImage(file: File, max = 1280): Promise<string> {
-  const bmp = await createImageBitmap(file);
-  try {
-    const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
-    const c = document.createElement("canvas");
-    c.width = Math.round(bmp.width * k);
-    c.height = Math.round(bmp.height * k);
-    const ctx = c.getContext("2d");
-    if (!ctx) throw new Error("Cannot process this image.");
-    ctx.drawImage(bmp, 0, 0, c.width, c.height);
-    return c.toDataURL("image/jpeg", 0.82);
-  } finally {
-    bmp.close();
-  }
-}
 
 export function ReviewTab({ a, update, exporting, onExport, exportError }: TabProps & {
   exporting: boolean;
@@ -38,7 +22,47 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
   const [cur, setCur] = useState(0);
   const [error, setError] = useState("");
   const [regenerate, setRegenerate] = useState(false);
+  const [imageQuery, setImageQuery] = useState("");
+  const [imageProvider, setImageProvider] = useState<ImageProvider>("commons");
+  const [imageProviders, setImageProviders] = useState<{ id: ImageProvider; label: string }[]>([]);
+  const [libraryCategories, setLibraryCategories] = useState<string[]>([]);
+  const [libraryCategory, setLibraryCategory] = useState("worship");
+  const [imageResults, setImageResults] = useState<PhotoSearchResult[]>([]);
+  const [imageNextCursor, setImageNextCursor] = useState<string | null>(null);
+  const [imageSearching, setImageSearching] = useState(false);
+  const [imageLoadingMore, setImageLoadingMore] = useState(false);
+  const [imageDownloading, setImageDownloading] = useState("");
+  const [imageError, setImageError] = useState("");
+  const imageSearchId = useRef(0);
   const latestSlides = useRef<Slide[]>(a.slides ?? []);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/images?providers=1")
+      .then(async (response) => {
+        const data = await response.json() as {
+          providers?: { id: ImageProvider; label: string }[];
+          libraryCategories?: string[];
+          error?: string;
+        };
+        if (!response.ok) throw new Error(data.error ?? `Could not load photo providers (HTTP ${response.status}).`);
+        if (!active) return;
+        const providers = data.providers ?? [];
+        setImageProviders(providers);
+        const categories = data.libraryCategories ?? [];
+        setLibraryCategories(categories);
+        if (categories.length) {
+          setLibraryCategory(categories[0]);
+          setImageProvider("library");
+        } else if (providers.some((provider) => provider.id === "unsplash")) {
+          setImageProvider("unsplash");
+        }
+      })
+      .catch((e: unknown) => {
+        if (active) setImageError(e instanceof Error ? e.message : "Could not load photo providers.");
+      });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     if (!a.slides) update({ slides: buildSlides(a) });
@@ -62,12 +86,15 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
     setSlides(next);
     setCur(j);
   };
-  const tpl = (s: Slide) => getTemplate(a.sectionTemplates[s.kind] ?? a.templateId);
+  const tpl = (s: Slide) => presentationTemplate(a.sectionTemplates[s.kind] ?? a.templateId, a.backgroundColor);
+  const updateLogoPosition = (position: { x: number; y: number }) => {
+    if (a.logo) update({ logo: { ...a.logo, ...position } });
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t.closest("dialog") || t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT") return;
+      if (t.closest("dialog") || t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "BUTTON" || t.isContentEditable) return;
       if (e.key === "ArrowRight") setCur((c) => Math.min(c + 1, slides.length - 1));
       if (e.key === "ArrowLeft") setCur((c) => Math.max(c - 1, 0));
     };
@@ -88,6 +115,82 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
       setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, [field]: data } : item));
     } catch (e) {
       setError(`Could not save the image: ${e instanceof Error ? e.message : "unknown error"}. Your browser may have run out of storage.`);
+    }
+  };
+
+  const searchImages = async (event?: React.FormEvent<HTMLFormElement>, cursor?: string, append = false) => {
+    event?.preventDefault();
+    setImageError("");
+    const requestId = append ? imageSearchId.current : ++imageSearchId.current;
+    if (append) setImageLoadingMore(true);
+    else {
+      setImageResults([]);
+      setImageNextCursor(null);
+      setImageSearching(true);
+    }
+    try {
+      const params = new URLSearchParams({ provider: imageProvider });
+      if (imageProvider === "library") params.set("category", libraryCategory);
+      else params.set("q", imageQuery.trim());
+      if (cursor) params.set("cursor", cursor);
+      const response = await fetch(`/api/images?${params}`);
+      const data = await response.json() as { images?: PhotoSearchResult[]; nextCursor?: string | null; error?: string };
+      if (!response.ok) throw new Error(data.error ?? `Image search failed (HTTP ${response.status}).`);
+      if (requestId !== imageSearchId.current) return;
+      setImageResults((results) => {
+        const incoming = data.images ?? [];
+        if (!append) return incoming;
+        const existingIds = new Set(results.map((image) => image.id));
+        return [...results, ...incoming.filter((image) => !existingIds.has(image.id))];
+      });
+      setImageNextCursor(data.nextCursor ?? null);
+      if (!append && !data.images?.length) setImageError("No compatible images found. Try a different search.");
+    } catch (e) {
+      if (requestId === imageSearchId.current) setImageError(e instanceof Error ? e.message : "Image search failed.");
+    } finally {
+      if (requestId === imageSearchId.current) {
+        setImageSearching(false);
+        setImageLoadingMore(false);
+      }
+    }
+  };
+
+  const selectImage = async (image: PhotoSearchResult) => {
+    setImageError("");
+    setImageDownloading(image.id);
+    const slideId = slide.id;
+    try {
+      const response = await fetch("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(image.provider === "library"
+          ? { provider: image.provider, id: image.id }
+          : { provider: image.provider, url: image.thumbnailUrl, downloadUrl: image.downloadUrl }),
+      });
+      if (!response.ok) {
+        const data = await response.json() as { error?: string };
+        throw new Error(data.error ?? `Image download failed (HTTP ${response.status}).`);
+      }
+      const data = await shrinkImage(await response.blob());
+      setSlides(latestSlides.current.map((item) => item.id === slideId ? {
+        ...item,
+        background: undefined,
+        backgroundImage: {
+          data,
+          title: image.title,
+          artist: image.artist,
+          license: image.license,
+          licenseUrl: image.licenseUrl,
+          sourceUrl: image.sourceUrl,
+          providerLabel: image.providerLabel,
+        },
+      } : item));
+      setImageResults([]);
+      setImageQuery("");
+    } catch (e) {
+      setImageError(e instanceof Error ? e.message : "Could not save this image.");
+    } finally {
+      setImageDownloading("");
     }
   };
 
@@ -123,7 +226,7 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                   aria-current={i === idx ? "true" : undefined}
                   className={`block w-full rounded-xl p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
                 >
-                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} />
+                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.logo} />
                   <span className="block truncate px-1 pt-1 text-xs text-stone-500">{i + 1}. <span className="hidden sm:inline">{s.title}</span></span>
                 </button>
               </li>
@@ -132,7 +235,15 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
         </nav>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="mx-auto w-full max-w-xl shrink-0">
-            <SlideView slide={slide} template={currentTemplate} font={a.font} songIndex={songPositions[idx]} />
+            <SlideView
+              slide={slide}
+              template={currentTemplate}
+              font={a.font}
+              songIndex={songPositions[idx]}
+              logo={a.logo}
+              onLogoPositionChange={a.logo ? updateLogoPosition : undefined}
+            />
+            {a.logo && <p className="mt-1 text-center text-xs text-stone-500">Drag the logo to reposition it across all slides. Arrow keys also work when focused.</p>}
           </div>
           <div aria-label="Slide editing tools" tabIndex={0} className="min-h-0 min-w-0 flex-1 overflow-y-auto pr-1">
           <div className="card min-w-0 space-y-4 p-3 sm:p-5">
@@ -170,14 +281,6 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                   {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               </label>
-              {!currentTemplate.backgrounds?.length && currentTemplate.layouts && (
-                <label className="text-sm text-stone-500">Page layout{" "}
-                  <select className="input !inline-block !w-auto" value={slide.layout ?? ""} onChange={(e) => patch({ layout: (e.target.value || undefined) as LayoutName | undefined })}>
-                    <option value="">Auto</option>
-                    {(Object.keys(currentTemplate.layouts) as LayoutName[]).map((n) => <option key={n} value={n}>{n}</option>)}
-                  </select>
-                </label>
-              )}
               <label className="text-sm text-stone-500">Slide font{" "}
                 <select className="input !inline-block !w-auto" value={slide.font ?? ""} onChange={(e) => patch({ font: e.target.value || undefined })}>
                   <option value="">Presentation default</option>
@@ -188,11 +291,11 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                 <input type="color" aria-label="Slide text color" value={`#${slide.textColor ?? currentTemplate.fg}`} onChange={(e) => patch({ textColor: e.target.value.slice(1).toUpperCase() })} />
                 {slide.textColor && <button className="btn btn-ghost" onClick={() => patch({ textColor: undefined })}>Reset</button>}
               </label> : null}
-              {slides.filter((item) => item.kind === slide.kind).length > 1 && <button className="btn btn-ghost" onClick={() => setSlides(slides.map((item) => item.kind === slide.kind ? { ...item, layout: slide.layout, background: slide.background, font: slide.font, textColor: slide.textColor } : item))}>Apply design to all {slide.kind} slides</button>}
+              {slides.filter((item) => item.kind === slide.kind).length > 1 && <button className="btn btn-ghost" onClick={() => setSlides(slides.map((item) => item.kind === slide.kind ? { ...item, layout: slide.layout, background: slide.background, backgroundImage: slide.backgroundImage, font: slide.font, textColor: slide.textColor } : item))}>Apply design to all {slide.kind} slides</button>}
               <span className="flex-1" />
               <IconButton icon="trash" label="Remove slide" danger onClick={() => setSlides(slides.filter((_, i) => i !== idx))} />
             </div>
-            {!!currentTemplate.backgrounds?.length && (
+            {!!currentTemplate.layouts && (
               <section className="space-y-3" aria-label="Content layouts">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div><h3 className="display text-2xl">Content layout</h3><p className="text-sm text-stone-500">Choose how text and images are arranged.</p></div>
@@ -208,7 +311,7 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                 </div>
               </section>
             )}
-            {!!currentTemplate.backgrounds?.length && (
+            {!!currentTemplate.backgrounds?.length && !slide.backgroundImage && (
               <section className="space-y-4" aria-label="Slide backgrounds">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
@@ -229,6 +332,107 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                 </div>
               </section>
             )}
+            <section className="space-y-4" aria-label="Photo backgrounds">
+              <div>
+                <h3 className="display text-2xl">Photo background</h3>
+                <p className="text-sm text-stone-500">Choose a free photo. Soft blur and a subtle overlay help text stay readable.</p>
+              </div>
+              {slide.backgroundImage && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-stone-50 p-3 text-sm dark:bg-stone-900">
+                  <p className="min-w-0 text-stone-600">
+                    Using “{slide.backgroundImage.title}” by {slide.backgroundImage.artist} · {slide.backgroundImage.providerLabel ?? "Wikimedia Commons"} · {slide.backgroundImage.license}
+                    {slide.backgroundImage.licenseUrl && <> · <a href={slide.backgroundImage.licenseUrl} target="_blank" rel="noopener noreferrer" className="underline">license</a></>}
+                    {slide.backgroundImage.sourceUrl && <> · <a href={slide.backgroundImage.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">source</a></>}
+                  </p>
+                  <button className="btn btn-ghost" onClick={() => patch({ backgroundImage: undefined, background: undefined })}>Remove photo</button>
+                </div>
+              )}
+              <form onSubmit={(event) => void searchImages(event)} className="flex flex-wrap gap-2">
+                <label className="sr-only" htmlFor="photo-provider">Photo source</label>
+                <select
+                  id="photo-provider"
+                  className="input !w-auto"
+                  value={imageProvider}
+                  onChange={(event) => {
+                    imageSearchId.current++;
+                    setImageProvider(event.target.value as ImageProvider);
+                    setImageResults([]);
+                    setImageNextCursor(null);
+                    setImageError("");
+                  }}
+                  aria-label="Photo source"
+                >
+                  {imageProviders.map((provider) => <option key={provider.id} value={provider.id}>{provider.label}</option>)}
+                </select>
+                {imageProvider === "library" ? (
+                  <>
+                    <label className="sr-only" htmlFor="photo-category">Photo category</label>
+                    <select
+                      id="photo-category"
+                      className="input !w-auto"
+                      value={libraryCategory}
+                      onChange={(event) => setLibraryCategory(event.target.value)}
+                      aria-label="Photo category"
+                    >
+                      {libraryCategories.map((category) => (
+                        <option key={category} value={category}>{category[0].toUpperCase() + category.slice(1)}</option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <input
+                    className="input min-w-48 flex-1"
+                    aria-label="Search photos"
+                    placeholder="Search images…"
+                    value={imageQuery}
+                    onChange={(event) => setImageQuery(event.target.value)}
+                    minLength={2}
+                    maxLength={100}
+                    required
+                  />
+                )}
+                <button className="btn" type="submit" disabled={imageSearching || (imageProvider === "library" && !libraryCategories.length)}>
+                  {imageSearching ? "Loading…" : imageProvider === "library" ? "Browse local photos" : "Search free images"}
+                </button>
+              </form>
+              {imageError && <p role="alert" className="text-sm text-red-600">{imageError}</p>}
+              {!imageProviders.some((provider) => provider.id === "unsplash") && !imageProviders.some((provider) => provider.id === "pexels") && (
+                <p className="text-xs text-stone-500">
+                  Want Unsplash or Pexels? Set <code>UNSPLASH_ACCESS_KEY</code> or <code>PEXELS_API_KEY</code> on the server to enable them.
+                </p>
+              )}
+              {!!imageResults.length && (
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {imageResults.map((image) => (
+                    <li key={image.id}>
+                      <button
+                        type="button"
+                        disabled={!!imageDownloading}
+                        onClick={() => void selectImage(image)}
+                        className="w-full rounded-xl border border-stone-200 p-2 text-left transition hover:border-accent disabled:opacity-60"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image.thumbnailUrl} alt="" loading="lazy" className="aspect-video w-full rounded-lg object-cover" />
+                        <span className="mt-2 block truncate text-sm font-medium text-stone-800">{image.title}</span>
+                        <span className="block truncate text-xs text-stone-500">{image.artist} · {image.providerLabel} · {image.license}</span>
+                        {imageDownloading === image.id && <span className="mt-1 block text-xs text-accent">Saving image…</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {imageNextCursor && !!imageResults.length && (
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={imageLoadingMore}
+                  onClick={() => void searchImages(undefined, imageNextCursor, true)}
+                >
+                  {imageLoadingMore ? "Loading more…" : "Show more photos"}
+                </button>
+              )}
+              <p className="text-xs text-stone-500">Images and their attribution are saved with this slide. License terms vary by image; verify them before publishing.</p>
+            </section>
           </div>
           <button
             className="btn my-4"

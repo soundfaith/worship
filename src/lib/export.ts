@@ -1,6 +1,6 @@
 import { fitSize, readingFontSize } from "./layout";
-import { renderArt, renderBackground } from "./art";
-import { backgroundFor, DEFAULT_FONT, getTemplate, layoutFor, songIndexes } from "./templates";
+import { renderArt, renderBackground, renderPhotoBackground } from "./art";
+import { backgroundFor, BLANK_TEMPLATE_ID, DEFAULT_FONT, layoutFor, presentationTemplate, songIndexes } from "./templates";
 import type { Assembly, Rect, Slide, SlideKind } from "./types";
 
 const SW = 10;
@@ -8,16 +8,18 @@ const SH = 5.625;
 const inch = (r: Rect) => ({ x: r.x * SW, y: r.y * SH, w: r.w * SW, h: r.h * SH });
 
 export async function exportPptx(a: Assembly) {
-  return exportSlides({ title: a.title, date: a.date, slides: a.slides ?? [], templateId: a.templateId, sectionTemplates: a.sectionTemplates, font: a.font });
+  return exportSlides({ title: a.title, date: a.date, slides: a.slides ?? [], templateId: a.templateId, sectionTemplates: a.sectionTemplates, font: a.font, backgroundColor: a.backgroundColor, logo: a.logo });
 }
 
-export async function exportSlides({ title, date, slides, templateId, sectionTemplates = {}, font }: {
+export async function exportSlides({ title, date, slides, templateId, sectionTemplates = {}, font, backgroundColor, logo }: {
   title: string;
   date?: string;
   slides: Slide[];
   templateId: string;
   sectionTemplates?: Partial<Record<SlideKind, string>>;
   font?: string;
+  backgroundColor?: string;
+  logo?: Assembly["logo"];
 }) {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const pres = new PptxGenJS();
@@ -26,7 +28,7 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
 
   const songPositions = songIndexes(slides);
   for (const [index, sl] of slides.entries()) {
-    const t = getTemplate(sectionTemplates[sl.kind] ?? templateId);
+    const t = presentationTemplate(sectionTemplates[sl.kind] ?? templateId, backgroundColor);
     const found = layoutFor(t, sl);
     const slide = pres.addSlide();
 
@@ -35,7 +37,14 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       const background = backgroundFor(t, sl, songPositions[index]);
       const slideFont = sl.font ?? font ?? DEFAULT_FONT;
       slide.background = { color: t.bg };
-      slide.addImage({ data: (await (background ? renderBackground(t, background) : renderArt(t, found.name, layout))).slice(5), x: 0, y: 0, w: SW, h: SH });
+      if (t.id !== BLANK_TEMPLATE_ID || sl.backgroundImage) {
+        const artwork = sl.backgroundImage
+          ? await renderPhotoBackground(t, found.name, layout, sl.backgroundImage.data, sl.backgroundImage.sourceUrl)
+          : background
+            ? await renderBackground(t, background)
+            : await renderArt(t, found.name, layout);
+        slide.addImage({ data: artwork.slice(5), x: 0, y: 0, w: SW, h: SH });
+      }
       if (sl.image && layout.image) slide.addImage({ data: sl.image.slice(5), ...inch(layout.image), sizing: { type: "cover", ...inch(layout.image) } });
       if (sl.image2 && layout.image2) slide.addImage({ data: sl.image2.slice(5), ...inch(layout.image2), sizing: { type: "cover", ...inch(layout.image2) } });
       for (const [box, text, boxFont, fit, reading] of [
@@ -55,6 +64,20 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
           margin: 0,
         });
       }
+      if (sl.backgroundImage) {
+        slide.addText(`Photo: "${sl.backgroundImage.title}" by ${sl.backgroundImage.artist} · ${sl.backgroundImage.providerLabel ?? "Wikimedia Commons"} · ${sl.backgroundImage.license}`, {
+          x: 0.2,
+          y: 5.39,
+          w: 9.2,
+          h: 0.17,
+          fontFace: slideFont,
+          fontSize: 8.5,
+          color: layout.title.color,
+          margin: 0,
+          hyperlink: sl.backgroundImage.sourceUrl ? { url: sl.backgroundImage.sourceUrl } : undefined,
+        });
+      }
+      if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
       continue;
     }
 
@@ -75,6 +98,7 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       fontFace: t.fontBody, fontSize: size, color: t.fg,
       align: "center", valign: "middle", fit: "shrink", lineSpacingMultiple: 1.1,
     });
+    if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
   }
   const safe = (title || "assembly").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "presentation";
   await pres.writeFile({ fileName: `${safe}${date ? "-" + date : ""}.pptx` });

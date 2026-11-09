@@ -71,6 +71,17 @@ export function renderBackground(template: Template, background: TemplateBackgro
   return result;
 }
 
+export function renderPhotoBackground(template: Template, layoutName: string, layout: Layout, src: string, photoId: string): Promise<string> {
+  const key = `${template.id}/${layoutName}/photo/${photoId}/${JSON.stringify(layout)}`;
+  let result = rendered.get(key);
+  if (!result) {
+    result = drawPhoto(template, layout, src);
+    result.catch(() => rendered.delete(key));
+    rendered.set(key, result);
+  }
+  return result;
+}
+
 async function draw(template: Template, layout: Layout): Promise<string> {
   const c = document.createElement("canvas");
   c.width = W;
@@ -78,8 +89,61 @@ async function draw(template: Template, layout: Layout): Promise<string> {
   const ctx = c.getContext("2d")!;
   ctx.fillStyle = paint(ctx, layout.bg ?? { type: "solid", color: template.bg }, 0, 0, W, H);
   ctx.fillRect(0, 0, W, H);
+  await drawShapes(ctx, template, layout.shapes ?? []);
+  return c.toDataURL("image/jpeg", 0.92);
+}
 
-  for (const s of layout.shapes ?? []) {
+async function drawPhoto(template: Template, layout: Layout, src: string): Promise<string> {
+  const image = await loadImage(src);
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("Cannot create a canvas to render the photo background.");
+  const scale = Math.max(W / image.width, H / image.height);
+  const width = image.width * scale;
+  const height = image.height * scale;
+  const x = (W - width) / 2;
+  const y = (H - height) / 2;
+  ctx.drawImage(image, x, y, width, height);
+
+  const blurred = document.createElement("canvas");
+  blurred.width = W;
+  blurred.height = H;
+  const blurContext = blurred.getContext("2d");
+  if (!blurContext) throw new Error("Cannot create a canvas to blur the photo background.");
+  blurContext.filter = "blur(26px)";
+  blurContext.drawImage(c, 0, 0);
+  blurContext.filter = "none";
+
+  const textColor = layout.title.color;
+  const red = parseInt(textColor.slice(0, 2), 16);
+  const green = parseInt(textColor.slice(2, 4), 16);
+  const blue = parseInt(textColor.slice(4, 6), 16);
+  const lightText = red * 0.2126 + green * 0.7152 + blue * 0.0722 > 140;
+  const overlay = lightText ? "rgba(0,0,0,0.28)" : "rgba(255,255,255,0.38)";
+  for (const box of [layout.title, ...(layout.hideBody ? [] : [layout.body])]) {
+    const padX = W * 0.018;
+    const padY = H * 0.025;
+    const left = box.x * W - padX;
+    const top = box.y * H - padY;
+    const width = box.w * W + padX * 2;
+    const height = box.h * H + padY * 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(left, top, width, height, Math.min(34, height * 0.12));
+    ctx.clip();
+    ctx.drawImage(blurred, 0, 0);
+    ctx.fillStyle = overlay;
+    ctx.fillRect(left, top, width, height);
+    ctx.restore();
+  }
+  await drawShapes(ctx, template, layout.shapes ?? []);
+  return c.toDataURL("image/jpeg", 0.92);
+}
+
+async function drawShapes(ctx: CanvasRenderingContext2D, template: Template, shapes: Layout["shapes"] = []) {
+  for (const s of shapes) {
     const x = s.x * W;
     const y = s.y * H;
     const w = s.w * W;
@@ -111,5 +175,4 @@ async function draw(template: Template, layout: Layout): Promise<string> {
     }
     ctx.restore();
   }
-  return c.toDataURL("image/jpeg", 0.92);
 }

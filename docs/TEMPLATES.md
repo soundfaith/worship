@@ -20,6 +20,64 @@ to include in your repository.
 Use `npm run templates -- --force` to regenerate everything. If a source file changes, prepare it
 again on Windows before deploying; the build fails if it cannot prepare missing or stale assets.
 
+## Built-in designs
+
+Assembly includes the **Atelier**, **Nocturne**, **Olive**, **Pilgrim**, **Lumen**, and **Stillwater**
+design sets, with composed title, lyric, text, and image layouts. Pilgrim, Lumen, and Stillwater
+include photo-oriented color overlays and gradient treatments. They are built in and do not require
+importing a PowerPoint file. New assemblies start with Atelier. Choose a design in the Assembly
+**Details** tab, then choose a slide layout in **Review**.
+
+Choose **Blank** for a solid-color slide with no template artwork. In **Details**, choose a common
+color or open the color picker for any background color. The color applies to every slide in the
+assembly, and text color adjusts automatically for contrast. Blank slides export with a native
+PowerPoint background fill; uploaded images and slide text remain editable.
+
+## Add logos and free photo backgrounds
+
+Upload a PNG, JPEG, or WebP logo in **Details**. It is included across the deck; adjust its size
+there, then drag it in the **Review** slide preview to set its position for every slide. Keyboard
+arrow keys move the focused logo, and Shift+Arrow moves it farther.
+
+In **Review**, choose **Local photo library** to browse the downloaded category images, or search
+Wikimedia Commons to choose a photo background for the selected slide. Use **Show more photos** to
+page through additional results. To enable live Unsplash or Pexels search, create
+an API key with that provider and set `UNSPLASH_ACCESS_KEY` or `PEXELS_API_KEY` in the server's
+environment (for local development, use `.env.local`; never expose these as `NEXT_PUBLIC_*`
+variables). Configured sources appear in the photo source menu. Unsplash downloads are registered
+through its API as required by its guidelines.
+
+The app stores a resized copy of each selected photo and its author, source, provider and license
+details in the assembly, so previews and exports do not depend on a remote image staying online.
+Photo-focused designs such as **Pilgrim**, **Lumen**, and **Stillwater** layer typography, gradients,
+and soft-focus panels over the chosen photo. Check the linked license before redistributing an
+export; terms and attribution requirements differ by provider and image. Search requires an
+internet connection.
+
+## Create a local background library
+
+The one-time library script targets 20 relevant, unique landscape photos for each of
+`worship`, `prayer`, `family`, `bible`, `light`, `community`, `mountains`, `sunrise`, `christmas`,
+and `easter` into `assets/backgrounds/<category>/` and stops with an error if it cannot find 20
+qualifying photos for a category. It accepts only source photos at least
+1920×1080, saves JPEGs at the source dimensions, and writes a `metadata.json` with photographer,
+Unsplash, and license attribution links in every category. Existing indexed images are retained,
+so rerunning the command safely fills any incomplete categories.
+
+Use this workflow only with Unsplash authorization that permits downloading and local storage.
+The script registers each selected photo with Unsplash's download endpoint. Set the server-side
+`UNSPLASH_ACCESS_KEY`, then run `npm run backgrounds:download`. For example, in PowerShell:
+
+```powershell
+$env:UNSPLASH_ACCESS_KEY = "your-access-key"
+npm run backgrounds:download
+```
+
+The script is intentionally separate from development and production builds; it is not a runtime
+image integration. To make the local library available in the app, keep the generated
+`assets/backgrounds/` folders and `metadata.json` files in the project when building or deploying;
+the image API includes them in its server output.
+
 ## Choose automatic backgrounds with speaker notes
 
 In PowerPoint, open **View > Notes** (or the Notes pane at the bottom of the slide), and put each

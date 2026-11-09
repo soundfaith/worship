@@ -54,6 +54,15 @@ export function Header() {
           <div className="mt-4 flex items-center justify-between border-t border-stone-200 px-4 pt-4 text-sm text-stone-700">
             <span>Appearance</span><ThemeToggle />
           </div>
+          <section aria-labelledby="menu-about-soundfaith-title" className="mt-auto border-t border-stone-200 px-4 pt-6">
+            <h3 id="menu-about-soundfaith-title" className="font-medium text-stone-900">About SoundFaith</h3>
+            <p className="mt-2 text-sm leading-relaxed text-stone-500">
+              SoundFaith creates Catholic tools for prayer, Scripture, formation, and ministry.
+            </p>
+            <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-medium text-accent hover:underline">
+              Explore SoundFaith →
+            </a>
+          </section>
         </div>
       </Modal>}
     </header>

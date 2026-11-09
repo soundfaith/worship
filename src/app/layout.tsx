@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Scrollbars } from "@/components/Scrollbars";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-cormorant", display: "swap" });
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Scrollbars />
         <Header />
         <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">{children}</main>
+        <Analytics />
       </body>
     </html>
   );

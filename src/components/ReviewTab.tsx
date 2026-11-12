@@ -9,6 +9,7 @@ import { backgroundFor, FONTS, LAYOUT_OPTIONS, layoutFor, layoutNameFor, present
 import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, Template } from "@/lib/types";
 import { Icon, IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
+import { Presentation } from "./Presentation";
 import { ConfirmDialog, Modal } from "./Modal";
 import Dropdown from "./ui/Dropdown";
 import type { TabProps } from "./ui";
@@ -31,7 +32,6 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
   const [isPresenting, setIsPresenting] = useState(false);
   const [editPanel, setEditPanel] = useState<"text" | "layout" | "background" | "photos">("text");
   const [pendingFont, setPendingFont] = useState<{ slideId: string; font: string } | null>(null);
-  const [presentationIndex, setPresentationIndex] = useState(0);
   const [, setLogoPreference] = useLogoPreference();
   const [imageQuery, setImageQuery] = useState("");
   const [imageProvider, setImageProvider] = useState<ImageProvider>("commons");
@@ -82,12 +82,6 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
 
   const slides = a.slides ?? NO_SLIDES;
   const songPositions = songIndexes(slides);
-  const photoCredits = [...new Map(
-    slides.flatMap((item) => item.backgroundImage?.sourceUrl
-      ? [[item.backgroundImage.sourceUrl, item.backgroundImage] as const]
-      : []),
-  ).values()];
-  const presentationSlideCount = slides.length + (photoCredits.length ? 1 : 0);
   useEffect(() => { latestSlides.current = slides; }, [slides]);
   const idx = Math.min(cur, Math.max(0, slides.length - 1));
   const slide = slides[idx];
@@ -141,48 +135,10 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
     return () => window.removeEventListener("keydown", onKey);
   }, [isPresenting, slides.length]);
 
-  useEffect(() => {
-    if (!isPresenting) return;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setIsPresenting(false);
-        if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
-      } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-        event.preventDefault();
-        setPresentationIndex((current) => Math.min(current + 1, presentationSlideCount - 1));
-      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-        event.preventDefault();
-        setPresentationIndex((current) => Math.max(current - 1, 0));
-      } else if (event.key === "Home") {
-        event.preventDefault();
-        setPresentationIndex(0);
-      } else if (event.key === "End") {
-        event.preventDefault();
-        setPresentationIndex(presentationSlideCount - 1);
-      }
-    };
-    const onFullscreenChange = () => {
-      if (!document.fullscreenElement) setIsPresenting(false);
-    };
-    window.addEventListener("keydown", onKey);
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
-    };
-  }, [isPresenting, presentationSlideCount]);
-
   const startPresentation = useCallback(() => {
-    setPresentationIndex(0);
     setIsPresenting(true);
   }, []);
+  const closePresentation = useCallback(() => setIsPresenting(false), []);
   useEffect(() => {
     if (presentRequest > handledPresentRequestRef.current) {
       handledPresentRequestRef.current = presentRequest;
@@ -289,47 +245,7 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
       {presentationError && <p role="status" className="text-sm text-amber-700">{presentationError}</p>}
       {exportError && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
       {gospel.include && !gospel.text.trim() && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">No Gospel text is available for the selected date. Add a reading or turn it off in Content.</p>}
-      {isPresenting && slides.length > 0 && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Presentation"
-          className="fixed inset-0 z-[100] grid h-[100dvh] w-screen place-items-center overflow-hidden bg-black text-white"
-        >
-          <div className="grid h-full w-full place-items-center">
-            <div style={{ width: "min(100vw, calc(100dvh * 1.7778))" }}>
-              {presentationIndex < slides.length ? (
-                <SlideView
-                  slide={slides[presentationIndex]}
-                  template={tpl(slides[presentationIndex])}
-                  font={a.font}
-                  songIndex={songPositions[presentationIndex]}
-                  logo={a.showLogo === false ? undefined : a.logo}
-                  className="!rounded-none !shadow-none !ring-0"
-                />
-              ) : (
-                <div
-                  className="relative aspect-video w-full overflow-hidden p-[5%]"
-                  style={{ backgroundColor: `#${presentationTemplate(a.templateId, a.backgroundColor).bg}` }}
-                >
-                  <h2 className="mb-[3%] text-center text-[3cqw] font-semibold text-stone-900" style={{ color: `#${presentationTemplate(a.templateId, a.backgroundColor).fg}` }}>Photo credits</h2>
-                  <ul className={`grid h-[78%] gap-x-[4%] gap-y-[1%] ${photoCredits.length > 10 ? "grid-flow-col grid-rows-10 grid-cols-2" : "grid-cols-1"}`}>
-                    {photoCredits.map((credit) => (
-                      <li key={credit.sourceUrl} className="min-w-0 overflow-hidden text-[1.3cqw] leading-tight">
-                        <a href={credit.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2" style={{ color: `#${presentationTemplate(a.templateId, a.backgroundColor).fg}` }}>
-                          {credit.providerLabel?.includes("Unsplash")
-                            ? `Photo by ${credit.artist} on Unsplash · "${credit.title}" · ${credit.license}`
-                            : `"${credit.title}" by ${credit.artist} · ${credit.providerLabel ?? "Wikimedia Commons"} · ${credit.license}`}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {isPresenting && slides.length > 0 && <Presentation assembly={a} slides={slides} onClose={closePresentation} error={presentationError} />}
       {regenerate && <ConfirmDialog title="Regenerate slides?" message="All manual slide edits will be lost. This cannot be undone." confirmLabel="Regenerate" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
       {deleteSlide && <ConfirmDialog title="Remove slide?" message={`“${deleteSlide.title || "Untitled slide"}” will be removed from this assembly.`} confirmLabel="Remove slide" onCancel={() => setDeleteSlide(null)} onConfirm={() => {
         const nextSlides = slides.filter((item) => item.id !== deleteSlide.id);

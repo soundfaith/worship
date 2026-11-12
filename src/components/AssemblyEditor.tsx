@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssemblies, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { exportPptx } from "@/lib/export";
+import { requestPresentationFullscreen } from "@/lib/fullscreen";
 import type { Assembly } from "@/lib/types";
 import { DetailsTab } from "@/components/DetailsTab";
 import { SongsTab } from "@/components/SongsTab";
@@ -11,11 +12,6 @@ import { ReviewTab } from "@/components/ReviewTab";
 import { Icon } from "@/components/Icon";
 
 const TABS = ["Template", "Content", "Songs", "Edit & Present"] as const;
-
-type ExtendedScreen = Screen & { isPrimary?: boolean };
-type ScreenDetails = { screens: ExtendedScreen[]; currentScreen: ExtendedScreen };
-type MultiScreenWindow = Window & { getScreenDetails?: () => Promise<ScreenDetails> };
-type ScreenFullscreenOptions = FullscreenOptions & { screen?: ExtendedScreen };
 
 export function AssemblyEditor({ id }: { id: string }) {
   const [assemblies, setAssemblies] = useAssemblies();
@@ -27,35 +23,24 @@ export function AssemblyEditor({ id }: { id: string }) {
   const [presentRequest, setPresentRequest] = useState(0);
   const handledPresentRequestRef = useRef(0);
   const a = assemblies.find((x) => x.id === id);
+  const requestPresentation = useCallback(() => {
+    setPresentationError("");
+    setTab("Edit & Present");
+    setPresentRequest((request) => request + 1);
+    void requestPresentationFullscreen(true).catch((error: unknown) => {
+      setPresentationError(error instanceof Error ? error.message : "Could not enter fullscreen.");
+    });
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [tab]);
 
   useEffect(() => {
-    const onPresent = () => {
-      if (tab !== "Edit & Present") setTab("Edit & Present");
-      setPresentRequest((request) => request + 1);
-    };
+    const onPresent = () => requestPresentation();
     window.addEventListener("assembly:present", onPresent);
     return () => window.removeEventListener("assembly:present", onPresent);
-  }, [tab]);
-
-  // Auto-present when navigated here with ?present=1 or sessionStorage flag
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const flag = params.get("present") === "1" || sessionStorage.getItem("assembly:autoPresent") === id;
-    if (flag) {
-      sessionStorage.removeItem("assembly:autoPresent");
-      // Replace URL to remove ?present=1 without pushing history
-      const clean = window.location.pathname;
-      window.history.replaceState(null, "", clean);
-      // Small delay so the page finishes rendering
-      const t = setTimeout(() => window.dispatchEvent(new CustomEvent("assembly:present")), 300);
-      return () => clearTimeout(t);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [requestPresentation]);
 
   if (!a) {
     return (
@@ -84,40 +69,6 @@ export function AssemblyEditor({ id }: { id: string }) {
       setExporting(false);
     }
   };
-  const requestPresentation = () => {
-    setPresentationError("");
-    if (tab !== "Edit & Present") setTab("Edit & Present");
-    setPresentRequest((request) => request + 1);
-    if (document.fullscreenElement) return;
-    const requestFullscreen = document.documentElement.requestFullscreen?.bind(document.documentElement);
-    if (!requestFullscreen) {
-      setPresentationError("Fullscreen is unavailable in this browser; presentation will use this window.");
-      return;
-    }
-    const browserWindow = window as MultiScreenWindow;
-    void (async () => {
-      try {
-        const details = await browserWindow.getScreenDetails?.();
-        const secondary = details?.screens.find((screen) => screen !== details.currentScreen);
-        if (secondary) {
-          try {
-            await requestFullscreen({ screen: secondary } as ScreenFullscreenOptions);
-            return;
-          } catch {
-            // Fall back to the browser's current display if secondary-screen fullscreen is denied.
-          }
-        }
-        await requestFullscreen();
-      } catch {
-        try {
-          await requestFullscreen();
-        } catch {
-          setPresentationError("Fullscreen is unavailable in this browser; presentation will use this window.");
-        }
-      }
-    })();
-  };
-
   return (
     <div className="space-y-14 sm:space-y-16">
       <div className="space-y-5">

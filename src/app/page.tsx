@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { blankAssembly, duplicateAssembly, useAssemblies, useLogoPreference, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
-import { coverSlide, formatDate } from "@/lib/slides";
+import { buildSlides, coverSlide, formatDate } from "@/lib/slides";
+import { requestPresentationFullscreen } from "@/lib/fullscreen";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
-import type { Assembly } from "@/lib/types";
+import type { Assembly, Slide } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SlideView } from "@/components/SlideView";
+import { Presentation } from "@/components/Presentation";
 import { ConfirmDialog, PromptDialog } from "@/components/Modal";
 
 export default function Home() {
@@ -20,6 +22,9 @@ export default function Home() {
   const [q, setQ] = useState("");
   const [deleteAssembly, setDeleteAssembly] = useState<Assembly | null>(null);
   const [duplicateTarget, setDuplicateTarget] = useState<Assembly | null>(null);
+  const [presenting, setPresenting] = useState<{ assembly: Assembly; slides: Slide[] } | null>(null);
+  const [presentationError, setPresentationError] = useState("");
+  const presentationRequestRef = useRef(0);
   const needle = q.trim().toLowerCase();
 
   useEffect(() => {
@@ -59,6 +64,34 @@ export default function Home() {
   };
 
   const aHits = needle ? sorted.filter(inAssembly) : sorted;
+  const closePresentation = useCallback(() => {
+    presentationRequestRef.current++;
+    setPresenting(null);
+    setPresentationError("");
+  }, []);
+  const present = (assembly: Assembly) => {
+    setPresentationError("");
+    try {
+      const slides = assembly.slides ?? buildSlides(assembly);
+      if (!slides.length) {
+        setPresentationError("There are no slides to present. Add a slide first.");
+        return;
+      }
+      const request = ++presentationRequestRef.current;
+      setPresenting({ assembly, slides });
+      void requestPresentationFullscreen().then(() => {
+        if (presentationRequestRef.current !== request && document.fullscreenElement) {
+          void document.exitFullscreen().catch((error: unknown) => console.error("Could not exit fullscreen:", error));
+        }
+      }, (error: unknown) => {
+        if (presentationRequestRef.current === request) {
+          setPresentationError(error instanceof Error ? error.message : "Could not enter fullscreen.");
+        }
+      });
+    } catch (error) {
+      setPresentationError(`Could not prepare presentation: ${error instanceof Error ? error.message : "unknown error"}`);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col">
@@ -75,6 +108,7 @@ export default function Home() {
           >
             <Icon name="plus" className="h-5 w-5 sm:h-6 sm:w-6" /> New assembly
           </button>
+          {presentationError && !presenting && <p role="alert" className="text-sm text-red-600">{presentationError}</p>}
         </div>
 
         {assemblies.length > 0 && (
@@ -115,6 +149,7 @@ export default function Home() {
                 <AssemblyCard
                   key={a.id}
                   a={a}
+                  onPresent={() => present(a)}
                   onDuplicate={() => setDuplicateTarget(a)}
                   onDelete={() => setDeleteAssembly(a)}
                 />
@@ -194,11 +229,12 @@ export default function Home() {
           }}
         />
       )}
+      {presenting && <Presentation assembly={presenting.assembly} slides={presenting.slides} onClose={closePresentation} error={presentationError} />}
     </div>
   );
 }
 
-function AssemblyCard({ a, onDuplicate, onDelete }: { a: Assembly; onDuplicate: () => void; onDelete: () => void }) {
+function AssemblyCard({ a, onPresent, onDuplicate, onDelete }: { a: Assembly; onPresent: () => void; onDuplicate: () => void; onDelete: () => void }) {
   const template = getTemplate(a.sectionTemplates.welcome ?? a.templateId);
   const count = a.songs.length;
   return (
@@ -219,10 +255,7 @@ function AssemblyCard({ a, onDuplicate, onDelete }: { a: Assembly; onDuplicate: 
           type="button"
           className="btn btn-primary !gap-1 !px-3 !py-1.5 !text-xs"
           aria-label={`Present ${a.title || "assembly"}`}
-          onClick={() => {
-            sessionStorage.setItem("assembly:autoPresent", a.id);
-            window.location.href = `/assembly/${a.id}`;
-          }}
+          onClick={onPresent}
         >
           <Icon name="present" className="h-3.5 w-3.5" />
           Present

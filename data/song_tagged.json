@@ -1,0 +1,3364 @@
+[
+  {
+    "id": "a-new-commandment",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "discipleship", "community"]
+  },
+  {
+    "id": "a-time-to-build",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "community", "service", "victory"]
+  },
+  {
+    "id": "aba-ginoong-maria",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["mary", "prayer"]
+  },
+  {
+    "id": "abide-oh-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "intimacy-with-god", "worship"]
+  },
+  {
+    "id": "above-all",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["cross", "salvation", "love", "worship"]
+  },
+  {
+    "id": "aking-panginoon-my-god-and-my-all",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "adoration", "devotion"]
+  },
+  {
+    "id": "ako-y-puspos-i-shall-be-satisfied",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["joy", "thanksgiving", "fulfillment"]
+  },
+  {
+    "id": "all-creation-shall-acclaim",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "creation", "adoration"]
+  },
+  {
+    "id": "all-hail-king-jesus",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "kingship", "adoration"]
+  },
+  {
+    "id": "all-i-want",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "love", "surrender"]
+  },
+  {
+    "id": "all-my-days",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["worship", "devotion", "faithfulness"]
+  },
+  {
+    "id": "all-my-trust-i-will-give",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "faith", "surrender"]
+  },
+  {
+    "id": "all-my-trust",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "faith", "surrender"]
+  },
+  {
+    "id": "all-things",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faith", "trust", "hope"]
+  },
+  {
+    "id": "alleluia-v1",
+    "language": "latin",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "liturgy"]
+  },
+  {
+    "id": "alleluia-sons-of-god-arise",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["resurrection", "joy", "praise"]
+  },
+  {
+    "id": "amazing-grace",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["grace", "salvation", "hope", "thanksgiving"]
+  },
+  {
+    "id": "amen-our-hearts-cry",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "commitment", "worship"]
+  },
+  {
+    "id": "amen-our-hearts-cry-x",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "commitment", "worship"]
+  },
+  {
+    "id": "and-the-father-will-dance",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["love", "acceptance", "joy", "prodigal-son"]
+  },
+  {
+    "id": "ang-bayan-ng-diyos-the-people-of-god",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["community", "church", "people-of-god"]
+  },
+  {
+    "id": "ang-bayan-ng-diyos",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["community", "church", "people-of-god"]
+  },
+  {
+    "id": "ang-diyos-ko-ay-sandigan-god-is-my-refuge",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "protection", "hope"]
+  },
+  {
+    "id": "ang-liwanag-mo-hesus-the-light-of-christ",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["jesus", "light", "hope"]
+  },
+  {
+    "id": "ang-liwanag-mo-hesus",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["jesus", "light", "hope"]
+  },
+  {
+    "id": "ang-panginoon-ang-aking-pastol",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "guidance", "comfort", "shepherd"]
+  },
+  {
+    "id": "ang-panginoon-lamang",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "trust", "worship"]
+  },
+  {
+    "id": "ang-puso-ko-y-nagpupuri",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "thanksgiving"]
+  },
+  {
+    "id": "anima-christi",
+    "language": "latin",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "communion", "devotion"]
+  },
+  {
+    "id": "as-the-deer",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "longing", "intimacy-with-god"]
+  },
+  {
+    "id": "ascribe-greatness",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "adoration", "majesty"]
+  },
+  {
+    "id": "ascribe-to-the-lord",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "glory", "adoration"]
+  },
+  {
+    "id": "at-the-name-of-jesus",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["jesus", "kingship", "adoration"]
+  },
+  {
+    "id": "awake-o-israel",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["revival", "awakening", "faith"]
+  },
+  {
+    "id": "awake-o-israel-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["revival", "awakening", "faith"]
+  },
+  {
+    "id": "awit-ng-paghahangad",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["longing", "prayer", "devotion"]
+  },
+  {
+    "id": "awit-ng-paghilom",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["healing", "comfort", "hope"]
+  },
+  {
+    "id": "awit-ng-puso",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "worship", "devotion"]
+  },
+  {
+    "id": "bag-ong-awit",
+    "language": "cebuano",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["new-song", "praise", "celebration"]
+  },
+  {
+    "id": "balang-araw",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "future", "faith"]
+  },
+  {
+    "id": "banal-at-maluwalhati-god-the-blessed-and-the-only-sovereign",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holiness", "majesty", "adoration"]
+  },
+  {
+    "id": "be-exalted-o-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "worship", "glory"]
+  },
+  {
+    "id": "be-exalted-o-god-x",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "worship", "glory"]
+  },
+  {
+    "id": "b1-be-one",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["unity", "community", "church"]
+  },
+  {
+    "id": "be-thou-my-vision",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["guidance", "trust", "devotion"]
+  },
+  {
+    "id": "behold",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "adoration"]
+  },
+  {
+    "id": "behold-the-lamb",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["cross", "salvation", "communion"]
+  },
+  {
+    "id": "beyond-borders",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "evangelization", "faith"]
+  },
+  {
+    "id": "beyond-the-cross",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["cross", "salvation", "resurrection"]
+  },
+  {
+    "id": "blessed",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "grace", "faith"]
+  },
+  {
+    "id": "blessed-be-the-lord-my-rock",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "strength", "victory"]
+  },
+  {
+    "id": "blessed-be-the-lord-my-rock-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "strength", "victory"]
+  },
+  {
+    "id": "blessing-and-glory",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "glory"]
+  },
+  {
+    "id": "born-into-a-battle",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["spiritual-warfare", "faith", "victory"]
+  },
+  {
+    "id": "breathe",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "worship", "intimacy-with-god"]
+  },
+  {
+    "id": "breathe-on-me",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "renewal", "prayer"]
+  },
+  {
+    "id": "broken-chains",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["freedom", "victory", "deliverance"]
+  },
+  {
+    "id": "build-your-throne",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingdom", "worship", "mission"]
+  },
+  {
+    "id": "buklod-ng-pag-ibig",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "unity", "family"]
+  },
+  {
+    "id": "buksan-ang-aming-puso",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "prayer", "surrender"]
+  },
+  {
+    "id": "bulaklak-sa-parang",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mary", "devotion"]
+  },
+  {
+    "id": "bulaklak-sa-parang-x",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mary", "devotion"]
+  },
+  {
+    "id": "by-the-blood-of-the-lamb",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["salvation", "victory", "cross"]
+  },
+  {
+    "id": "by-your-side",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["comfort", "love", "presence-of-god"]
+  },
+  {
+    "id": "call-of-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "mission", "discipleship"]
+  },
+  {
+    "id": "canticle-of-the-gift",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "thanksgiving", "worship"]
+  },
+  {
+    "id": "cause-me-to-hear",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "listening", "guidance"]
+  },
+  {
+    "id": "champion-of-love",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["love", "hope", "salvation"]
+  },
+  {
+    "id": "change-my-heart-o-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["repentance", "transformation", "prayer"]
+  },
+  {
+    "id": "cherish-the-treasure",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["marriage", "family", "love"]
+  },
+  {
+    "id": "children-of-easter-morn",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["resurrection", "easter", "joy"]
+  },
+  {
+    "id": "children-of-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["community", "family", "faith"]
+  },
+  {
+    "id": "children-run-joyfully",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "children"]
+  },
+  {
+    "id": "children-run-joyfully-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "children"]
+  },
+  {
+    "id": "come-all-ye-nations",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["mission", "nations", "praise"]
+  },
+  {
+    "id": "come-and-worship",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["worship", "adoration", "invitation"]
+  },
+  {
+    "id": "come-on-in",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["welcome", "community", "celebration"]
+  },
+  {
+    "id": "come-to-me",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["comfort", "healing", "invitation"]
+  },
+  {
+    "id": "come-holy-spirit-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "prayer", "renewal"]
+  },
+  {
+    "id": "come-holy-spirit",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "prayer", "renewal"]
+  },
+  {
+    "id": "come-holy-spirit-v2",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "prayer", "renewal"]
+  },
+  {
+    "id": "come-let-us-go-up",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["worship", "pilgrimage", "community"]
+  },
+  {
+    "id": "come-let-us-go-up-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["worship", "pilgrimage", "community"]
+  },
+  {
+    "id": "consider-the-lilies",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "providence", "peace"]
+  },
+  {
+    "id": "couples-for-christ-theme",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["cfc", "mission", "community", "family"]
+  },
+  {
+    "id": "create-in-me",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["repentance", "renewal", "prayer"]
+  },
+  {
+    "id": "crossroads",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["guidance", "discernment", "faith"]
+  },
+  {
+    "id": "crown-him-lord-of-lords",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "adoration", "praise"]
+  },
+  {
+    "id": "crown-him-with-many-crowns",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "adoration", "majesty"]
+  },
+  {
+    "id": "dahil-may-pag-ibig",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "family", "community"]
+  },
+  {
+    "id": "dalisay-na-puso-make-my-heart-your-dwelling-place",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["purity", "holy-spirit", "surrender"]
+  },
+  {
+    "id": "dito-sa-bahay-ko",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["family", "home", "faith"]
+  },
+  {
+    "id": "enter-in",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["worship", "invitation", "presence-of-god"]
+  },
+  {
+    "id": "exalted",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "majesty"]
+  },
+  {
+    "id": "exodus-15",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "deliverance", "praise"]
+  },
+  {
+    "id": "exult-you-just-ones",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["joy", "praise", "celebration"]
+  },
+  {
+    "id": "exult-you-just-ones-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["joy", "praise", "celebration"]
+  },
+  {
+    "id": "father-make-us-one",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["unity", "community", "family"]
+  },
+  {
+    "id": "fight-the-good-fight-of-faith",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["faith", "perseverance", "spiritual-warfare"]
+  },
+  {
+    "id": "fill-the-world-with-love",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["love", "mission", "community"]
+  },
+  {
+    "id": "firm-foundation",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faith", "trust", "strength"]
+  },
+  {
+    "id": "fix-my-eyes-on-jesus",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "focus", "discipleship"]
+  },
+  {
+    "id": "for-god-so-loved",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "salvation", "grace"]
+  },
+  {
+    "id": "for-the-glory-of-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["glory", "worship", "adoration"]
+  },
+  {
+    "id": "for-the-sake-of-the-call",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mission", "calling", "discipleship"]
+  },
+  {
+    "id": "for-you-are-my-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "dependence", "worship"]
+  },
+  {
+    "id": "free-to-dance",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "freedom", "celebration"]
+  },
+  {
+    "id": "freedom-v1",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["freedom", "victory", "deliverance"]
+  },
+  {
+    "id": "freedom-is-at-hand",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["freedom", "hope", "victory"]
+  },
+  {
+    "id": "from-heaven-the-lord-looks-down",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mercy", "hope", "trust"]
+  },
+  {
+    "id": "from-the-rising-of-the-sun",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "thanksgiving"]
+  },
+  {
+    "id": "gawad-kalinga",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["service", "mission", "community", "charity"]
+  },
+  {
+    "id": "give",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["service", "generosity", "discipleship"]
+  },
+  {
+    "id": "give-thanks",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "worship"]
+  },
+  {
+    "id": "glorify-thy-name",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "glory", "adoration"]
+  },
+  {
+    "id": "glorious-in-majesty",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "adoration", "kingship"]
+  },
+  {
+    "id": "glory",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["glory", "praise", "adoration"]
+  },
+  {
+    "id": "glory-glory-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "glory", "worship"]
+  },
+  {
+    "id": "glory-glory-lord-x",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "glory", "worship"]
+  },
+  {
+    "id": "god-alone",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "surrender"]
+  },
+  {
+    "id": "god-and-man-at-table-are-sat-down",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["communion", "unity", "eucharist"]
+  },
+  {
+    "id": "god-is-enough",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "contentment", "faith"]
+  },
+  {
+    "id": "god-is-good",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "thanksgiving", "joy"]
+  },
+  {
+    "id": "god-is-my-refuge",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "protection", "comfort"]
+  },
+  {
+    "id": "god-is-raising-an-army",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "spiritual-warfare", "discipleship"]
+  },
+  {
+    "id": "god-is-the-strength-of-my-heart",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["strength", "trust", "hope"]
+  },
+  {
+    "id": "god-lead-my-life",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["guidance", "trust", "discipleship"]
+  },
+  {
+    "id": "god-the-blessed-and-only-sovereign",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["sovereignty", "majesty", "adoration"]
+  },
+  {
+    "id": "god-will-make-a-way",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "trust", "comfort", "faith"]
+  },
+  {
+    "id": "god-with-us-emmanuel",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["christmas", "advent", "emmanuel"]
+  },
+  {
+    "id": "great-and-wonderful",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "majesty", "adoration"]
+  },
+  {
+    "id": "halina-t-umawit",
+    "language": "filipino",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "joy", "celebration"]
+  },
+  {
+    "id": "halina-t-umawit-x",
+    "language": "filipino",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "joy", "celebration"]
+  },
+  {
+    "id": "hallelujah-he-is-risen",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["resurrection", "easter", "victory"]
+  },
+  {
+    "id": "hallelujah-he-is-risen-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["resurrection", "easter", "victory"]
+  },
+  {
+    "id": "hallelujah-my-father",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "worship", "prayer"]
+  },
+  {
+    "id": "hallelujah-our-god-reigns",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["kingship", "praise", "celebration"]
+  },
+  {
+    "id": "happy-is-the-man",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["joy", "wisdom", "faith"]
+  },
+  {
+    "id": "he-has-covered-himself-in-glory",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "praise", "majesty"]
+  },
+  {
+    "id": "he-is-coming",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["advent", "hope", "kingship"]
+  },
+  {
+    "id": "he-is-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "lordship", "worship"]
+  },
+  {
+    "id": "heal-our-land",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["healing", "repentance", "intercession", "prayer"]
+  },
+  {
+    "id": "hear-me-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "petition", "trust"]
+  },
+  {
+    "id": "hear-your-servant",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["obedience", "listening", "calling"]
+  },
+  {
+    "id": "here-i-am-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["calling", "mission", "service", "obedience"]
+  },
+  {
+    "id": "here-i-am-lord-x",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["calling", "mission", "service", "obedience"]
+  },
+  {
+    "id": "hesus",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "worship", "devotion"]
+  },
+  {
+    "id": "hesus-purihin-ka",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["jesus", "praise", "adoration"]
+  },
+  {
+    "id": "hevenu-shalom-aleikhem",
+    "language": "hebrew",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["peace", "community", "celebration"]
+  },
+  {
+    "id": "hiling",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "longing", "hope"]
+  },
+  {
+    "id": "hindi-kita-malilimutan",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "hope", "comfort"]
+  },
+  {
+    "id": "hiney-mah-tov",
+    "language": "hebrew",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["unity", "community", "brotherhood"]
+  },
+  {
+    "id": "holy-celebration",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["celebration", "praise", "joy"]
+  },
+  {
+    "id": "holy-is-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holiness", "adoration", "worship"]
+  },
+  {
+    "id": "holy-holy-holy-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holiness", "adoration", "trinity"]
+  },
+  {
+    "id": "holy-mighty-everlasting",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holiness", "majesty", "adoration"]
+  },
+  {
+    "id": "holy-mighty-everlasting-x",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holiness", "majesty", "adoration"]
+  },
+  {
+    "id": "holy-o-holy",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holiness", "worship", "adoration"]
+  },
+  {
+    "id": "the-horse-and-rider",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "deliverance", "celebration"]
+  },
+  {
+    "id": "hosanna",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "jesus", "kingship"]
+  },
+  {
+    "id": "how-great-is-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "praise", "adoration"]
+  },
+  {
+    "id": "how-lovely",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "presence-of-god", "devotion"]
+  },
+  {
+    "id": "humayo-t-ihayag",
+    "language": "filipino",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "evangelization", "service"]
+  },
+  {
+    "id": "hymn-of-glory",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["glory", "praise", "worship"]
+  },
+  {
+    "id": "i-am-the-bread-of-life",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["eucharist", "communion", "jesus"]
+  },
+  {
+    "id": "i-d-give-my-all",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "discipleship", "devotion"]
+  },
+  {
+    "id": "i-ll-be-there-for-you",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["friendship", "love", "support"]
+  },
+  {
+    "id": "i-exalt-thee",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "worship", "praise"]
+  },
+  {
+    "id": "i-give-my-all",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "discipleship", "offering"]
+  },
+  {
+    "id": "i-offer-my-life",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "service", "surrender"]
+  },
+  {
+    "id": "i-seek-you-for-i-thirst",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["longing", "worship", "intimacy-with-god"]
+  },
+  {
+    "id": "i-shall-be-satisfied",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["joy", "fulfillment", "trust"]
+  },
+  {
+    "id": "i-wanna-come-back-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["repentance", "returning-to-god", "mercy"]
+  },
+  {
+    "id": "i-wanna-come-back-lord-x",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["repentance", "returning-to-god", "mercy"]
+  },
+  {
+    "id": "i-want-to-worship-you",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "adoration", "devotion"]
+  },
+  {
+    "id": "i-will-call-upon-the-lord",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["faith", "trust", "victory"]
+  },
+  {
+    "id": "i-will-give-thanks",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "praise"]
+  },
+  {
+    "id": "i-will-joy-in-you-my-god",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "faith"]
+  },
+  {
+    "id": "i-will-joy-in-you-my-god-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "faith"]
+  },
+  {
+    "id": "i-will-lift-up-my-voice",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "adoration"]
+  },
+  {
+    "id": "i-will-praise-the-name-of-jesus",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["jesus", "praise", "adoration"]
+  },
+  {
+    "id": "i-will-sing-forever",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "faithfulness", "worship"]
+  },
+  {
+    "id": "if-i-could-touch-you",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["healing", "faith", "jesus"]
+  },
+  {
+    "id": "ikaw",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion"]
+  },
+  {
+    "id": "inang-mahal",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["mary", "prayer", "devotion"]
+  },
+  {
+    "id": "in-him-alone",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "faith", "hope"]
+  },
+  {
+    "id": "in-his-time",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "patience", "hope"]
+  },
+  {
+    "id": "in-your-light-we-see-light",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["light", "guidance", "hope"]
+  },
+  {
+    "id": "isaiah-43",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "comfort", "faithfulness"]
+  },
+  {
+    "id": "isaiah-60",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["light", "mission", "hope"]
+  },
+  {
+    "id": "isang-pananampalataya",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["unity", "faith", "church"]
+  },
+  {
+    "id": "it-s-a-brand-new-day",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["hope", "renewal", "joy"]
+  },
+  {
+    "id": "it-is-good",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "praise"]
+  },
+  {
+    "id": "jerusalem-the-golden",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["heaven", "hope", "eternity"]
+  },
+  {
+    "id": "jesus",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "worship", "devotion"]
+  },
+  {
+    "id": "jesus-is-the-one-who-saves",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["salvation", "jesus", "faith"]
+  },
+  {
+    "id": "jesus-my-lord-my-friend",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "friendship", "devotion"]
+  },
+  {
+    "id": "jesus-shall-reign",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "jesus", "mission"]
+  },
+  {
+    "id": "jordan-river",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["baptism", "faith", "renewal"]
+  },
+  {
+    "id": "jubilee-song",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["celebration", "joy", "hope"]
+  },
+  {
+    "id": "kahanga-hanga",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "worship"]
+  },
+  {
+    "id": "kahit-hindi-karapat-dapat",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["humility", "grace", "mercy"]
+  },
+  {
+    "id": "kaligtasan-kay-hesus",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["salvation", "jesus", "faith"]
+  },
+  {
+    "id": "kaligtasan-kay-hesus-x",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["salvation", "jesus", "faith"]
+  },
+  {
+    "id": "kay-dakila-mo-o-diyos-be-exalted",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "majesty", "worship"]
+  },
+  {
+    "id": "the-king-of-glory",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "glory", "adoration"]
+  },
+  {
+    "id": "kung-mayroong-diyos",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faith", "hope", "trust"]
+  },
+  {
+    "id": "let-heaven-rejoice",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "praise"]
+  },
+  {
+    "id": "let-his-voice-bring-you-home",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["comfort", "hope", "returning-to-god"]
+  },
+  {
+    "id": "let-me-be-a-shining-light",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["mission", "light", "discipleship"]
+  },
+  {
+    "id": "let-the-fire-fall",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holy-spirit", "revival", "renewal"]
+  },
+  {
+    "id": "let-the-righteous-be-glad",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "praise", "celebration"]
+  },
+  {
+    "id": "let-the-saints-be-joyful",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "saints", "celebration"]
+  },
+  {
+    "id": "let-the-valleys-be-raised",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["advent", "hope", "preparation"]
+  },
+  {
+    "id": "let-us-exalt-his-name-together",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "community", "worship"]
+  },
+  {
+    "id": "let-us-praise-him",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "celebration", "worship"]
+  },
+  {
+    "id": "let-your-glory-fill-this-house",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "glory", "worship"]
+  },
+  {
+    "id": "letter-to-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "struggles", "hope"]
+  },
+  {
+    "id": "lift-high-the-banners-of-love",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["love", "celebration", "community"]
+  },
+  {
+    "id": "lift-high-the-cross-of-christ",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["cross", "salvation", "discipleship"]
+  },
+  {
+    "id": "lift-up-your-heads-o-gates",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["kingship", "praise", "advent"]
+  },
+  {
+    "id": "lift-up-your-heads-o-gates-x",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["kingship", "praise", "advent"]
+  },
+  {
+    "id": "lift-your-banners-high",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "celebration", "faith"]
+  },
+  {
+    "id": "light-to-the-nations",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "like-eagles",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "strength", "trust"]
+  },
+  {
+    "id": "look-beyond",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faith", "perspective", "hope"]
+  },
+  {
+    "id": "lord-jesus-we-enthrone-you",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "kingship", "adoration"]
+  },
+  {
+    "id": "lord-i-lift-your-name-on-high",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "joy", "salvation"]
+  },
+  {
+    "id": "lord-is-blessing-me-right-now",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["thanksgiving", "joy", "blessing"]
+  },
+  {
+    "id": "lord-is-present-in-his-sanctuary",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["presence-of-god", "worship", "reverence"]
+  },
+  {
+    "id": "lord-you-are-everything-to-me",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "love", "worship"]
+  },
+  {
+    "id": "make-my-heart-your-dwelling-place",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "surrender", "purity"]
+  },
+  {
+    "id": "magpasalamat-kayo-sa-panginoon",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["thanksgiving", "praise", "gratitude"]
+  },
+  {
+    "id": "mapapalad",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["beatitudes", "hope", "discipleship"]
+  },
+  {
+    "id": "mariang-ina-ko",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["mary", "prayer", "devotion"]
+  },
+  {
+    "id": "matthew-5-3-12-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["beatitudes", "discipleship", "hope"]
+  },
+  {
+    "id": "matthew-5-3-12-v2",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["beatitudes", "discipleship", "hope"]
+  },
+  {
+    "id": "mighty-king-of-zion",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "majesty", "praise"]
+  },
+  {
+    "id": "mighty-is-our-god",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "praise", "adoration"]
+  },
+  {
+    "id": "more-precious-than-silver",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "treasure"]
+  },
+  {
+    "id": "more-than-anything",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "worship"]
+  },
+  {
+    "id": "my-god-and-king",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "praise", "adoration"]
+  },
+  {
+    "id": "my-god-and-my-all",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "adoration"]
+  },
+  {
+    "id": "my-life-is-in-you",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "strength", "faith"]
+  },
+  {
+    "id": "naghihintay-pa-rin",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "waiting", "faith"]
+  },
+  {
+    "id": "narito-ako-here-i-am-lord",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["calling", "service", "mission"]
+  },
+  {
+    "id": "narito-ako",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["calling", "service", "surrender"]
+  },
+  {
+    "id": "natutulog-ba-ang-diyos",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "suffering", "hope"]
+  },
+  {
+    "id": "new-song-arisin",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "celebration", "new-song"]
+  },
+  {
+    "id": "noon-ngayon-at-bukas",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "trust", "hope"]
+  },
+  {
+    "id": "noon-ngayon-at-bukas-x",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "trust", "hope"]
+  },
+  {
+    "id": "nothing-more",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "devotion", "worship"]
+  },
+  {
+    "id": "now-let-us-sing",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "joy", "celebration"]
+  },
+  {
+    "id": "now-that-you-re-near-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["presence-of-god", "worship", "devotion"]
+  },
+  {
+    "id": "now-unto-the-king-eternal",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "adoration", "praise"]
+  },
+  {
+    "id": "o-come-let-us-worship",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["worship", "adoration", "invitation"]
+  },
+  {
+    "id": "o-come",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["advent", "hope", "prayer"]
+  },
+  {
+    "id": "o-diyos",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["prayer", "worship", "devotion"]
+  },
+  {
+    "id": "o-give-thanks",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "praise"]
+  },
+  {
+    "id": "o-hesus-hilumin-mo",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["healing", "prayer", "hope"]
+  },
+  {
+    "id": "o-send-forth-your-light-and-your-truth",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["guidance", "light", "prayer"]
+  },
+  {
+    "id": "o-let-the-redeemed",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["salvation", "joy", "celebration"]
+  },
+  {
+    "id": "o-worship-the-king",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "worship", "adoration"]
+  },
+  {
+    "id": "offer-to-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "surrender", "stewardship"]
+  },
+  {
+    "id": "oh-hallelujah",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "joy", "worship"]
+  },
+  {
+    "id": "oh-the-valleys-shall-ring",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["celebration", "joy", "praise"]
+  },
+  {
+    "id": "once-no-people",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["identity", "church", "people-of-god"]
+  },
+  {
+    "id": "one-day-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "heaven", "promise"]
+  },
+  {
+    "id": "one-more-gift",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["gratitude", "gift", "thanksgiving"]
+  },
+  {
+    "id": "one-thing-i-ask-for",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["longing", "worship", "devotion"]
+  },
+  {
+    "id": "one-way",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["jesus", "discipleship", "faith"]
+  },
+  {
+    "id": "only-by-grace",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["grace", "salvation", "humility"]
+  },
+  {
+    "id": "open-the-eyes-of-my-heart",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["holy-spirit", "revelation", "worship"]
+  },
+  {
+    "id": "open-your-eyes",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["awakening", "mission", "faith"]
+  },
+  {
+    "id": "our-blessed-hope",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "faith", "eternity"]
+  },
+  {
+    "id": "our-god-reigns",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "praise", "victory"]
+  },
+  {
+    "id": "our-king",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "adoration", "worship"]
+  },
+  {
+    "id": "pag-aalaala",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["eucharist", "remembrance", "liturgy"]
+  },
+  {
+    "id": "pag-aalay-ng-puso",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "surrender", "devotion"]
+  },
+  {
+    "id": "pagbabasbas",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["blessing", "prayer", "liturgy"]
+  },
+  {
+    "id": "paghahandog",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "stewardship", "worship"]
+  },
+  {
+    "id": "paghahandog-ng-sarili",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "offering", "discipleship"]
+  },
+  {
+    "id": "pag-ibig-na-kay-ganda",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "worship", "devotion"]
+  },
+  {
+    "id": "pagmamahal-sa-panginoon",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "worship"]
+  },
+  {
+    "id": "pagpupugay-yours-is-the-greatness-and-the-power",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["adoration", "majesty", "praise"]
+  },
+  {
+    "id": "panalangin",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["prayer", "devotion", "worship"]
+  },
+  {
+    "id": "panalanging-maging-bukas-palad",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["service", "generosity", "prayer"]
+  },
+  {
+    "id": "pananagutan",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["community", "service", "love"]
+  },
+  {
+    "id": "papuri",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "worship"]
+  },
+  {
+    "id": "patience-people",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["hope", "perseverance", "faith"]
+  },
+  {
+    "id": "philippians-2",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["humility", "jesus", "discipleship"]
+  },
+  {
+    "id": "pilgrim-s-theme",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["journey", "faith", "discipleship"]
+  },
+  {
+    "id": "possess-the-land",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "victory", "faith"]
+  },
+  {
+    "id": "potter-s-hand",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "transformation", "worship"]
+  },
+  {
+    "id": "power-of-your-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "surrender", "holy-spirit", "transformation"]
+  },
+  {
+    "id": "praise-the-lord-o-my-soul",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "thanksgiving"]
+  },
+  {
+    "id": "praise-the-lord-o-my-soul-x",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "thanksgiving"]
+  },
+  {
+    "id": "praise-the-name-of-jesus",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["jesus", "praise", "adoration"]
+  },
+  {
+    "id": "praise-to-you-lord-jesus-christ-v1",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["liturgy", "jesus", "praise"]
+  },
+  {
+    "id": "praiseworthy",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "worship"]
+  },
+  {
+    "id": "prayer-for-generosity",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["generosity", "service", "prayer"]
+  },
+  {
+    "id": "prepare-the-way",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["advent", "mission", "evangelization", "hope"]
+  },
+  {
+    "id": "proclaim-his-marvelous-deeds",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["mission", "praise", "evangelization"]
+  },
+  {
+    "id": "psalm-18",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "strength", "protection"]
+  },
+  {
+    "id": "psalm-73",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "faith", "perseverance"]
+  },
+  {
+    "id": "psalm-89",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "covenant", "hope"]
+  },
+  {
+    "id": "psalm-95",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["worship", "praise", "adoration"]
+  },
+  {
+    "id": "psalm-100",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "praise", "thanksgiving"]
+  },
+  {
+    "id": "psalm-145",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "kingship", "adoration"]
+  },
+  {
+    "id": "purihin-ang-panginoon",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "adoration"]
+  },
+  {
+    "id": "purihin-ang-yong-ngalan-glorify-thy-name",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "glory", "adoration"]
+  },
+  {
+    "id": "purihin-si-hesus-all-hail-king-jesus",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["jesus", "kingship", "praise"]
+  },
+  {
+    "id": "purihi-t-pasalamatan",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["thanksgiving", "praise", "gratitude"]
+  },
+  {
+    "id": "put-on-jesus-christ",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["discipleship", "jesus", "holy-life"]
+  },
+  {
+    "id": "reaching-for-you",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["longing", "worship", "devotion"]
+  },
+  {
+    "id": "redeeming-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "salvation", "grace"]
+  },
+  {
+    "id": "refiner-s-fire",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["purity", "transformation", "surrender"]
+  },
+  {
+    "id": "sa-aming-puso-y-manahan-lord-jesus-we-enthrone-you",
+    "language": "bilingual",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "kingship", "adoration"]
+  },
+  {
+    "id": "sa-gk-may-pag-asa",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["hope", "community", "service"]
+  },
+  {
+    "id": "sa-piging-ng-panginoon",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["eucharist", "communion", "worship"]
+  },
+  {
+    "id": "sa-yo-lamang",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "surrender"]
+  },
+  {
+    "id": "salvation-belongs-to-our-god",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["salvation", "worship", "praise"]
+  },
+  {
+    "id": "sama-sama-hiney-mah-toy",
+    "language": "bilingual",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["unity", "community", "friendship"]
+  },
+  {
+    "id": "sana-tayo-y-sama-sama",
+    "language": "filipino",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["unity", "community", "family"]
+  },
+  {
+    "id": "shine-jesus-shine",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["light", "mission", "evangelization"]
+  },
+  {
+    "id": "shine-your-light",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["light", "mission", "discipleship"]
+  },
+  {
+    "id": "shout-to-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["worship", "praise", "adoration"]
+  },
+  {
+    "id": "sing-a-hymn-of-praise",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "celebration"]
+  },
+  {
+    "id": "sing-for-joy",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "praise"]
+  },
+  {
+    "id": "sing-our-praises",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "worship", "celebration"]
+  },
+  {
+    "id": "sing-to-god-a-brand-new-canticle",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["praise", "new-song", "celebration"]
+  },
+  {
+    "id": "sing-to-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "adoration"]
+  },
+  {
+    "id": "sing-with-all-the-sons-of-glory",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["heaven", "glory", "worship"]
+  },
+  {
+    "id": "singing-hallelujah",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["hallelujah", "joy", "praise"]
+  },
+  {
+    "id": "one-day-v2",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "heaven", "promise"]
+  },
+  {
+    "id": "so-free",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["freedom", "joy", "celebration"]
+  },
+  {
+    "id": "solo-dios-basta",
+    "language": "spanish",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "devotion", "contentment"]
+  },
+  {
+    "id": "song-of-good-news",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["mission", "evangelization", "joy"]
+  },
+  {
+    "id": "song-of-my-people",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["community", "people-of-god", "faith"]
+  },
+  {
+    "id": "song-of-praise",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "worship", "adoration"]
+  },
+  {
+    "id": "song-of-thanks",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "praise"]
+  },
+  {
+    "id": "song-of-victory",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "faith", "celebration"]
+  },
+  {
+    "id": "spirit-of-revival",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holy-spirit", "revival", "renewal"]
+  },
+  {
+    "id": "spirit-of-the-living-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holy-spirit", "prayer", "renewal"]
+  },
+  {
+    "id": "st-patrick-s-breastplate",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["protection", "faith", "prayer"]
+  },
+  {
+    "id": "stella-maris",
+    "language": "latin",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["mary", "prayer", "devotion"]
+  },
+  {
+    "id": "still",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["peace", "trust", "comfort", "faith"]
+  },
+  {
+    "id": "strong-and-faithful",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faithfulness", "trust", "strength"]
+  },
+  {
+    "id": "strong-arm",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["strength", "victory", "faith"]
+  },
+  {
+    "id": "sure-foundation",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faith", "trust", "stability"]
+  },
+  {
+    "id": "take-me-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "calling", "discipleship"]
+  },
+  {
+    "id": "take-and-receive",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "offering", "discipleship"]
+  },
+  {
+    "id": "take-me-out-of-the-dark",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "healing", "restoration"]
+  },
+  {
+    "id": "take-our-bread",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["eucharist", "offertory", "worship"]
+  },
+  {
+    "id": "tanging-ikaw",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "worship"]
+  },
+  {
+    "id": "tanging-yaman",
+    "language": "filipino",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "treasure", "faith"]
+  },
+  {
+    "id": "tapat-ang-diyos-strong-and-faithful",
+    "language": "bilingual",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faithfulness", "trust", "strength"]
+  },
+  {
+    "id": "taste-and-see",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["eucharist", "communion", "worship"]
+  },
+  {
+    "id": "te-deum",
+    "language": "latin",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "thanksgiving", "liturgy"]
+  },
+  {
+    "id": "testify-to-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "mission", "witness"]
+  },
+  {
+    "id": "thanks-be-to-god",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["thanksgiving", "gratitude", "praise"]
+  },
+  {
+    "id": "that-blest-abode",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["heaven", "hope", "eternity"]
+  },
+  {
+    "id": "that-last-supper",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["eucharist", "communion", "jesus"]
+  },
+  {
+    "id": "that-s-why-i-praise-your-name",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["thanksgiving", "praise", "worship"]
+  },
+  {
+    "id": "the-celebration-song",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["celebration", "joy", "praise"]
+  },
+  {
+    "id": "the-dwelling-of-god-is-among-you-today",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["presence-of-god", "worship", "church"]
+  },
+  {
+    "id": "the-earth-shakes",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["power-of-god", "victory", "majesty"]
+  },
+  {
+    "id": "the-king-the-lord-reigns",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "victory", "praise"]
+  },
+  {
+    "id": "the-light-of-christ",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["light", "hope", "mission"]
+  },
+  {
+    "id": "the-lord-is-a-great-and-mighty-king",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "majesty", "adoration"]
+  },
+  {
+    "id": "the-lord-of-hosts-is-with-us",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["protection", "strength", "faith"]
+  },
+  {
+    "id": "the-lord-reigns",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "praise", "victory"]
+  },
+  {
+    "id": "the-magnificat",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mary", "praise", "humility"]
+  },
+  {
+    "id": "the-mission",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["mission", "calling", "discipleship"]
+  },
+  {
+    "id": "the-people-of-god",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["church", "community", "people-of-god"]
+  },
+  {
+    "id": "the-people-that-walk-in-darkness",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["advent", "hope", "light"]
+  },
+  {
+    "id": "the-prayer-of-st-francis",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["peace", "service", "humility"]
+  },
+  {
+    "id": "the-song-of-moses",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "deliverance", "praise"]
+  },
+  {
+    "id": "the-song-of-my-soul",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "devotion", "love"]
+  },
+  {
+    "id": "the-spirit-and-the-bride",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["holy-spirit", "church", "hope"]
+  },
+  {
+    "id": "the-victory-song",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "celebration", "faith"]
+  },
+  {
+    "id": "the-voice-of-one-calling-in-the-desert",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["advent", "preparation", "mission"]
+  },
+  {
+    "id": "therefore-the-redeemed",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["salvation", "joy", "celebration"]
+  },
+  {
+    "id": "there-s-a-new-generation",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["youth", "mission", "revival"]
+  },
+  {
+    "id": "thine-o-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "adoration", "worship"]
+  },
+  {
+    "id": "this-is-how-we-overcome",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "faith", "perseverance"]
+  },
+  {
+    "id": "thou-art-worthy",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["adoration", "worship", "holiness"]
+  },
+  {
+    "id": "through-you-i-will-bring-light-to-the-nations-v1",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "through-you-i-will-bring-light-to-the-nations-v2",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "through-you-i-will-give-light-to-the-nations-v1",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "through-you-i-will-give-light-to-the-nations-v2",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "through-you-i-will-give-light-to-the-nations-v3",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["mission", "light", "evangelization"]
+  },
+  {
+    "id": "till-the-end-of-my-time",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "love", "commitment"]
+  },
+  {
+    "id": "to-love-you-and-to-make-you-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "discipleship", "mission"]
+  },
+  {
+    "id": "to-the-ends-of-the-earth",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "evangelization", "discipleship"]
+  },
+  {
+    "id": "to-the-king-of-ages",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["kingship", "adoration", "praise"]
+  },
+  {
+    "id": "to-the-lamb",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "lamb-of-god", "adoration"]
+  },
+  {
+    "id": "trading-my-sorrows",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "victory", "hope", "perseverance"]
+  },
+  {
+    "id": "trailblazin",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["youth", "mission", "leadership"]
+  },
+  {
+    "id": "trees-of-the-field",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "hope"]
+  },
+  {
+    "id": "unto-the-house-of-the-lord",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 4,
+    "tags": ["worship", "community", "celebration"]
+  },
+  {
+    "id": "victorious-lamb",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["victory", "jesus", "salvation"]
+  },
+  {
+    "id": "victory-to-our-king",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["victory", "kingship", "celebration"]
+  },
+  {
+    "id": "wake-from-your-sleep",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["awakening", "revival", "faith"]
+  },
+  {
+    "id": "walk-on-water",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faith", "trust", "courage"]
+  },
+  {
+    "id": "we-adore-you",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "worship", "devotion"]
+  },
+  {
+    "id": "we-are-men-of-jesus-christ",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["men", "discipleship", "mission"]
+  },
+  {
+    "id": "we-are-the-body-of-christ",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["church", "community", "unity"]
+  },
+  {
+    "id": "we-belong-to-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["identity", "devotion", "faith"]
+  },
+  {
+    "id": "we-will-embrace-your-move",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holy-spirit", "revival", "mission"]
+  },
+  {
+    "id": "we-will-fight",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["spiritual-warfare", "faith", "victory"]
+  },
+  {
+    "id": "we-will-magnify",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["praise", "adoration", "worship"]
+  },
+  {
+    "id": "we-re-family",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["family", "community", "unity"]
+  },
+  {
+    "id": "we-will-worship",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "adoration", "devotion"]
+  },
+  {
+    "id": "welcome-to-the-family",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["community", "family", "belonging"]
+  },
+  {
+    "id": "we-ll-be-faithful",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "commitment", "discipleship"]
+  },
+  {
+    "id": "when-god-says-no",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["trust", "suffering", "perseverance"]
+  },
+  {
+    "id": "who-has-known",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["majesty", "wonder", "adoration"]
+  },
+  {
+    "id": "who-is-like-thee",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "adoration", "worship"]
+  },
+  {
+    "id": "who-is-like-thee-x",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "adoration", "worship"]
+  },
+  {
+    "id": "whom-shall-i-fear",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faith", "courage", "trust"]
+  },
+  {
+    "id": "with-you-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["presence-of-god", "devotion", "worship"]
+  },
+  {
+    "id": "worship-the-lord",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["worship", "adoration", "praise"]
+  },
+  {
+    "id": "worthy-is-the-lamb",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "lamb-of-god", "adoration"]
+  },
+  {
+    "id": "yahweh",
+    "language": "hebrew",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["adoration", "majesty", "worship"]
+  },
+  {
+    "id": "yahweh-the-faithful-one",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "trust", "worship"]
+  },
+  {
+    "id": "yahweh-the-faithful-one-x",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["faithfulness", "trust", "worship"]
+  },
+  {
+    "id": "yea-my-life",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["offering", "surrender", "discipleship"]
+  },
+  {
+    "id": "you-alone-are-holy",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["holiness", "adoration", "worship"]
+  },
+  {
+    "id": "you-are-all-that-i-have",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["trust", "devotion", "dependence"]
+  },
+  {
+    "id": "you-are-my-delight",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "worship"]
+  },
+  {
+    "id": "you-are-my-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "trust", "devotion"]
+  },
+  {
+    "id": "you-are-my-jesus",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["jesus", "love", "devotion"]
+  },
+  {
+    "id": "you-are-my-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["lordship", "worship", "surrender"]
+  },
+  {
+    "id": "you-are-near",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["presence-of-god", "comfort", "trust"]
+  },
+  {
+    "id": "you-are-our-treasure",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "treasure"]
+  },
+  {
+    "id": "you-are-the-light-of-my-soul",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["light", "hope", "guidance"]
+  },
+  {
+    "id": "you-have-broken-the-chains",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["freedom", "victory", "deliverance"]
+  },
+  {
+    "id": "you-said",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["promise", "faith", "trust"]
+  },
+  {
+    "id": "you-shall-be-clothed-with-power",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holy-spirit", "mission", "empowerment"]
+  },
+  {
+    "id": "young-blood",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["youth", "mission", "discipleship"]
+  },
+  {
+    "id": "your-joy-is-my-strength",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "strength", "celebration"]
+  },
+  {
+    "id": "you-re-my-only-god",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["devotion", "worship", "lordship"]
+  },
+  {
+    "id": "you-re-the-love-of-my-life",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "intimacy-with-god"]
+  },
+  {
+    "id": "you-ve-got-a-friend",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["friendship", "comfort", "support"]
+  },
+  {
+    "id": "yours-is-the-greatness-and-the-power",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["majesty", "adoration", "kingship"]
+  },
+  {
+    "id": "youth-for-christ",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["youth", "mission", "discipleship"]
+  },
+
+  {
+    "id": "a-king-shall-come",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["advent", "hope", "kingship"]
+  },
+  {
+    "id": "ang-pasko-ay-sumapit",
+    "language": "filipino",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["christmas", "joy", "celebration"]
+  },
+  {
+    "id": "angels-we-have-heard-on-high",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["christmas", "joy", "angels"]
+  },
+  {
+    "id": "away-in-a-manger",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["christmas", "jesus", "nativity"]
+  },
+  {
+    "id": "bethlehem-rejoices",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["christmas", "joy", "nativity"]
+  },
+  {
+    "id": "emmanuel",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["christmas", "advent", "emmanuel"]
+  },
+  {
+    "id": "hark-the-herald-angels-sing",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["christmas", "joy", "celebration"]
+  },
+  {
+    "id": "joy-to-the-world",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["christmas", "joy", "celebration"]
+  },
+  {
+    "id": "o-come-all-ye-faithful",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["christmas", "worship", "nativity"]
+  },
+  {
+    "id": "o-come-o-come-emmanuel",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["advent", "hope", "emmanuel"]
+  },
+  {
+    "id": "o-holy-night",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["christmas", "worship", "nativity"]
+  },
+  {
+    "id": "o-little-town-of-bethlehem",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["christmas", "nativity", "hope"]
+  },
+  {
+    "id": "silent-night-holy-night",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["christmas", "peace", "nativity"]
+  },
+
+  {
+    "id": "hope-in-the-lord",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "trust", "faith"]
+  },
+  {
+    "id": "new-couples-for-christ-theme-song",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["cfc", "mission", "community", "family"]
+  },
+  {
+    "id": "you-re-worthy-of-my-praise",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["praise", "worship", "celebration"]
+  },
+  {
+    "id": "love-one-another",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "community", "discipleship"]
+  },
+  {
+    "id": "only-selfless-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "service", "sacrifice"]
+  },
+  {
+    "id": "here-i-am-to-worship-v1",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["worship", "adoration", "devotion"]
+  },
+  {
+    "id": "i-will-not-be-afraid",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["faith", "courage", "trust"]
+  },
+  {
+    "id": "jesus-lover-of-my-soul",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "jesus", "devotion"]
+  },
+  {
+    "id": "only-a-god-like-you",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["majesty", "praise", "adoration"]
+  },
+  {
+    "id": "love-you-so-much",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "devotion", "worship"]
+  },
+  {
+    "id": "all-for-love",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["love", "cross", "salvation"]
+  },
+  {
+    "id": "fresh-fire",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["holy-spirit", "revival", "renewal"]
+  },
+  {
+    "id": "i-am-the-god-that-healeth-thee",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 1,
+    "tags": ["healing", "hope", "comfort"]
+  },
+  {
+    "id": "come-now-is-the-time-to-worship",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 3,
+    "tags": ["worship", "invitation", "adoration"]
+  },
+  {
+    "id": "i-give-you-my-heart",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["surrender", "love", "worship"]
+  },
+  {
+    "id": "celebrate-jesus-celebrate",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["joy", "celebration", "praise"]
+  },
+  {
+    "id": "mission-ready",
+    "language": "english",
+    "tempo": "fast",
+    "energy": 5,
+    "tags": ["mission", "discipleship", "evangelization"]
+  },
+  {
+    "id": "fearless",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["courage", "faith", "trust"]
+  },
+  {
+    "id": "hope",
+    "language": "english",
+    "tempo": "slow",
+    "energy": 2,
+    "tags": ["hope", "trust", "perseverance"]
+  },
+  {
+    "id": "stand-firm-in-the-faith",
+    "language": "english",
+    "tempo": "medium",
+    "energy": 4,
+    "tags": ["faith", "perseverance", "discipleship"]
+  }
+]

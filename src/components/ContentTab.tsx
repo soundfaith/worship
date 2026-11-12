@@ -3,10 +3,11 @@ import { useState } from "react";
 import { useAssemblies, useRecurring } from "@/lib/assemblies";
 import { gospelForAssembly } from "@/lib/gospel";
 import { uid } from "@/lib/store";
-import type { Announcement, Celebrant } from "@/lib/types";
+import type { Announcement } from "@/lib/types";
 import { IconButton } from "./Icon";
 import { ConfirmDialog } from "./Modal";
 import { Field, Section, type TabProps } from "./ui";
+import { Icon } from "./Icon";
 
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -17,27 +18,11 @@ function Check({ label, checked, onChange }: { label: string; checked: boolean; 
   );
 }
 
-function CelebrantList({
-  items, onChange, noun, detailLabel,
-}: { items: Celebrant[]; onChange: (v: Celebrant[]) => void; noun: string; detailLabel: string }) {
-  return (
-    <div className="space-y-2">
-      {items.map((c) => (
-        <div key={c.id} className="flex gap-2">
-          <input className="input" aria-label={noun} placeholder={noun} value={c.name} onChange={(e) => onChange(items.map((x) => (x.id === c.id ? { ...x, name: e.target.value } : x)))} />
-          <input className="input" aria-label={detailLabel} placeholder={detailLabel} value={c.detail ?? ""} onChange={(e) => onChange(items.map((x) => (x.id === c.id ? { ...x, detail: e.target.value } : x)))} />
-          <IconButton icon="close" label="Remove" danger onClick={() => onChange(items.filter((x) => x.id !== c.id))} />
-        </div>
-      ))}
-      <button className="btn" onClick={() => onChange([...items, { id: uid(), name: "", detail: "" }])}>+ Add</button>
-    </div>
-  );
-}
-
 export function ContentTab({ a, update }: TabProps) {
   const [all] = useAssemblies();
   const [recurring, setRecurring] = useRecurring();
   const [pendingGospelDate, setPendingGospelDate] = useState<string | null>(null);
+  const [pendingAssemblyDate, setPendingAssemblyDate] = useState<string | null>(null);
   const set = (patch: Parameters<TabProps["update"]>[0]) => update({ ...patch, slides: null });
   const gospel = gospelForAssembly(a);
   const changeGospelDate = (date: string) => {
@@ -69,6 +54,55 @@ export function ContentTab({ a, update }: TabProps) {
 
   return (
     <div className="space-y-8">
+      <Section title="The essentials">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Assembly title">
+            <input className="input" value={a.title} onChange={(event) => update({ title: event.target.value })} placeholder="Sunday Prayer Assembly" />
+          </Field>
+          <Field label="Date">
+            <input
+              type="date"
+              className="input"
+              value={a.date}
+              onChange={(event) => {
+                if (a.slides) setPendingAssemblyDate(event.target.value);
+                else set({ date: event.target.value });
+              }}
+            />
+          </Field>
+        </div>
+      </Section>
+      {pendingAssemblyDate !== null && (
+        <ConfirmDialog
+          title="Change assembly date?"
+          message="Slides will be regenerated for the new date, and manual slide edits will be lost. Custom Gospel text will be kept."
+          confirmLabel="Change date"
+          onCancel={() => setPendingAssemblyDate(null)}
+          onConfirm={() => { set({ date: pendingAssemblyDate }); setPendingAssemblyDate(null); }}
+        />
+      )}
+      <details className="card group p-4 sm:p-6">
+        <summary className="cursor-pointer list-none text-base font-medium text-stone-800 marker:hidden">
+          <span className="flex items-center justify-between">Add more details <Icon name="chevron" className="h-5 w-5 text-stone-400 transition-transform group-open:rotate-180" /></span>
+        </summary>
+        <div className="mt-6 space-y-8">
+      <Section title="Service details">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="Presider"><input className="input" value={a.presider} onChange={(event) => set({ presider: event.target.value })} /></Field>
+          <Field label="Opening prayer leader"><input className="input" value={a.prayerLeader} onChange={(event) => set({ prayerLeader: event.target.value })} /></Field>
+          <Field label="Worship leader"><input className="input" value={a.worshipLeader} onChange={(event) => set({ worshipLeader: event.target.value })} /></Field>
+        </div>
+        <Field label="Activity type"><input className="input" value={a.activity} onChange={(event) => set({ activity: event.target.value })} /></Field>
+        <Field label="Theme"><input className="input" value={a.theme} onChange={(event) => set({ theme: event.target.value })} /></Field>
+        {a.assignments.map((assignment) => (
+          <div key={assignment.id} className="flex gap-2">
+            <input className="input" aria-label="Role" placeholder="Role" value={assignment.role} onChange={(event) => set({ assignments: a.assignments.map((item) => item.id === assignment.id ? { ...item, role: event.target.value } : item) })} />
+            <input className="input" aria-label="Name" placeholder="Name" value={assignment.name} onChange={(event) => set({ assignments: a.assignments.map((item) => item.id === assignment.id ? { ...item, name: event.target.value } : item) })} />
+            <IconButton icon="close" label="Remove assignment" danger onClick={() => set({ assignments: a.assignments.filter((item) => item.id !== assignment.id) })} />
+          </div>
+        ))}
+        <button className="btn" onClick={() => set({ assignments: [...a.assignments, { id: uid(), role: "", name: "" }] })}>+ Add assignment</button>
+      </Section>
       {a.slides && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">Changing content will regenerate slides and discard manual slide edits.</p>}
       <Section title="Sections" hint="Optional slides to include.">
         <div className="flex flex-wrap gap-6">
@@ -93,7 +127,7 @@ export function ContentTab({ a, update }: TabProps) {
           <Check label="Include Gospel reading" checked={gospel.include} onChange={(include) => set({ gospel: { ...a.gospel, include } })} />
           {a.gospel?.date && <button className="btn btn-ghost" onClick={() => changeGospelDate("")}>Use assembly date</button>}
         </div>
-        <p className="text-xs text-stone-500">{a.gospel?.date ? "Using a separate reading date." : "Using the date from Details."}{gospel.custom ? " Your edits are preserved when the assembly date changes." : ""}</p>
+        {gospel.custom && <p className="text-xs text-stone-500">Your edits are preserved when the assembly date changes.</p>}
         {gospel.error && <p role="status" className="text-sm text-amber-700">{gospel.error}</p>}
         {!gospel.custom && gospel.partial && <p className="text-xs text-stone-500">Where the reference specifies part of a verse, the full verse is included.</p>}
         {!gospel.custom && gospel.missingVerses && <p role="status" className="text-sm text-amber-700">This translation skips a verse number in the selected passage. Review the text and edit it if needed.</p>}
@@ -105,11 +139,10 @@ export function ContentTab({ a, update }: TabProps) {
           <textarea className="input h-56" value={gospel.text} onChange={(e) => set({ gospel: { ...a.gospel, reference: gospel.reference, text: e.target.value } })} />
         </Field>
         {gospel.custom && <button className="btn" onClick={() => setPendingGospelDate(a.gospel?.date ?? "")}>Restore daily reading</button>}
-        <p className="text-xs text-stone-500">Long readings are split into multiple slides. The index covers August 25, 2025 through December 31, 2027; some dates may be missing.</p>
       </section>
       {pendingGospelDate !== null && <ConfirmDialog title="Replace edited reading?" message="Your edits to the Gospel reference and text will be replaced by the daily reading for the selected date." confirmLabel="Replace reading" onCancel={() => setPendingGospelDate(null)} onConfirm={() => { loadGospelDate(pendingGospelDate); setPendingGospelDate(null); }} />}
 
-      <Section title="Prayer texts" hint={a.prayerLeader ? `Opening prayer led by ${a.prayerLeader}` : "Set the opening prayer leader in Details."}>
+      <Section title="Prayer texts" hint={a.prayerLeader ? `Opening prayer led by ${a.prayerLeader}` : undefined}>
         <Field label="Prayer text (optional)">
           <textarea className="input h-24" value={a.openingPrayerText} onChange={(e) => set({ openingPrayerText: e.target.value })} />
         </Field>
@@ -120,7 +153,7 @@ export function ContentTab({ a, update }: TabProps) {
         )}
       </Section>
 
-      <Section title="Announcements" hint="Each announcement becomes its own slide.">
+      <Section title="Announcements">
         {a.announcements.map((x, i) => (
           <div key={x.id} className="space-y-2 rounded-xl border border-stone-200 bg-stone-50/60 p-3">
             <textarea className="input h-20" aria-label="Announcement" value={x.text} onChange={(e) => setAnn(a.announcements.map((y) => (y.id === x.id ? { ...y, text: e.target.value } : y)))} />
@@ -147,13 +180,8 @@ export function ContentTab({ a, update }: TabProps) {
         )}
       </Section>
 
-      <Section title="Birthdays">
-        <CelebrantList items={a.birthdays} onChange={(v) => set({ birthdays: v })} noun="Name" detailLabel="Date (optional)" />
-      </Section>
-
-      <Section title="Anniversaries">
-        <CelebrantList items={a.anniversaries} onChange={(v) => set({ anniversaries: v })} noun="Couple" detailLabel="Years (optional)" />
-      </Section>
+        </div>
+      </details>
     </div>
   );
 }

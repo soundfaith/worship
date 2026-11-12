@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAssemblies, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { exportPptx } from "@/lib/export";
 import type { Assembly } from "@/lib/types";
@@ -8,16 +8,37 @@ import { DetailsTab } from "@/components/DetailsTab";
 import { SongsTab } from "@/components/SongsTab";
 import { ContentTab } from "@/components/ContentTab";
 import { ReviewTab } from "@/components/ReviewTab";
+import { Icon } from "@/components/Icon";
 
-const TABS = ["Details", "Songs", "Content", "Review & Export"] as const;
+const TABS = ["Template", "Content", "Songs", "Edit & Present"] as const;
+
+type ExtendedScreen = Screen & { isPrimary?: boolean };
+type ScreenDetails = { screens: ExtendedScreen[]; currentScreen: ExtendedScreen };
+type MultiScreenWindow = Window & { getScreenDetails?: () => Promise<ScreenDetails> };
+type ScreenFullscreenOptions = FullscreenOptions & { screen?: ExtendedScreen };
 
 export function AssemblyEditor({ id }: { id: string }) {
   const [assemblies, setAssemblies] = useAssemblies();
   const [, setDiscoveryEligible] = useSoundFaithDiscoveryEligibility();
-  const [tab, setTab] = useState<(typeof TABS)[number]>("Details");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Template");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const [presentationError, setPresentationError] = useState("");
+  const [presentRequest, setPresentRequest] = useState(0);
   const a = assemblies.find((x) => x.id === id);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tab]);
+
+  useEffect(() => {
+    const onPresent = () => {
+      if (tab !== "Edit & Present") setTab("Edit & Present");
+      setPresentRequest((request) => request + 1);
+    };
+    window.addEventListener("assembly:present", onPresent);
+    return () => window.removeEventListener("assembly:present", onPresent);
+  }, [tab]);
 
   if (!a) {
     return (
@@ -46,45 +67,89 @@ export function AssemblyEditor({ id }: { id: string }) {
       setExporting(false);
     }
   };
+  const requestPresentation = () => {
+    setPresentationError("");
+    setPresentRequest((request) => request + 1);
+    if (document.fullscreenElement) return;
+    const requestFullscreen = document.documentElement.requestFullscreen?.bind(document.documentElement);
+    if (!requestFullscreen) {
+      setPresentationError("Fullscreen is unavailable in this browser; presentation will use this window.");
+      return;
+    }
+    const browserWindow = window as MultiScreenWindow;
+    void (async () => {
+      try {
+        const details = await browserWindow.getScreenDetails?.();
+        const secondary = details?.screens.find((screen) => screen !== details.currentScreen);
+        if (secondary) {
+          try {
+            await requestFullscreen({ screen: secondary } as ScreenFullscreenOptions);
+            return;
+          } catch {
+            // Fall back to the browser's current display if secondary-screen fullscreen is denied.
+          }
+        }
+        await requestFullscreen();
+      } catch {
+        try {
+          await requestFullscreen();
+        } catch {
+          setPresentationError("Fullscreen is unavailable in this browser; presentation will use this window.");
+        }
+      }
+    })();
+  };
 
   return (
-    <div className="space-y-10">
-      <div>
+    <div className="space-y-14 sm:space-y-16">
+      <div className="space-y-5">
         <Link href="/" className="text-sm text-stone-500 transition-colors hover:text-accent">← Assemblies</Link>
-        <h1 className="display mt-3 text-stone-900">{a.title || "New assembly"}</h1>
-        <p className="mt-1 text-sm text-stone-500">Changes are saved automatically.</p>
-      </div>
-
-      <div role="tablist" aria-label="Assembly sections" tabIndex={0} className="flex w-full gap-1 overflow-x-auto rounded-full bg-stone-100 p-1 sm:w-fit sm:max-w-full">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={`min-w-max flex-1 whitespace-nowrap rounded-full px-2.5 py-2 text-xs transition-all sm:flex-none sm:px-5 sm:text-sm ${
-              tab === t ? "bg-surface text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"
-            }`}
-          >
-            {t === "Review & Export" ? <><span className="sm:hidden">Review</span><span className="hidden sm:inline">Review &amp; Export</span></> : t}
-          </button>
-        ))}
-      </div>
-
-      {tab === "Details" && <DetailsTab a={a} update={update} />}
-      {tab === "Songs" && <SongsTab a={a} update={update} />}
-      {tab === "Content" && <ContentTab a={a} update={update} />}
-      {tab === "Review & Export" && <ReviewTab a={a} update={update} exporting={exporting} onExport={exportAssembly} exportError={exportError} />}
-
-      <div className="border-t border-stone-200 pt-8">
-        {tab === TABS[3] && exportError && <p role="alert" className="mb-4 text-sm text-red-600">{exportError}</p>}
-        <div className="flex justify-between">
-          {tab !== TABS[0] && <button className="btn" onClick={() => setTab(TABS[TABS.indexOf(tab) - 1])}>Back</button>}
-          {tab === TABS[3]
-            ? <button className="btn btn-primary ml-auto" disabled={exporting} onClick={exportAssembly}>{exporting ? "Exporting…" : "Export PowerPoint"}</button>
-            : <button className="btn btn-primary ml-auto" onClick={() => setTab(TABS[TABS.indexOf(tab) + 1])}>Next</button>}
+        <div className="flex flex-col items-start gap-4">
+          <div>
+            <h1 className="display mt-3 text-stone-900">{a.title || "New assembly"}</h1>
+          </div>
+          {tab === "Edit & Present" && (
+            <div className="flex flex-wrap justify-start gap-2">
+              <button type="button" className="btn btn-primary" onClick={requestPresentation}><Icon name="present" />Present</button>
+              <button type="button" className="btn" disabled={exporting} onClick={() => void exportAssembly()}>
+                <Icon name="download" />{exporting ? "Preparing download…" : "Download PowerPoint"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      <nav aria-label="Assembly steps" className="relative my-5 grid grid-cols-4 gap-1 py-6 sm:my-8 sm:gap-2 sm:py-8">
+        <span aria-hidden="true" className="absolute left-[12.5%] right-[12.5%] top-14 h-px bg-stone-200 sm:top-[4.25rem]" />
+          {TABS.map((step, index) => (
+            <button
+              key={step}
+              type="button"
+              onClick={() => setTab(step)}
+              aria-current={tab === step ? "step" : undefined}
+              className={`stepper-item relative z-10 flex min-w-0 cursor-pointer flex-col items-center gap-2 rounded-xl py-1 text-center text-xs transition sm:text-sm ${tab === step ? "is-current" : ""}`}
+            >
+              <span className="stepper-number grid h-16 w-16 place-items-center rounded-full border-2 text-xl font-semibold tabular-nums sm:h-[4.5rem] sm:w-[4.5rem] sm:text-2xl">{index + 1}</span>
+              <span className="max-w-full truncate">{step}</span>
+            </button>
+          ))}
+      </nav>
+
+      {tab === "Template" && <DetailsTab a={a} update={update} />}
+      {tab === "Content" && <ContentTab a={a} update={update} />}
+      {tab === "Songs" && <SongsTab a={a} update={update} />}
+      {tab === "Edit & Present" && <ReviewTab a={a} update={update} exportError={exportError} presentationError={presentationError} presentRequest={presentRequest} />}
+
+      {tab !== "Edit & Present" && (
+        <div className="flex justify-between border-t border-stone-200 pt-5">
+          {tab !== TABS[0]
+            ? <button className="btn" onClick={() => setTab(TABS[TABS.indexOf(tab) - 1])}>Back</button>
+            : <span />}
+          <button className="btn btn-primary" onClick={() => setTab(TABS[TABS.indexOf(tab) + 1])}>
+            {tab === "Songs" ? "Edit & present" : "Continue"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

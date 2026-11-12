@@ -15,7 +15,22 @@ export const BACKGROUND_COLOR_OPTIONS = [
   { name: "Navy", color: "1D2940" },
   { name: "Forest", color: "21372F" },
 ] as const;
-export const FONTS = ["Inter", "Arial", "Calibri", "Georgia", "Times New Roman", "Verdana"] as const;
+export const FONTS = [
+  "Inter",
+  "Arial",
+  "Aptos",
+  "Calibri",
+  "Cambria",
+  "Candara",
+  "Century Gothic",
+  "Franklin Gothic Medium",
+  "Garamond",
+  "Georgia",
+  "Palatino Linotype",
+  "Tahoma",
+  "Trebuchet MS",
+  "Verdana",
+] as const;
 export const DEFAULT_FONT = "Calibri";
 
 export const LAYOUT_OPTIONS: { id: LayoutName; label: string }[] = [
@@ -42,7 +57,7 @@ const fade = (color: string, start: number, end: number): Fill => ({
 const shape = (type: Shape["type"], x: number, y: number, w: number, h: number, fill: Fill, opacity = 1): Shape =>
   ({ type, x, y, w, h, fill, opacity });
 
-function premiumLayouts(bg: string, fg: string, accent: string, soft: string, style: "atelier" | "nocturne" | "olive" | "pilgrim" | "lumen" | "stillwater"): Partial<Record<LayoutName, Layout>> {
+function premiumLayouts(bg: string, fg: string, accent: string, soft: string, style: "atelier" | "nocturne" | "olive" | "pilgrim" | "lumen" | "stillwater" | "solstice" | "cathedral" | "terra" | "meadow"): Partial<Record<LayoutName, Layout>> {
   const coverShapes: Shape[] = style === "atelier"
     ? [
         shape("ellipse", 0.68, -0.2, 0.48, 0.86, solid(accent, 0.14)),
@@ -73,13 +88,49 @@ function premiumLayouts(bg: string, fg: string, accent: string, soft: string, st
                   shape("roundRect", 0.08, 0.24, 0.18, 0.009, solid(accent)),
                   shape("ellipse", 0.84, 0.62, 0.3, 0.52, solid(accent, 0.16)),
                 ]
-              : [
+              : style === "solstice"
+                ? [
+                    shape("rect", 0.62, 0, 0.38, 1, fade("0C2438", 0.05, 0.88)),
+                    shape("ellipse", 0.69, 0.13, 0.42, 0.72, solid(accent, 0.18)),
+                    shape("ellipse", 0.77, 0.27, 0.26, 0.44, solid(accent, 0.24)),
+                    shape("roundRect", 0.08, 0.24, 0.18, 0.009, solid(accent)),
+                  ]
+                : style === "cathedral"
+                  ? [
+                      shape("ellipse", 0.63, -0.3, 0.56, 1.06, solid(soft, 0.2)),
+                      shape("roundRect", 0.72, 0.1, 0.34, 0.76, solid(accent, 0.12)),
+                      shape("roundRect", 0.08, 0.24, 0.18, 0.009, solid(accent)),
+                      shape("rect", 0.84, 0.1, 0.012, 0.76, solid(accent, 0.48)),
+                    ]
+                  : style === "terra"
+                    ? [
+                        shape("rect", 0.72, 0, 0.28, 1, solid(accent, 0.2)),
+                        shape("ellipse", 0.67, 0.17, 0.48, 0.8, solid(accent, 0.24)),
+                        shape("ellipse", 0.78, 0.33, 0.27, 0.44, solid(soft, 0.22)),
+                        shape("roundRect", 0.08, 0.24, 0.18, 0.009, solid(accent)),
+                      ]
+                    : style === "meadow"
+                      ? [
+                          shape("ellipse", 0.69, -0.22, 0.5, 0.9, solid(soft, 0.3)),
+                          shape("ellipse", 0.82, 0.56, 0.28, 0.46, solid(accent, 0.18)),
+                          shape("roundRect", 0.08, 0.24, 0.18, 0.009, solid(accent)),
+                          shape("rect", 0.08, 0.78, 0.36, 0.004, solid(accent, 0.7)),
+                        ]
+                      : [
           shape("ellipse", 0.68, -0.2, 0.5, 0.88, solid(accent, 0.18)),
           shape("ellipse", 0.82, 0.56, 0.24, 0.4, solid(soft, 0.3)),
           shape("roundRect", 0.08, 0.24, 0.09, 0.012, solid(accent)),
         ];
   const contentShapes: Shape[] = style === "pilgrim"
     ? [shape("rect", 0, 0, 1, 1, fade("102D2A", 0.84, 0.36)), shape("roundRect", 0.08, 0.29, 0.12, 0.012, solid(accent))]
+    : style === "solstice"
+      ? [shape("rect", 0, 0, 1, 1, fade("0C2438", 0.86, 0.3)), shape("ellipse", 0.77, 0.63, 0.32, 0.56, solid(accent, 0.14)), shape("roundRect", 0.08, 0.29, 0.15, 0.01, solid(accent))]
+      : style === "cathedral"
+        ? [shape("rect", 0, 0, 1, 1, solid("211C35", 0.3)), shape("roundRect", 0.84, 0.08, 0.1, 0.84, solid(accent, 0.1)), shape("rect", 0.89, 0.08, 0.008, 0.84, solid(accent, 0.55)), shape("roundRect", 0.08, 0.29, 0.12, 0.01, solid(accent))]
+        : style === "terra"
+          ? [shape("rect", 0, 0, 0.025, 1, solid(accent, 0.85)), shape("ellipse", 0.82, 0.63, 0.3, 0.52, solid(accent, 0.14)), shape("roundRect", 0.08, 0.29, 0.15, 0.01, solid(accent))]
+          : style === "meadow"
+            ? [shape("rect", 0, 0, 1, 1, fade("253A32", 0.76, 0.2)), shape("ellipse", 0.82, 0.65, 0.3, 0.5, solid(soft, 0.16)), shape("roundRect", 0.08, 0.29, 0.15, 0.01, solid(accent))]
     : style === "lumen"
         ? [shape("rect", 0, 0, 1, 1, fade("F5EFE1", 0.94, 0.35)), shape("roundRect", 0.08, 0.29, 0.12, 0.012, solid(accent))]
         : style === "stillwater"
@@ -147,6 +198,26 @@ function premiumLayouts(bg: string, fg: string, accent: string, soft: string, st
 
 const PREMIUM_TEMPLATES: Template[] = [
   {
+    id: "solstice", name: "Solstice", bg: "0C2438", fg: "F8F3E7", accent: "D8AB62",
+    fontTitle: "Georgia", fontBody: "Inter",
+    layouts: premiumLayouts("0C2438", "F8F3E7", "D8AB62", "48667A", "solstice"),
+  },
+  {
+    id: "cathedral", name: "Cathedral", bg: "211C35", fg: "F5F0E7", accent: "C9A66B",
+    fontTitle: "Georgia", fontBody: "Inter",
+    layouts: premiumLayouts("211C35", "F5F0E7", "C9A66B", "625D83", "cathedral"),
+  },
+  {
+    id: "terra", name: "Terra", bg: "462B2A", fg: "F6EBDD", accent: "D99773",
+    fontTitle: "Georgia", fontBody: "Inter",
+    layouts: premiumLayouts("462B2A", "F6EBDD", "D99773", "9E6B55", "terra"),
+  },
+  {
+    id: "meadow", name: "Meadow", bg: "253A32", fg: "F1F0E2", accent: "D5C67D",
+    fontTitle: "Georgia", fontBody: "Inter",
+    layouts: premiumLayouts("253A32", "F1F0E2", "D5C67D", "617A61", "meadow"),
+  },
+  {
     id: "atelier", name: "Atelier", bg: "F5F0E7", fg: "29251F", accent: "A55F43",
     fontTitle: "Georgia", fontBody: "Inter",
     layouts: premiumLayouts("F5F0E7", "29251F", "A55F43", "DCCBB4", "atelier"),
@@ -190,7 +261,7 @@ const BLANK_TEMPLATE: Template = {
 };
 
 export const TEMPLATES: Template[] = [...PREMIUM_TEMPLATES, ...importedTemplates, BLANK_TEMPLATE];
-export const DEFAULT_TEMPLATE = PREMIUM_TEMPLATES[0].id;
+export const DEFAULT_TEMPLATE = "lumen";
 
 export function getTemplate(id: string): Template {
   const found = TEMPLATES.find((t) => t.id === id) ?? TEMPLATES.find((t) => t.id === DEFAULT_TEMPLATE);

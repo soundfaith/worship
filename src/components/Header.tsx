@@ -5,6 +5,9 @@ import { Suspense, useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { Modal } from "./Modal";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAssemblies } from "@/lib/assemblies";
+import { exportPptx } from "@/lib/export";
+import type { Assembly } from "@/lib/types";
 
 const NAV = [
   { href: "/", label: "Assemblies" },
@@ -13,6 +16,7 @@ const NAV = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [assemblies] = useAssemblies();
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 640px)");
     const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
@@ -38,6 +42,7 @@ export function Header() {
           <span className="mx-1 h-5 w-px bg-stone-200" />
           <ThemeToggle />
         </div>
+        <Suspense fallback={null}><EditorHeaderActions assemblies={assemblies} /></Suspense>
         <button type="button" className="icon-btn mobile-menu-trigger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>
           <Icon name={open ? "close" : "menu"} />
         </button>
@@ -54,19 +59,43 @@ export function Header() {
           <div className="mt-4 flex items-center justify-between border-t border-stone-200 px-4 pt-4 text-sm text-stone-700">
             <span>Appearance</span><ThemeToggle />
           </div>
-          <section aria-labelledby="menu-about-soundfaith-title" className="mt-auto border-t border-stone-200 px-4 pt-6">
-            <h3 id="menu-about-soundfaith-title" className="font-medium text-stone-900">About SoundFaith</h3>
-            <p className="mt-2 text-sm leading-relaxed text-stone-500">
-              SoundFaith creates Catholic tools for prayer, Scripture, formation, and ministry.
-            </p>
-            <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-medium text-accent hover:underline">
-              Explore SoundFaith →
-            </a>
-          </section>
         </div>
       </Modal>}
     </header>
   );
+}
+
+function EditorHeaderActions({ assemblies }: { assemblies: Assembly[] }) {
+  const [exporting, setExporting] = useState(false);
+  const [presentRequest, setPresentRequest] = useState(0);
+  const path = usePathname();
+  const isEditor = path.startsWith("/assembly/");
+  const currentAssembly = isEditor ? assemblies.find((assembly) => path === `/assembly/${assembly.id}`) : undefined;
+  const exportCurrent = async () => {
+    if (!currentAssembly) return;
+    setExporting(true);
+    try { await exportPptx(currentAssembly); }
+    catch (error) { window.alert(error instanceof Error ? error.message : "Download failed."); }
+    finally { setExporting(false); }
+  };
+  if (!isEditor) return null;
+  return (
+    <>
+      <div className="mr-2 flex items-center gap-1 sm:hidden">
+        <button type="button" className="btn btn-primary !gap-1 !px-2.5 !py-1.5 !text-xs" onClick={() => setPresentRequest((value) => value + 1)}><Icon name="present" /><span className="hidden min-[390px]:inline">Present</span></button>
+        <button type="button" className="icon-btn border border-stone-200 bg-surface" aria-label="Download PowerPoint" title="Download PowerPoint" disabled={exporting} onClick={() => void exportCurrent()}><Icon name="download" /></button>
+      </div>
+      <PresentationRequestBridge request={presentRequest} />
+    </>
+  );
+}
+
+function PresentationRequestBridge({ request }: { request: number }) {
+  useEffect(() => {
+    if (!request) return;
+    window.dispatchEvent(new CustomEvent("assembly:present"));
+  }, [request]);
+  return null;
 }
 
 function ActiveNavigation({ onNavigate, vertical }: { onNavigate?: () => void; vertical?: boolean }) {

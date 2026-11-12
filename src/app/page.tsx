@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { blankAssembly, duplicateAssembly, useAssemblies, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
+import Image from "next/image";
+import { blankAssembly, duplicateAssembly, useAssemblies, useLogoPreference, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { coverSlide, formatDate } from "@/lib/slides";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
 import { songLabel, useSongSearch } from "@/lib/useSongs";
@@ -17,6 +18,7 @@ export default function Home() {
   const [discoveryEligible, setDiscoveryEligible] = useSoundFaithDiscoveryEligibility();
   const [recurring] = useRecurring();
   const [preferredFont] = usePreferredFont();
+  const [logoPreference] = useLogoPreference();
   const [q, setQ] = useState("");
   const [deleteAssembly, setDeleteAssembly] = useState<Assembly | null>(null);
   const { results } = useSongSearch(q);
@@ -29,7 +31,11 @@ export default function Home() {
   const sorted = [...assemblies].sort((a, b) => b.date.localeCompare(a.date));
 
   const create = (from?: Assembly) => {
-    const a = from ? duplicateAssembly(from) : blankAssembly(preferredFont);
+    const a = from ? duplicateAssembly(from) : blankAssembly(preferredFont || undefined);
+    if (!from && logoPreference) {
+      a.logo = structuredClone(logoPreference);
+      a.showLogo = true;
+    }
     setAssemblies((l) => [...l, a]);
     setDiscoveryEligible(true);
     router.push(`/assembly/${a.id}`);
@@ -54,7 +60,7 @@ export default function Home() {
 
   return (
     <div className="space-y-12">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col items-start gap-4">
         <div>
           <p className="eyebrow mb-2">SoundFaith</p>
           <h1 className="display text-stone-900">Assemblies</h1>
@@ -69,7 +75,7 @@ export default function Home() {
         <Icon name="search" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
         <input
           className="input !py-3 !pl-11"
-          placeholder="Search assemblies, songs, announcements, celebrants, templates…"
+          placeholder="Search assemblies, songs, announcements, templates…"
           aria-label="Global search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -95,19 +101,6 @@ export default function Home() {
       <section className="space-y-5">
         <h2 className="eyebrow">{needle ? "Matching assemblies" : "My assembly slides"}</h2>
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {!needle && (
-            <li>
-              <button
-                onClick={() => create()}
-                className="group flex aspect-[16/10] h-full min-h-48 w-full flex-col items-center justify-center gap-3 rounded-[1.1rem] border border-dashed border-stone-300 text-stone-500 transition hover:border-accent hover:text-accent"
-              >
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-stone-100 transition group-hover:bg-accent/15">
-                  <Icon name="plus" />
-                </span>
-                <span className="text-sm">New assembly</span>
-              </button>
-            </li>
-          )}
           {aHits.map((a) => (
             <AssemblyCard
               key={a.id}
@@ -120,16 +113,20 @@ export default function Home() {
         {aHits.length === 0 && needle && <p className="py-8 text-center text-stone-500">No assemblies match.</p>}
       </section>
       {!needle && discoveryEligible && (
-        <aside aria-labelledby="about-soundfaith-title" className="card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <footer aria-labelledby="about-soundfaith-title" className="relative left-1/2 -mx-[50vw] w-screen border-t border-stone-200 bg-surface">
+          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-10">
           <div>
-            <h2 id="about-soundfaith-title" className="font-medium text-stone-900">About SoundFaith</h2>
-            <p className="mt-1 text-sm text-stone-600">SoundFaith helps Catholics build a daily rhythm of prayer, Scripture, and formation.</p>
-            <p className="mt-1 text-sm text-stone-500">Explore Bible journeys, daily readings, saints, and more.</p>
+            <div className="mb-3 flex items-center gap-3">
+              <Image src="/soundfaith.svg" alt="SoundFaith" width={150} height={34} className="h-8 w-auto" />
+              <h2 id="about-soundfaith-title" className="text-sm font-medium text-stone-800">About SoundFaith</h2>
+            </div>
+            <p className="mt-1 text-sm text-stone-500">Catholic tools for prayer, Scripture, formation, and ministry.</p>
           </div>
-          <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="shrink-0 text-sm font-medium text-accent hover:underline">
-            Explore SoundFaith →
+          <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="btn btn-primary inline-flex shrink-0 items-center gap-2">
+            Explore SoundFaith <span aria-hidden="true">→</span>
           </a>
-        </aside>
+          </div>
+        </footer>
       )}
       {deleteAssembly && <ConfirmDialog title="Delete assembly?" message={`“${deleteAssembly.title || "Untitled assembly"}” will be permanently deleted from this browser.`} confirmLabel="Delete assembly" onCancel={() => setDeleteAssembly(null)} onConfirm={() => {
         setAssemblies((list) => list.filter((item) => item.id !== deleteAssembly.id));

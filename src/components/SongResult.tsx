@@ -6,17 +6,21 @@ export function SongResult({
   onClick,
   active,
   right,
+  disabled,
 }: {
   s: SongIndexEntry;
   onClick: () => void;
   active?: boolean;
   right?: React.ReactNode;
+  disabled?: boolean;
 }) {
   return (
     <button
-      className={`group flex min-w-0 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+      className={`group flex min-w-0 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
         active ? "bg-accent/12 text-stone-900" : "hover:bg-stone-100"
       }`}
+      disabled={disabled}
+      aria-pressed={active}
       onClick={onClick}
     >
       <span className="min-w-0 flex-1">

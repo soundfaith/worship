@@ -103,6 +103,7 @@ export interface Assembly {
   font?: string;
   sectionTemplates: Partial<Record<SlideKind, string>>;
   logo?: LogoPlacement;
+  showLogo?: boolean;
   includeWelcome: boolean;
   includeTheme: boolean;
   includeClosing: boolean;
@@ -125,6 +126,8 @@ export interface LogoPlacement {
   width: number;
   height: number;
 }
+
+export type LogoPreference = LogoPlacement | null;
 
 export type ImageProvider = "library" | "commons" | "unsplash" | "pexels";
 

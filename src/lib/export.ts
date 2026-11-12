@@ -8,7 +8,7 @@ const SH = 5.625;
 const inch = (r: Rect) => ({ x: r.x * SW, y: r.y * SH, w: r.w * SW, h: r.h * SH });
 
 export async function exportPptx(a: Assembly) {
-  return exportSlides({ title: a.title, date: a.date, slides: a.slides ?? [], templateId: a.templateId, sectionTemplates: a.sectionTemplates, font: a.font, backgroundColor: a.backgroundColor, logo: a.logo });
+  return exportSlides({ title: a.title, date: a.date, slides: a.slides ?? [], templateId: a.templateId, sectionTemplates: a.sectionTemplates, font: a.font, backgroundColor: a.backgroundColor, logo: a.showLogo === false ? undefined : a.logo });
 }
 
 export async function exportSlides({ title, date, slides, templateId, sectionTemplates = {}, font, backgroundColor, logo }: {
@@ -35,7 +35,6 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
     if (found) {
       const { layout } = found;
       const background = backgroundFor(t, sl, songPositions[index]);
-      const slideFont = sl.font ?? font ?? DEFAULT_FONT;
       slide.background = { color: t.bg };
       if (t.id !== BLANK_TEMPLATE_ID || sl.backgroundImage) {
         const artwork = sl.backgroundImage
@@ -48,8 +47,8 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       if (sl.image && layout.image) slide.addImage({ data: sl.image.slice(5), ...inch(layout.image), sizing: { type: "cover", ...inch(layout.image) } });
       if (sl.image2 && layout.image2) slide.addImage({ data: sl.image2.slice(5), ...inch(layout.image2), sizing: { type: "cover", ...inch(layout.image2) } });
       for (const [box, text, boxFont, fit, reading] of [
-        [layout.title, sl.title, slideFont, !!layout.fitTitle, false],
-        ...(!layout.hideBody ? [[layout.body, sl.body, slideFont, true, sl.kind === "gospel"] as const] : []),
+        [layout.title, sl.title, sl.font || font || t.fontTitle, !!layout.fitTitle, false],
+        ...(!layout.hideBody ? [[layout.body, sl.body, sl.font || font || t.fontBody, true, sl.kind === "gospel"] as const] : []),
       ] as const) {
         const content = reading ? text.trim() : text;
         slide.addText(box.caps ? content.toUpperCase() : content, {
@@ -64,19 +63,6 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
           margin: 0,
         });
       }
-      if (sl.backgroundImage) {
-        slide.addText(`Photo: "${sl.backgroundImage.title}" by ${sl.backgroundImage.artist} · ${sl.backgroundImage.providerLabel ?? "Wikimedia Commons"} · ${sl.backgroundImage.license}`, {
-          x: 0.2,
-          y: 5.39,
-          w: 9.2,
-          h: 0.17,
-          fontFace: slideFont,
-          fontSize: 8.5,
-          color: layout.title.color,
-          margin: 0,
-          hyperlink: sl.backgroundImage.sourceUrl ? { url: sl.backgroundImage.sourceUrl } : undefined,
-        });
-      }
       if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
       continue;
     }
@@ -89,16 +75,55 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
 
     slide.addText(sl.title, {
       x: 0.6, y: 0.3, w: 8.8, h: 0.7,
-      fontFace: t.fontTitle, fontSize: isSong ? 16 : 34, color: t.accent,
+      fontFace: sl.font || font || t.fontTitle, fontSize: isSong ? 16 : 34, color: t.accent,
       align: "center", bold: !isSong, charSpacing: isSong ? 4 : 0,
     });
     slide.addShape(pres.ShapeType.line, { x: 4.4, y: 1.05, w: 1.2, h: 0, line: { color: t.accent, width: 1 } });
     slide.addText(sl.body, {
       x: 0.6, y: 1.25, w: 8.8, h: 4,
-      fontFace: t.fontBody, fontSize: size, color: t.fg,
+      fontFace: sl.font || font || t.fontBody, fontSize: size, color: t.fg,
       align: "center", valign: "middle", fit: "shrink", lineSpacingMultiple: 1.1,
     });
     if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
+  }
+  const photoCredits = [...new Map(
+    slides.flatMap((item) => item.backgroundImage?.sourceUrl
+      ? [[item.backgroundImage.sourceUrl, item.backgroundImage] as const]
+      : []),
+  ).values()];
+  if (photoCredits.length) {
+    const creditTemplate = presentationTemplate(templateId, backgroundColor);
+    const creditSlide = pres.addSlide();
+    creditSlide.background = { color: creditTemplate.bg };
+    creditSlide.addText("Photo credits", {
+      x: 0.5, y: 0.35, w: 9, h: 0.55,
+      fontFace: creditTemplate.fontTitle, fontSize: 28, bold: true,
+      color: creditTemplate.fg, margin: 0,
+    });
+    const rows = Math.ceil(photoCredits.length / 2);
+    const rowHeight = Math.min(0.42, 4.25 / rows);
+    photoCredits.forEach((credit, index) => {
+      const column = Math.floor(index / rows);
+      const row = index % rows;
+      const provider = credit.providerLabel ?? "Wikimedia Commons";
+      const attribution = provider.includes("Unsplash")
+        ? `Photo by ${credit.artist} on Unsplash · "${credit.title}"`
+        : `"${credit.title}" by ${credit.artist} · ${provider} · ${credit.license}`;
+      creditSlide.addText(attribution, {
+        x: column ? 5.2 : 0.5,
+        y: 1.15 + row * rowHeight,
+        w: 4.3,
+        h: rowHeight - 0.03,
+        fontFace: font || DEFAULT_FONT,
+        fontSize: Math.min(13, Math.max(8, rowHeight * 28)),
+        color: creditTemplate.fg,
+        margin: 0.02,
+        breakLine: false,
+        fit: "shrink",
+        hyperlink: { url: credit.sourceUrl },
+      });
+    });
+    if (logo) creditSlide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
   }
   const safe = (title || "assembly").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "presentation";
   await pres.writeFile({ fileName: `${safe}${date ? "-" + date : ""}.pptx` });

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
 import { renderArt, renderPhotoBackground } from "@/lib/art";
 import { fitSize, readingFontSize } from "@/lib/layout";
-import { backgroundFor, BLANK_TEMPLATE_ID, DEFAULT_FONT, layoutFor } from "@/lib/templates";
+import { backgroundFor, BLANK_TEMPLATE_ID, layoutFor } from "@/lib/templates";
 import type { Layout, LogoPlacement, Rect, Slide, Template, TextBox } from "@/lib/types";
 
 const pct = (r: Rect): CSSProperties => ({
@@ -56,7 +56,7 @@ function useArt(template: Template, name: string | undefined, layout: Layout | u
   return art?.key === key ? art : undefined;
 }
 
-export function SlideView({ slide, template, className = "", font = DEFAULT_FONT, songIndex = 0, logo, onLogoPositionChange }: {
+export function SlideView({ slide, template, className = "", font, songIndex = 0, logo, onLogoPositionChange }: {
   slide: Slide;
   template: Template;
   className?: string;
@@ -81,14 +81,14 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
   const backgroundSrc = background ? `${template.dir}/${background.src}` : undefined;
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const dragPositionRef = useRef<{ x: number; y: number } | null>(null);
+  const logoDragRef = useRef<{ clientX: number; clientY: number; x: number; y: number; width: number; height: number } | null>(null);
 
   const moveLogo = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!logo || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
-    if (!bounds) return;
+    const drag = logoDragRef.current;
+    if (!logo || !drag || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
     const position = {
-      x: Math.max(0, Math.min(1 - logo.width, (event.clientX - bounds.left) / bounds.width - logo.width / 2)),
-      y: Math.max(0, Math.min(1 - logo.height, (event.clientY - bounds.top) / bounds.height - logo.height / 2)),
+      x: Math.max(0.02 - logo.width, Math.min(0.98, drag.x + (event.clientX - drag.clientX) / drag.width)),
+      y: Math.max(0.02 - logo.height, Math.min(0.98, drag.y + (event.clientY - drag.clientY) / drag.height)),
     };
     dragPositionRef.current = position;
     setDragPosition(position);
@@ -96,6 +96,7 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
   const finishLogoMove = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     if (dragPositionRef.current) onLogoPositionChange?.(dragPositionRef.current);
+    logoDragRef.current = null;
     dragPositionRef.current = null;
     setDragPosition(null);
   };
@@ -103,10 +104,10 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
     if (!logo || !onLogoPositionChange) return;
     const step = event.shiftKey ? 0.04 : 0.01;
     const positions = {
-      ArrowLeft: { x: Math.max(0, logo.x - step), y: logo.y },
-      ArrowRight: { x: Math.min(1 - logo.width, logo.x + step), y: logo.y },
-      ArrowUp: { x: logo.x, y: Math.max(0, logo.y - step) },
-      ArrowDown: { x: logo.x, y: Math.min(1 - logo.height, logo.y + step) },
+      ArrowLeft: { x: Math.max(0.02 - logo.width, logo.x - step), y: logo.y },
+      ArrowRight: { x: Math.min(0.98, logo.x + step), y: logo.y },
+      ArrowUp: { x: logo.x, y: Math.max(0.02 - logo.height, logo.y - step) },
+      ArrowDown: { x: logo.x, y: Math.min(0.98, logo.y + step) },
     };
     const position = positions[event.key as keyof typeof positions];
     if (!position) return;
@@ -132,6 +133,16 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
             onPointerDown={(event) => {
               if (!onLogoPositionChange) return;
               event.preventDefault();
+              const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
+              if (!bounds) return;
+              logoDragRef.current = {
+                clientX: event.clientX,
+                clientY: event.clientY,
+                x: (dragPositionRef.current ?? logo).x,
+                y: (dragPositionRef.current ?? logo).y,
+                width: bounds.width,
+                height: bounds.height,
+              };
               event.currentTarget.setPointerCapture(event.pointerId);
             }}
             onPointerMove={moveLogo}
@@ -158,17 +169,8 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
           // eslint-disable-next-line @next/next/no-img-element
           <img src={slide.image2} alt="" className="object-cover" style={pct(layout.image2)} />
         )}
-        {slide.backgroundImage && (
-          <span
-            aria-label={`Photo credit: ${slide.backgroundImage.title} by ${slide.backgroundImage.artist}, ${slide.backgroundImage.providerLabel ?? "Wikimedia Commons"}, ${slide.backgroundImage.license}`}
-            className="absolute bottom-[1%] left-[2%] z-10 max-w-[72%] truncate rounded bg-black/45 px-1.5 py-0.5 text-white"
-            style={{ fontSize: "1.2cqw" }}
-          >
-            Photo: “{slide.backgroundImage.title}” by {slide.backgroundImage.artist} · {slide.backgroundImage.providerLabel ?? "Wikimedia Commons"} · {slide.backgroundImage.license}
-          </span>
-        )}
-        <Box box={layout.title} text={slide.title} font={slide.font ?? font} fit={!!layout.fitTitle} />
-        {!layout.hideBody && <Box box={layout.body} text={slide.body} font={slide.font ?? font} fit reading={slide.kind === "gospel"} />}
+        <Box box={layout.title} text={slide.title} font={slide.font || font || template.fontTitle} fit={!!layout.fitTitle} />
+        {!layout.hideBody && <Box box={layout.body} text={slide.body} font={slide.font || font || template.fontBody} fit reading={slide.kind === "gospel"} />}
       </div>
     );
   }
@@ -185,7 +187,7 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
       <div
         style={{
           color: `#${template.accent}`,
-          fontFamily: template.fontTitle,
+          fontFamily: slide.font || font || template.fontTitle,
           fontSize: isSong ? "3.2cqw" : "6.5cqw",
           letterSpacing: isSong ? "0.15em" : 0,
           textTransform: isSong ? "uppercase" : "none",
@@ -196,7 +198,7 @@ export function SlideView({ slide, template, className = "", font = DEFAULT_FONT
       <div className="my-[1.5%] h-px w-[12%]" style={{ background: `#${template.accent}` }} />
       <div
         className="flex flex-1 items-center whitespace-pre-line leading-snug"
-        style={{ fontFamily: template.fontBody, fontSize: `${scale}cqw` }}
+        style={{ fontFamily: slide.font || font || template.fontBody, fontSize: `${scale}cqw` }}
       >
         {slide.body}
       </div>

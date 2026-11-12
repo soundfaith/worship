@@ -1,27 +1,34 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buildSlides } from "@/lib/slides";
 import { gospelForAssembly } from "@/lib/gospel";
 import { GOSPEL_MIN_SIZE, readingFits } from "@/lib/layout";
 import { uid } from "@/lib/store";
 import { backgroundFor, FONTS, LAYOUT_OPTIONS, layoutFor, layoutNameFor, presentationTemplate, songIndexes, TEMPLATES } from "@/lib/templates";
 import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, Template } from "@/lib/types";
-import { IconButton } from "./Icon";
+import { Icon, IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
 import { ConfirmDialog } from "./Modal";
 import type { TabProps } from "./ui";
 import { shrinkImage } from "@/lib/image";
+import { useLogoPreference } from "@/lib/assemblies";
 
 const NO_SLIDES: Slide[] = [];
 
-export function ReviewTab({ a, update, exporting, onExport, exportError }: TabProps & {
-  exporting: boolean;
-  onExport: () => void;
+export function ReviewTab({ a, update, exportError, presentationError, presentRequest }: TabProps & {
   exportError: string;
+  presentationError: string;
+  presentRequest: number;
 }) {
   const [cur, setCur] = useState(0);
   const [error, setError] = useState("");
   const [regenerate, setRegenerate] = useState(false);
+  const [deleteSlide, setDeleteSlide] = useState<Slide | null>(null);
+  const [isPresenting, setIsPresenting] = useState(false);
+  const [editPanel, setEditPanel] = useState<"text" | "layout" | "background" | "photos">("text");
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [presentationIndex, setPresentationIndex] = useState(0);
+  const [, setLogoPreference] = useLogoPreference();
   const [imageQuery, setImageQuery] = useState("");
   const [imageProvider, setImageProvider] = useState<ImageProvider>("commons");
   const [imageProviders, setImageProviders] = useState<{ id: ImageProvider; label: string }[]>([]);
@@ -34,7 +41,9 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
   const [imageDownloading, setImageDownloading] = useState("");
   const [imageError, setImageError] = useState("");
   const imageSearchId = useRef(0);
+  const slideNavigationRef = useRef<HTMLElement | null>(null);
   const latestSlides = useRef<Slide[]>(a.slides ?? []);
+  const handledPresentRequest = useRef(presentRequest);
 
   useEffect(() => {
     let active = true;
@@ -70,6 +79,12 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
 
   const slides = a.slides ?? NO_SLIDES;
   const songPositions = songIndexes(slides);
+  const photoCredits = [...new Map(
+    slides.flatMap((item) => item.backgroundImage?.sourceUrl
+      ? [[item.backgroundImage.sourceUrl, item.backgroundImage] as const]
+      : []),
+  ).values()];
+  const presentationSlideCount = slides.length + (photoCredits.length ? 1 : 0);
   useEffect(() => { latestSlides.current = slides; }, [slides]);
   const idx = Math.min(cur, Math.max(0, slides.length - 1));
   const slide = slides[idx];
@@ -88,20 +103,80 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
   };
   const tpl = (s: Slide) => presentationTemplate(a.sectionTemplates[s.kind] ?? a.templateId, a.backgroundColor);
   const updateLogoPosition = (position: { x: number; y: number }) => {
-    if (a.logo) update({ logo: { ...a.logo, ...position } });
+    if (a.logo) {
+      const logo = { ...a.logo, ...position };
+      update({ logo });
+      setLogoPreference(logo);
+    }
   };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (isPresenting) return;
       const t = e.target as HTMLElement;
+      if (t.closest('[aria-label="Slide navigation"]')) return;
       if (t.closest("dialog") || t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "BUTTON" || t.isContentEditable) return;
-      if (e.key === "ArrowRight") setCur((c) => Math.min(c + 1, slides.length - 1));
-      if (e.key === "ArrowLeft") setCur((c) => Math.max(c - 1, 0));
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        setCur((c) => Math.min(c + 1, slides.length - 1));
+      }
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        setCur((c) => Math.max(c - 1, 0));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slides.length]);
+  }, [isPresenting, slides.length]);
 
+  useEffect(() => {
+    if (!isPresenting) return;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsPresenting(false);
+        if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+      } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        setPresentationIndex((current) => Math.min(current + 1, presentationSlideCount - 1));
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setPresentationIndex((current) => Math.max(current - 1, 0));
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        setPresentationIndex(0);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        setPresentationIndex(presentationSlideCount - 1);
+      }
+    };
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) setIsPresenting(false);
+    };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+    };
+  }, [isPresenting, presentationSlideCount]);
+
+  const startPresentation = useCallback(() => {
+    setPresentationIndex(0);
+    setIsPresenting(true);
+  }, []);
+  useEffect(() => {
+    if (presentRequest > handledPresentRequest.current) {
+      handledPresentRequest.current = presentRequest;
+      startPresentation();
+    }
+  }, [presentRequest, startPresentation]);
   if (!slide) return <p className="text-stone-500">No slides yet. Add songs or content first.</p>;
   const currentTemplate = tpl(slide);
   const currentLayout = layoutFor(currentTemplate, slide)?.layout;
@@ -196,105 +271,192 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-stone-500">Slide {idx + 1} of {slides.length} · use ← → to navigate</p>
-        <div className="flex gap-2">
-          <button className="btn" onClick={() => setRegenerate(true)}>Regenerate</button>
-          <button
-            className="btn btn-primary"
-            disabled={exporting}
-            onClick={onExport}
-          >
-            {exporting ? "Exporting…" : "Export PowerPoint"}
-          </button>
-        </div>
+        <button className="btn" onClick={() => setRegenerate(true)}>Regenerate</button>
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{error}</p>}
+      {presentationError && <p role="status" className="text-sm text-amber-700">{presentationError}</p>}
       {exportError && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
       {gospel.include && !gospel.text.trim() && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">No Gospel text is available for the selected date. Add a reading or turn it off in Content.</p>}
+      {isPresenting && slides.length > 0 && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Presentation"
+          className="fixed inset-0 z-[100] grid h-[100dvh] w-screen place-items-center overflow-hidden bg-black text-white"
+        >
+          <div className="grid h-full w-full place-items-center">
+            <div style={{ width: "min(100vw, calc(100dvh * 1.7778))" }}>
+              {presentationIndex < slides.length ? (
+                <SlideView
+                  slide={slides[presentationIndex]}
+                  template={tpl(slides[presentationIndex])}
+                  font={a.font}
+                  songIndex={songPositions[presentationIndex]}
+                  logo={a.showLogo === false ? undefined : a.logo}
+                  className="!rounded-none !shadow-none !ring-0"
+                />
+              ) : (
+                <div
+                  className="relative aspect-video w-full overflow-hidden p-[5%]"
+                  style={{ backgroundColor: `#${presentationTemplate(a.templateId, a.backgroundColor).bg}` }}
+                >
+                  <h2 className="mb-[3%] text-center text-[3cqw] font-semibold text-stone-900" style={{ color: `#${presentationTemplate(a.templateId, a.backgroundColor).fg}` }}>Photo credits</h2>
+                  <ul className={`grid h-[78%] gap-x-[4%] gap-y-[1%] ${photoCredits.length > 10 ? "grid-flow-col grid-rows-10 grid-cols-2" : "grid-cols-1"}`}>
+                    {photoCredits.map((credit) => (
+                      <li key={credit.sourceUrl} className="min-w-0 overflow-hidden text-[1.3cqw] leading-tight">
+                        <a href={credit.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2" style={{ color: `#${presentationTemplate(a.templateId, a.backgroundColor).fg}` }}>
+                          {credit.providerLabel?.includes("Unsplash")
+                            ? `Photo by ${credit.artist} on Unsplash · "${credit.title}" · ${credit.license}`
+                            : `"${credit.title}" by ${credit.artist} · ${credit.providerLabel ?? "Wikimedia Commons"} · ${credit.license}`}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {regenerate && <ConfirmDialog title="Regenerate slides?" message="All manual slide edits will be lost. This cannot be undone." confirmLabel="Regenerate" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
+      {deleteSlide && <ConfirmDialog title="Remove slide?" message={`“${deleteSlide.title || "Untitled slide"}” will be removed from this assembly.`} confirmLabel="Remove slide" onCancel={() => setDeleteSlide(null)} onConfirm={() => {
+        const nextSlides = slides.filter((item) => item.id !== deleteSlide.id);
+        setSlides(nextSlides);
+        setCur(Math.min(idx, nextSlides.length - 1));
+        setDeleteSlide(null);
+      }} />}
 
-      <div className="flex h-[calc(100dvh-5rem)] min-h-[22rem] min-w-0 gap-2 sm:gap-4">
-        <nav aria-label="Slide navigation" tabIndex={0} className="w-16 shrink-0 overflow-y-auto px-1 py-1 sm:w-32 lg:w-44">
+      <div className="flex min-h-[30rem] min-w-0 gap-2 sm:min-h-[38rem] sm:gap-4">
+        <nav
+          ref={slideNavigationRef}
+          aria-label="Slide navigation"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            const direction = event.key === "ArrowRight" || event.key === "ArrowDown"
+              ? 1
+              : event.key === "ArrowLeft" || event.key === "ArrowUp"
+                ? -1
+                : 0;
+            if (!direction) return;
+            event.preventDefault();
+            const next = Math.max(0, Math.min(idx + direction, slides.length - 1));
+            setCur(next);
+            requestAnimationFrame(() => {
+              slideNavigationRef.current
+                ?.querySelector<HTMLButtonElement>(`button[data-slide-index="${next}"]`)
+                ?.focus();
+            });
+          }}
+          className="w-16 shrink-0 overflow-y-auto px-1 py-1 sm:w-32 lg:w-44"
+        >
           <ol className="space-y-2">
             {slides.map((s, i) => (
               <li key={s.id}>
                 <button
                   type="button"
+                  data-slide-index={i}
                   aria-label={`Slide ${i + 1}: ${s.title || "Untitled"}`}
                   onClick={() => setCur(i)}
+                  tabIndex={i === idx ? 0 : -1}
                   aria-current={i === idx ? "true" : undefined}
                   className={`block w-full rounded-xl p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
                 >
-                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.logo} />
+                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.showLogo === false ? undefined : a.logo} />
                   <span className="block truncate px-1 pt-1 text-xs text-stone-500">{i + 1}. <span className="hidden sm:inline">{s.title}</span></span>
                 </button>
               </li>
             ))}
           </ol>
         </nav>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="mx-auto w-full max-w-xl shrink-0">
             <SlideView
               slide={slide}
               template={currentTemplate}
               font={a.font}
               songIndex={songPositions[idx]}
-              logo={a.logo}
-              onLogoPositionChange={a.logo ? updateLogoPosition : undefined}
+              logo={a.showLogo === false ? undefined : a.logo}
+              onLogoPositionChange={a.logo && a.showLogo !== false ? updateLogoPosition : undefined}
             />
-            {a.logo && <p className="mt-1 text-center text-xs text-stone-500">Drag the logo to reposition it across all slides. Arrow keys also work when focused.</p>}
           </div>
-          <div aria-label="Slide editing tools" tabIndex={0} className="min-h-0 min-w-0 flex-1 overflow-y-auto pr-1">
+          <div role="tablist" aria-label="Slide editing sections" className="flex max-w-full w-fit gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1">
+              {([
+                ["text", "Text & style"],
+                ["layout", "Layout"],
+                ["background", "Background"],
+                ["photos", "Photos"],
+              ] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={editPanel === id}
+                  onClick={() => setEditPanel(id)}
+                  className={`whitespace-nowrap rounded-lg px-3 py-2 text-base font-medium transition ${editPanel === id ? "bg-surface text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          <div aria-label="Slide editing tools" tabIndex={0} className="max-h-[48dvh] min-w-0 overflow-y-auto pr-1 sm:max-h-[52dvh]">
           <div className="card min-w-0 space-y-4 p-3 sm:p-5">
+            <div hidden={editPanel !== "text"} className="space-y-4">
             <input className="input" aria-label="Slide title" value={slide.title} onChange={(e) => patch({ title: e.target.value })} />
             <textarea className="input h-36" aria-label="Slide text" value={slide.body} onChange={(e) => patch({ body: e.target.value })} />
             {slide.kind === "gospel" && currentLayout && !currentLayout.hideBody && !readingFits(currentLayout.body, slide.body, GOSPEL_MIN_SIZE) && <p role="status" className="text-sm text-amber-700">This reading may not fit at the minimum readable font size. Shorten it or choose a larger text layout.</p>}
             {currentLayout?.hideBody && slide.body && <p className="text-xs text-stone-500">This layout hides the slide text; it is preserved if you switch layouts.</p>}
-            {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
-              <div key={field} className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
-                <label className="btn cursor-pointer">
-                  {slide[field] ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}
-                  <input type="file" accept="image/*" aria-label={`Upload ${label.toLowerCase()}`} className="sr-only" onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void upload(file, field, slide.id);
-                    e.target.value = "";
-                  }} />
-                </label>
-                {slide[field] && <button className="btn btn-ghost" onClick={() => patch({ [field]: undefined })}>Remove {label.toLowerCase()}</button>}
-              </div>
-            ))}
-            {!currentLayout?.image && (slide.image || slide.image2) && <p className="text-xs text-stone-500">Images are preserved but hidden in this layout.</p>}
-            {currentLayout?.image && !currentLayout.image2 && slide.image2 && <p className="text-xs text-stone-500">Image 2 is preserved but hidden in this layout.</p>}
             <div className="flex flex-wrap items-center gap-2">
               <IconButton icon="up" label="Move slide earlier" disabled={idx === 0} onClick={() => move(-1)} />
               <IconButton icon="down" label="Move slide later" disabled={idx === slides.length - 1} onClick={() => move(1)} />
-              <label className="ml-2 text-sm text-stone-500">
-                Template for “{slide.kind}” slides{" "}
-                <select
-                  className="input !inline-block !w-auto"
-                  value={a.sectionTemplates[slide.kind] ?? ""}
-                  onChange={(e) => update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: e.target.value || undefined } })}
-                >
-                  <option value="">Assembly default</option>
-                  {a.sectionTemplates[slide.kind] && !TEMPLATES.some((t) => t.id === a.sectionTemplates[slide.kind]) && <option value={a.sectionTemplates[slide.kind]}>Unavailable template (using {currentTemplate.name})</option>}
-                  {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
-              </label>
-              <label className="text-sm text-stone-500">Slide font{" "}
-                <select className="input !inline-block !w-auto" value={slide.font ?? ""} onChange={(e) => patch({ font: e.target.value || undefined })}>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="relative">
+                <span className="mb-1 block text-xs text-stone-500">Slide template</span>
+                <button type="button" className="input flex w-full items-center gap-2 text-left" aria-expanded={templatePickerOpen} onClick={() => setTemplatePickerOpen((open) => !open)}>
+                  <span className="w-12 shrink-0">
+                    <SlideView slide={{ id: "template-preview", kind: slide.kind, title: "", body: "", layout: slide.layout }} template={currentTemplate} font={a.font} className="!rounded-md !shadow-none" />
+                  </span>
+                  <span className="truncate">{a.sectionTemplates[slide.kind] ? currentTemplate.name : "Assembly default"}</span>
+                  <Icon name="chevron" className="ml-auto h-4 w-4 shrink-0 text-stone-400" />
+                </button>
+                {templatePickerOpen && (
+                  <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto rounded-xl border border-stone-200 bg-surface p-2 shadow-xl">
+                    <button type="button" className="mb-1 w-full rounded-lg px-2 py-2 text-left text-sm hover:bg-stone-100" onClick={() => {
+                      update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: undefined } });
+                      setTemplatePickerOpen(false);
+                    }}>Assembly default</button>
+                    {TEMPLATES.map((template) => (
+                      <button key={template.id} type="button" className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm hover:bg-stone-100" onClick={() => {
+                        update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: template.id } });
+                        setTemplatePickerOpen(false);
+                      }}>
+                        <span className="w-12 shrink-0">
+                          <SlideView slide={{ id: `template-preview-${template.id}`, kind: slide.kind, title: "", body: "", layout: slide.layout }} template={presentationTemplate(template.id, a.backgroundColor)} font={a.font} className="!rounded-md !shadow-none" />
+                        </span>
+                        <span>{template.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <label className="text-xs text-stone-500">Slide font
+                <select className="input mt-1" value={slide.font ?? ""} onChange={(e) => patch({ font: e.target.value || undefined })}>
                   <option value="">Presentation default</option>
-                  {FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+                  {FONTS.map((font) => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
                 </select>
               </label>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
               {currentTemplate.backgrounds?.length ? <label className="flex items-center gap-2 text-sm text-stone-500">Text color
-                <input type="color" aria-label="Slide text color" value={`#${slide.textColor ?? currentTemplate.fg}`} onChange={(e) => patch({ textColor: e.target.value.slice(1).toUpperCase() })} />
+                <input type="color" aria-label="Slide text color" value={`#${slide.textColor ?? currentTemplate.fg}`} onChange={(e) => patch({ textColor: e.target.value.slice(1).toUpperCase()})} />
                 {slide.textColor && <button className="btn btn-ghost" onClick={() => patch({ textColor: undefined })}>Reset</button>}
               </label> : null}
               {slides.filter((item) => item.kind === slide.kind).length > 1 && <button className="btn btn-ghost" onClick={() => setSlides(slides.map((item) => item.kind === slide.kind ? { ...item, layout: slide.layout, background: slide.background, backgroundImage: slide.backgroundImage, font: slide.font, textColor: slide.textColor } : item))}>Apply design to all {slide.kind} slides</button>}
-              <span className="flex-1" />
-              <IconButton icon="trash" label="Remove slide" danger onClick={() => setSlides(slides.filter((_, i) => i !== idx))} />
             </div>
+            </div>
+            <div hidden={editPanel !== "layout"} className="space-y-4">
             {!!currentTemplate.layouts && (
               <section className="space-y-3" aria-label="Content layouts">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -311,7 +473,9 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                 </div>
               </section>
             )}
-            {!!currentTemplate.backgrounds?.length && !slide.backgroundImage && (
+            </div>
+            <div hidden={editPanel !== "background"} className="space-y-4">
+            {!!currentTemplate.backgrounds?.length && (
               <section className="space-y-4" aria-label="Slide backgrounds">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
@@ -332,6 +496,23 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
                 </div>
               </section>
             )}
+            </div>
+            <div hidden={editPanel !== "photos"} className="space-y-4">
+            {!currentLayout?.image && (slide.image || slide.image2) && <p className="text-xs text-stone-500">Images are preserved but hidden in this layout.</p>}
+            {currentLayout?.image && !currentLayout.image2 && slide.image2 && <p className="text-xs text-stone-500">Image 2 is preserved but hidden in this layout.</p>}
+            {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
+              <div key={field} className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
+                <label className="btn cursor-pointer">
+                  {slide[field] ? `Replace ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}
+                  <input type="file" accept="image/*" aria-label={`Upload ${label.toLowerCase()}`} className="sr-only" onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void upload(file, field, slide.id);
+                    event.target.value = "";
+                  }} />
+                </label>
+                {slide[field] && <button className="btn btn-ghost" onClick={() => patch({ [field]: undefined })}>Remove</button>}
+              </div>
+            ))}
             <section className="space-y-4" aria-label="Photo backgrounds">
               <div>
                 <h3 className="display text-2xl">Photo background</h3>
@@ -433,17 +614,31 @@ export function ReviewTab({ a, update, exporting, onExport, exportError }: TabPr
               )}
               <p className="text-xs text-stone-500">Images and their attribution are saved with this slide. License terms vary by image; verify them before publishing.</p>
             </section>
+            </div>
           </div>
-          <button
-            className="btn my-4"
-            onClick={() => {
-              const s: Slide = { id: uid(), kind: "custom", title: "Custom", body: "" };
-              setSlides([...slides.slice(0, idx + 1), s, ...slides.slice(idx + 1)]);
-              setCur(idx + 1);
-            }}
-          >
-            + Add custom slide after this
-          </button>
+          <div className="my-4 flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                const s: Slide = { id: uid(), kind: "custom", title: "Custom", body: "" };
+                setSlides([...slides.slice(0, idx + 1), s, ...slides.slice(idx + 1)]);
+                setCur(idx + 1);
+              }}
+            >
+              <Icon name="plus" className="h-4 w-4" />
+              Add custom slide after this
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              disabled={slides.length <= 1}
+              title={slides.length <= 1 ? "An assembly must have at least one slide." : undefined}
+              onClick={() => setDeleteSlide(slide)}
+            >
+              <Icon name="trash" className="h-4 w-4" />Remove slide
+            </button>
+          </div>
           </div>
         </div>
       </div>

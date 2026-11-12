@@ -51,7 +51,7 @@ export default function SongsPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col items-start gap-4">
         <div>
           <p className="eyebrow mb-2">Library</p>
           <h1 className="display text-stone-900">Songs</h1>

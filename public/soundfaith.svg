@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="sf-bg" x1="14" y1="8" x2="112" y2="124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#285b59"/>
+      <stop offset=".52" stop-color="#174746"/>
+      <stop offset="1" stop-color="#102f37"/>
+    </linearGradient>
+    <linearGradient id="sf-star" x1="64" y1="24" x2="64" y2="101" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff0bd"/>
+      <stop offset=".5" stop-color="#e7c77f"/>
+      <stop offset="1" stop-color="#bd8f4e"/>
+    </linearGradient>
+    <radialGradient id="sf-glow" cx="0" cy="0" r="1" gradientTransform="matrix(0 42 -42 0 64 62)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f8dfa1" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#f8dfa1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="128" height="128" rx="33" fill="url(#sf-bg)"/>
+  <rect x="1" y="1" width="126" height="126" rx="32" stroke="#fff9e9" stroke-opacity=".14" stroke-width="2"/>
+  <circle cx="64" cy="62" r="42" fill="url(#sf-glow)"/>
+  <circle cx="64" cy="62" r="39" stroke="#fff2d1" stroke-opacity=".12"/>
+  <path d="M64 24c3 23 13 33 37 40-24 3-34 13-37 37-3-24-13-34-37-37 24-7 34-17 37-40Z" fill="url(#sf-star)"/>
+  <circle cx="64" cy="64" r="3" fill="#174746"/>
+</svg>

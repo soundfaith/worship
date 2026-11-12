@@ -6,7 +6,6 @@ import Image from "next/image";
 import { blankAssembly, duplicateAssembly, useAssemblies, useLogoPreference, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { coverSlide, formatDate } from "@/lib/slides";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
-import { songLabel, useSongSearch } from "@/lib/useSongs";
 import type { Assembly } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SlideView } from "@/components/SlideView";
@@ -52,7 +51,7 @@ export default function Home() {
       .map((x) => x.toLowerCase());
 
     const songMatch = a.songs.some((song) =>
-      songLabel(song).toLowerCase().includes(needle)
+      song.title.toLowerCase().includes(needle)
     );
 
     return searchable.some((x) => x.includes(needle)) || songMatch;

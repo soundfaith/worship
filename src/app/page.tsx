@@ -21,7 +21,6 @@ export default function Home() {
   const [logoPreference] = useLogoPreference();
   const [q, setQ] = useState("");
   const [deleteAssembly, setDeleteAssembly] = useState<Assembly | null>(null);
-  const { results } = useSongSearch(q);
   const needle = q.trim().toLowerCase();
 
   useEffect(() => {
@@ -41,90 +40,140 @@ export default function Home() {
     router.push(`/assembly/${a.id}`);
   };
 
-  const inAssembly = (a: Assembly) => [a.title, a.activity, a.theme, a.presider].some((x) => x.toLowerCase().includes(needle));
+  const inAssembly = (a: Assembly) => {
+    const searchable = [
+      a.title,
+      a.activity,
+      a.theme,
+      a.presider,
+      formatDate(a.date),
+    ]
+      .filter(Boolean)
+      .map((x) => x.toLowerCase());
+
+    const songMatch = a.songs.some((song) =>
+      songLabel(song).toLowerCase().includes(needle)
+    );
+
+    return searchable.some((x) => x.includes(needle)) || songMatch;
+  };
+
   const aHits = needle ? sorted.filter(inAssembly) : sorted;
-  const sHits = needle ? results.slice(0, 8) : [];
-  const annHits = needle
-    ? [...recurring, ...assemblies.flatMap((a) => a.announcements)].filter((x) => x.text.toLowerCase().includes(needle)).slice(0, 6)
-    : [];
-  const cHits = needle
-    ? assemblies
-        .flatMap((a) => [...a.birthdays, ...a.anniversaries])
-        .filter((c) => c.name.toLowerCase().includes(needle))
-        .map((c) => c.name)
-        .filter((n, i, arr) => arr.indexOf(n) === i)
-        .slice(0, 6)
-    : [];
-  const tHits = needle ? TEMPLATES.filter((t) => t.name.toLowerCase().includes(needle)) : [];
-  const anyOther = sHits.length + annHits.length + cHits.length + tHits.length > 0;
 
   return (
-    <div className="space-y-12">
-      <div className="flex flex-col items-start gap-4">
-        <div>
-          <p className="eyebrow mb-2">SoundFaith</p>
-          <h1 className="display text-stone-900">Assemblies</h1>
-          <p className="mt-2 text-stone-500">Prepare a full presentation in a few minutes.</p>
+    <div className="flex flex-1 flex-col">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 space-y-12">
+        <div className="flex flex-col items-start gap-4">
+          <div>
+            <p className="eyebrow mb-2">SoundFaith</p>
+            <h1 className="display text-stone-900">Assemblies</h1>
+            <p className="mt-2 text-stone-500">Prepare a full presentation in a few minutes.</p>
+          </div>
+          <button
+            className="btn btn-primary !px-5 !py-3 sm:!px-6 sm:!py-3.5 !text-base sm:!text-lg font-medium !gap-2.5 !rounded-xl shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+            onClick={() => create()}
+          >
+            <Icon name="plus" className="h-5 w-5 sm:h-6 sm:w-6" /> New assembly
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={() => create()}>
-          <Icon name="plus" className="h-4 w-4" /> New assembly
-        </button>
-      </div>
 
-      <div className="relative">
-        <Icon name="search" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
-        <input
-          className="input !py-3 !pl-11"
-          placeholder="Search assemblies, songs, announcements, templates…"
-          aria-label="Global search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </div>
+        {assemblies.length > 0 && (
+                <div className="relative">
+                  <Icon name="search" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
+                  <input
+                    className="input !py-3 !pl-11"
+                    placeholder="Search assemblies, songs, announcements, templates…"
+                    aria-label="Global search"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                  />
+                </div>
 
-      {needle && anyOther && (
-        <div className="grid gap-4 text-sm sm:grid-cols-2">
-          <Group title="Songs" show={sHits.length > 0}>
-            {sHits.map((s) => (
-              <Link key={s.id} href="/songs" className="block truncate hover:text-accent">
-                {songLabel(s)}
-                {s.match === "lyrics" && <span className="ml-2 text-xs text-stone-400">in lyrics</span>}
-              </Link>
-            ))}
-          </Group>
-          <Group title="Announcements" show={annHits.length > 0}>{annHits.map((x) => <p key={x.id} className="truncate">{x.text}</p>)}</Group>
-          <Group title="Celebrants" show={cHits.length > 0}>{cHits.map((n) => <p key={n}>{n}</p>)}</Group>
-          <Group title="Templates" show={tHits.length > 0}>{tHits.map((t) => <p key={t.id}>{t.name}</p>)}</Group>
-        </div>
-      )}
+        )}
 
       <section className="space-y-5">
-        <h2 className="eyebrow">{needle ? "Matching assemblies" : "My assembly slides"}</h2>
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {aHits.map((a) => (
-            <AssemblyCard
-              key={a.id}
-              a={a}
-              onDuplicate={() => create(a)}
-              onDelete={() => setDeleteAssembly(a)}
-            />
-          ))}
-        </ul>
-        {aHits.length === 0 && needle && <p className="py-8 text-center text-stone-500">No assemblies match.</p>}
-      </section>
-      {!needle && discoveryEligible && (
-        <footer aria-labelledby="about-soundfaith-title" className="relative left-1/2 -mx-[50vw] w-screen border-t border-stone-200 bg-surface">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-10">
-          <div>
-            <div className="mb-3 flex items-center gap-3">
-              <Image src="/soundfaith.svg" alt="SoundFaith" width={150} height={34} className="h-8 w-auto" />
-              <h2 id="about-soundfaith-title" className="text-sm font-medium text-stone-800">About SoundFaith</h2>
-            </div>
-            <p className="mt-1 text-sm text-stone-500">Catholic tools for prayer, Scripture, formation, and ministry.</p>
+        {(aHits.length > 0 || needle) && (
+          <h2 className="eyebrow">
+            {needle ? "Matching assemblies" : "My assemblies"}
+          </h2>
+        )}
+
+        {!needle && aHits.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-lg font-medium">
+              No assemblies yet
+            </p>
+
+            <p className="mt-2 text-stone-500">
+              Click "New assembly" above to create your first presentation.
+            </p>
           </div>
-          <a href="https://soundfaith.app" target="_blank" rel="noopener noreferrer" className="btn btn-primary inline-flex shrink-0 items-center gap-2">
-            Explore SoundFaith <span aria-hidden="true">→</span>
-          </a>
+        ) : (
+          <>
+            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {aHits.map((a) => (
+                <AssemblyCard
+                  key={a.id}
+                  a={a}
+                  onDuplicate={() => create(a)}
+                  onDelete={() => setDeleteAssembly(a)}
+                />
+              ))}
+            </ul>
+
+            {aHits.length === 0 && needle && (
+              <p className="py-8 text-center text-stone-500">
+                No assemblies match.
+              </p>
+            )}
+          </>
+        )}
+      </section>
+      </div>
+
+      {!needle && discoveryEligible && (
+        <footer
+          aria-labelledby="about-soundfaith-title"
+          className="mt-auto border-t border-stone-200 bg-surface"
+        >
+          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-2xl">
+                <div className="mb-3 flex items-center gap-3">
+                  <Image
+                    src="/soundfaith.svg"
+                    alt="SoundFaith"
+                    width={150}
+                    height={34}
+                    className="h-8 w-auto"
+                  />
+
+                  <h2
+                    id="about-soundfaith-title"
+                    className="text-sm font-medium text-stone-800"
+                  >
+                    About SoundFaith
+                  </h2>
+                </div>
+
+                <p className="text-sm leading-relaxed text-stone-600">
+                  <strong>Assembly</strong> is part of SoundFaith, a growing collection
+                  of Catholic tools that help individuals, prayer groups, ministries,
+                  and communities prepare worship, proclaim Scripture, deepen faith,
+                  and serve with confidence.
+                </p>
+              </div>
+
+              <a
+                href="https://soundfaith.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary inline-flex shrink-0 items-center gap-2"
+              >
+                Explore SoundFaith
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
           </div>
         </footer>
       )}

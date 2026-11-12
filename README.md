@@ -17,7 +17,9 @@ the deployed app.
 
 - `data/songs.json` – song library (563 songs), served by `/api/songs`. `data/report.json` – import report.
 - Export a song directly from its library preview with a chosen template and lines per slide.
+- Photo and background galleries lazy-load previews. Local photo and template previews are resized and cached by Next.js and the browser; selected photos are saved with the slide, so reopening an assembly does not require downloading them again. Browser caches may be cleared or expire.
 - Each song begins with a title slide. The Content tab can insert a daily Gospel reading based on the assembly date, select another date, or use edited text. Long readings are split into editable slides; opening and closing prayer text remains available.
+- In Edit & Present, a font change can apply to the current slide or every slide. Choosing Presentation default removes the selected slide font overrides.
 - Gospel slides keep paragraphs together when possible, using 22–30 pt text in the default reading layout. Oversized paragraphs split across slides; a warning appears in Review if edits or a different layout exceed the readable minimum.
 - Existing presentations keep their saved slides. Use **Regenerate** in Review to apply updated pagination; this replaces manual slide edits.
 - Existing saved slide decks are not changed automatically. Use **Regenerate** in Review to add Gospel and song title slides; regeneration replaces manual slide edits.

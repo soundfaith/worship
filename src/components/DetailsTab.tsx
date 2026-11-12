@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
-import { BACKGROUND_COLOR_OPTIONS, BLANK_TEMPLATE_ID, FONTS, TEMPLATES, getTemplate, presentationTemplate } from "@/lib/templates";
+import { BACKGROUND_COLOR_OPTIONS, BLANK_TEMPLATE_ID, TEMPLATES, getTemplate, presentationTemplate } from "@/lib/templates";
 import { Section, type TabProps } from "./ui";
 import { SlideView } from "./SlideView";
-import { useLogoPreference, usePreferredFont } from "@/lib/assemblies";
+import { useLogoPreference } from "@/lib/assemblies";
 import { shrinkImage } from "@/lib/image";
 import type { LogoPlacement } from "@/lib/types";
 
 export function DetailsTab({ a, update }: TabProps) {
-  const [, setPreferredFont] = usePreferredFont();
   const [logoPreference, setLogoPreference] = useLogoPreference();
   const [error, setError] = useState("");
   const selectedBackgroundColor = presentationTemplate(BLANK_TEMPLATE_ID, a.backgroundColor).bg;
@@ -50,7 +49,6 @@ export function DetailsTab({ a, update }: TabProps) {
   return (
     <div className="space-y-8">
       <Section title="Choose a template">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem]">
           <div className="min-w-0 space-y-4">
             {!TEMPLATES.some((template) => template.id === a.templateId) && (
               <p className="text-sm text-amber-700">{getTemplate(a.templateId).name} is unavailable. Choose another design.</p>
@@ -103,9 +101,9 @@ export function DetailsTab({ a, update }: TabProps) {
               </div>
             )}
           </div>
-
-          <aside className="min-w-0 space-y-4 border-t border-stone-200 pt-5 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            <h3 className="display text-xl text-stone-900">Logo</h3>
+      </Section>
+      <Section title="Logo">
+          <div className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <label className="btn cursor-pointer">
                 {a.logo ? "Replace logo" : "Add logo"}
@@ -134,44 +132,30 @@ export function DetailsTab({ a, update }: TabProps) {
               )}
               {a.logo && <button className="btn btn-ghost" onClick={() => updateLogo(undefined)}>Remove</button>}
             </div>
-            {a.logo && (
-              <div className="space-y-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.logo.data} alt="Uploaded presentation logo" className="h-20 max-w-40 rounded border border-stone-200 object-contain p-2" />
-                <label className="block max-w-48 text-sm">
-                  Size
-                  <input
-                    type="range"
-                    min="0.02"
-                    max={maxLogoWidth}
-                    step="0.005"
-                    aria-label="Logo size"
-                    value={a.logo.width}
-                    onChange={(event) => resizeLogo(Number(event.target.value))}
-                    className="mt-1 block w-full accent-accent"
-                  />
-                </label>
-              </div>
-            )}
+
+{a.logo && (
+  <div className="mx-auto mt-4 flex max-w-md flex-col items-center">
+    <img
+      src={a.logo.data}
+      alt="Uploaded presentation logo"
+      className="h-28 w-28 rounded-xl border border-stone-200 object-contain p-4"
+    />
+
+    <input
+      type="range"
+      min="0.02"
+      max={maxLogoWidth}
+      step="0.005"
+      aria-label="Logo size"
+      value={a.logo.width}
+      onChange={(event) => resizeLogo(Number(event.target.value))}
+      className="mt-4 w-full accent-accent"
+    />
+  </div>
+)}
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             {!a.logo && logoPreference && <p className="text-xs text-stone-500">Your saved logo will be used in new assemblies.</p>}
-          </aside>
-        </div>
-      </Section>
-
-      <Section title="Presentation font">
-        <select
-          className="input max-w-sm"
-          value={a.font ?? ""}
-          onChange={(event) => {
-            const font = event.target.value;
-            update({ font });
-            setPreferredFont(font);
-          }}
-        >
-          <option value="">Use template fonts</option>
-          {FONTS.map((font) => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
-        </select>
+          </div>
       </Section>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
 import { renderArt, renderPhotoBackground } from "@/lib/art";
 import { fitSize, readingFontSize } from "@/lib/layout";
 import { backgroundFor, BLANK_TEMPLATE_ID, layoutFor } from "@/lib/templates";
@@ -66,7 +66,8 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
   onLogoPositionChange?: (position: Pick<LogoPlacement, "x" | "y">) => void;
 }) {
   const frame = `relative aspect-video w-full overflow-hidden rounded-xl shadow-sm ring-1 ring-black/10 dark:ring-white/10 ${className}`;
-  const found = layoutFor(template, slide);
+  const { kind, image, layout, textColor } = slide;
+  const found = useMemo(() => layoutFor(template, { kind, image, layout, textColor }), [template, kind, image, layout, textColor]);
   const background = slide.backgroundImage ? undefined : backgroundFor(template, slide, songIndex);
   const hasArtwork = template.id !== BLANK_TEMPLATE_ID;
   const photo = slide.backgroundImage?.data;

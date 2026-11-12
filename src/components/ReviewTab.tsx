@@ -1,5 +1,6 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { buildSlides } from "@/lib/slides";
 import { gospelForAssembly } from "@/lib/gospel";
 import { GOSPEL_MIN_SIZE, readingFits } from "@/lib/layout";
@@ -8,17 +9,20 @@ import { backgroundFor, FONTS, LAYOUT_OPTIONS, layoutFor, layoutNameFor, present
 import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, Template } from "@/lib/types";
 import { Icon, IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
-import { ConfirmDialog } from "./Modal";
+import { ConfirmDialog, Modal } from "./Modal";
+import Dropdown from "./ui/Dropdown";
 import type { TabProps } from "./ui";
 import { shrinkImage } from "@/lib/image";
 import { useLogoPreference } from "@/lib/assemblies";
 
 const NO_SLIDES: Slide[] = [];
+const GALLERY_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 320px";
 
-export function ReviewTab({ a, update, exportError, presentationError, presentRequest }: TabProps & {
+export function ReviewTab({ a, update, exportError, presentationError, presentRequest, handledPresentRequestRef }: TabProps & {
   exportError: string;
   presentationError: string;
   presentRequest: number;
+  handledPresentRequestRef: RefObject<number>;
 }) {
   const [cur, setCur] = useState(0);
   const [error, setError] = useState("");
@@ -26,7 +30,7 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
   const [deleteSlide, setDeleteSlide] = useState<Slide | null>(null);
   const [isPresenting, setIsPresenting] = useState(false);
   const [editPanel, setEditPanel] = useState<"text" | "layout" | "background" | "photos">("text");
-  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [pendingFont, setPendingFont] = useState<{ slideId: string; font: string } | null>(null);
   const [presentationIndex, setPresentationIndex] = useState(0);
   const [, setLogoPreference] = useLogoPreference();
   const [imageQuery, setImageQuery] = useState("");
@@ -43,7 +47,6 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
   const imageSearchId = useRef(0);
   const slideNavigationRef = useRef<HTMLElement | null>(null);
   const latestSlides = useRef<Slide[]>(a.slides ?? []);
-  const handledPresentRequest = useRef(presentRequest);
 
   useEffect(() => {
     let active = true;
@@ -110,6 +113,15 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
     }
   };
 
+  const activeTemplate = slide ? tpl(slide) : undefined;
+  const hasBackgrounds = Boolean(activeTemplate?.backgrounds && activeTemplate.backgrounds.length > 0);
+  const activePanel = editPanel === "background" && !hasBackgrounds ? "text" : editPanel;
+
+  useEffect(() => {
+    const el = slideNavigationRef.current?.querySelector<HTMLButtonElement>(`button[data-slide-index="${idx}"]`);
+    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [idx]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isPresenting) return;
@@ -172,11 +184,11 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
     setIsPresenting(true);
   }, []);
   useEffect(() => {
-    if (presentRequest > handledPresentRequest.current) {
-      handledPresentRequest.current = presentRequest;
+    if (presentRequest > handledPresentRequestRef.current) {
+      handledPresentRequestRef.current = presentRequest;
       startPresentation();
     }
-  }, [presentRequest, startPresentation]);
+  }, [presentRequest, handledPresentRequestRef, startPresentation]);
   if (!slide) return <p className="text-stone-500">No slides yet. Add songs or content first.</p>;
   const currentTemplate = tpl(slide);
   const currentLayout = layoutFor(currentTemplate, slide)?.layout;
@@ -260,8 +272,6 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
           providerLabel: image.providerLabel,
         },
       } : item));
-      setImageResults([]);
-      setImageQuery("");
     } catch (e) {
       setImageError(e instanceof Error ? e.message : "Could not save this image.");
     } finally {
@@ -327,8 +337,25 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
         setCur(Math.min(idx, nextSlides.length - 1));
         setDeleteSlide(null);
       }} />}
+      {pendingFont && (
+        <Modal labelledBy="font-scope-title" describedBy="font-scope-message" onClose={() => setPendingFont(null)} className="confirm-modal">
+          <h2 id="font-scope-title" className="display text-3xl text-stone-900">Apply font</h2>
+          <p id="font-scope-message" className="mt-3 text-sm leading-relaxed text-stone-600">Apply this font to the current slide or all slides?</p>
+          <div className="mt-7 flex flex-wrap justify-end gap-2">
+            <button type="button" className="btn" data-initial-focus onClick={() => setPendingFont(null)}>Cancel</button>
+            <button type="button" className="btn" onClick={() => {
+              setSlides(latestSlides.current.map((item) => item.id === pendingFont.slideId ? { ...item, font: pendingFont.font || undefined } : item));
+              setPendingFont(null);
+            }}>Current slide</button>
+            <button type="button" className="btn btn-primary" onClick={() => {
+              setSlides(latestSlides.current.map((item) => ({ ...item, font: pendingFont.font || undefined })));
+              setPendingFont(null);
+            }}>All slides</button>
+          </div>
+        </Modal>
+      )}
 
-      <div className="flex min-h-[30rem] min-w-0 gap-2 sm:min-h-[38rem] sm:gap-4">
+      <div className="flex min-h-[30rem] min-w-0 items-start gap-2 sm:min-h-[38rem] sm:gap-4">
         <nav
           ref={slideNavigationRef}
           aria-label="Slide navigation"
@@ -349,7 +376,7 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                 ?.focus();
             });
           }}
-          className="w-16 shrink-0 overflow-y-auto px-1 py-1 sm:w-32 lg:w-44"
+          className="slides-nav-scroll sticky top-20 w-16 shrink-0 max-h-[calc(100dvh-6rem)] sm:max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-xl p-1 pr-1.5 sm:w-32 lg:w-44"
         >
           <ol className="space-y-2">
             {slides.map((s, i) => (
@@ -383,26 +410,26 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
           </div>
           <div role="tablist" aria-label="Slide editing sections" className="flex max-w-full w-fit gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1">
               {([
-                ["text", "Text & style"],
+                ["text", "Style"],
                 ["layout", "Layout"],
-                ["background", "Background"],
+                ...(hasBackgrounds ? [["background", "Background"] as const] : []),
                 ["photos", "Photos"],
               ] as const).map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   role="tab"
-                  aria-selected={editPanel === id}
-                  onClick={() => setEditPanel(id)}
-                  className={`whitespace-nowrap rounded-lg px-3 py-2 text-base font-medium transition ${editPanel === id ? "bg-surface text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
+                  aria-selected={activePanel === id}
+                  onClick={() => setEditPanel(id as "text" | "layout" | "background" | "photos")}
+                  className={`whitespace-nowrap rounded-lg px-3 py-2 text-base font-medium transition ${activePanel === id ? "bg-surface text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
                 >
                   {label}
                 </button>
               ))}
             </div>
-          <div aria-label="Slide editing tools" tabIndex={0} className="max-h-[48dvh] min-w-0 overflow-y-auto pr-1 sm:max-h-[52dvh]">
+          <div aria-label="Slide editing tools" className="space-y-4">
           <div className="card min-w-0 space-y-4 p-3 sm:p-5">
-            <div hidden={editPanel !== "text"} className="space-y-4">
+            <div hidden={activePanel !== "text"} className="space-y-4">
             <input className="input" aria-label="Slide title" value={slide.title} onChange={(e) => patch({ title: e.target.value })} />
             <textarea className="input h-36" aria-label="Slide text" value={slide.body} onChange={(e) => patch({ body: e.target.value })} />
             {slide.kind === "gospel" && currentLayout && !currentLayout.hideBody && !readingFits(currentLayout.body, slide.body, GOSPEL_MIN_SIZE) && <p role="status" className="text-sm text-amber-700">This reading may not fit at the minimum readable font size. Shorten it or choose a larger text layout.</p>}
@@ -412,41 +439,47 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
               <IconButton icon="down" label="Move slide later" disabled={idx === slides.length - 1} onClick={() => move(1)} />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="relative">
+              <div className="min-w-0">
                 <span className="mb-1 block text-xs text-stone-500">Slide template</span>
-                <button type="button" className="input flex w-full items-center gap-2 text-left" aria-expanded={templatePickerOpen} onClick={() => setTemplatePickerOpen((open) => !open)}>
-                  <span className="w-12 shrink-0">
-                    <SlideView slide={{ id: "template-preview", kind: slide.kind, title: "", body: "", layout: slide.layout }} template={currentTemplate} font={a.font} className="!rounded-md !shadow-none" />
-                  </span>
-                  <span className="truncate">{a.sectionTemplates[slide.kind] ? currentTemplate.name : "Assembly default"}</span>
-                  <Icon name="chevron" className="ml-auto h-4 w-4 shrink-0 text-stone-400" />
-                </button>
-                {templatePickerOpen && (
-                  <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto rounded-xl border border-stone-200 bg-surface p-2 shadow-xl">
-                    <button type="button" className="mb-1 w-full rounded-lg px-2 py-2 text-left text-sm hover:bg-stone-100" onClick={() => {
-                      update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: undefined } });
-                      setTemplatePickerOpen(false);
-                    }}>Assembly default</button>
-                    {TEMPLATES.map((template) => (
-                      <button key={template.id} type="button" className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm hover:bg-stone-100" onClick={() => {
-                        update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: template.id } });
-                        setTemplatePickerOpen(false);
-                      }}>
+                <Dropdown
+                  label="Slide template"
+                  selectedValue={a.sectionTemplates[slide.kind] ?? ""}
+                  onSelect={(value) => update({ sectionTemplates: { ...a.sectionTemplates, [slide.kind]: value || undefined } })}
+                  selectedRender={<>
+                    <span className="w-12 shrink-0">
+                      <SlideView slide={{ id: "template-preview", kind: slide.kind, title: "", body: "", layout: slide.layout }} template={currentTemplate} font={a.font} className="!rounded-md !shadow-none" />
+                    </span>
+                    <span className="truncate">{a.sectionTemplates[slide.kind] ? currentTemplate.name : "Assembly default"}</span>
+                  </>}
+                  items={[
+                    { value: "", label: "Assembly default" },
+                    ...TEMPLATES.map((template) => ({
+                      value: template.id,
+                      label: template.name,
+                      render: <>
                         <span className="w-12 shrink-0">
                           <SlideView slide={{ id: `template-preview-${template.id}`, kind: slide.kind, title: "", body: "", layout: slide.layout }} template={presentationTemplate(template.id, a.backgroundColor)} font={a.font} className="!rounded-md !shadow-none" />
                         </span>
-                        <span>{template.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                        <span className="truncate">{template.name}</span>
+                      </>,
+                    })),
+                  ]}
+                />
               </div>
-              <label className="text-xs text-stone-500">Slide font
-                <select className="input mt-1" value={slide.font ?? ""} onChange={(e) => patch({ font: e.target.value || undefined })}>
-                  <option value="">Presentation default</option>
-                  {FONTS.map((font) => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
-                </select>
-              </label>
+              <div className="min-w-0">
+                <span className="mb-1 block text-xs text-stone-500">Slide font</span>
+                <Dropdown
+                  label="Slide font"
+                  selectedValue={slide.font ?? ""}
+                  onSelect={(font) => {
+                    if (font !== (slide.font ?? "")) setPendingFont({ slideId: slide.id, font });
+                  }}
+                  items={[
+                    { value: "", label: "Presentation default" },
+                    ...FONTS.map((font) => ({ value: font, label: font, render: <span style={{ fontFamily: font }}>{font}</span> })),
+                  ]}
+                />
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               {currentTemplate.backgrounds?.length ? <label className="flex items-center gap-2 text-sm text-stone-500">Text color
@@ -456,7 +489,7 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
               {slides.filter((item) => item.kind === slide.kind).length > 1 && <button className="btn btn-ghost" onClick={() => setSlides(slides.map((item) => item.kind === slide.kind ? { ...item, layout: slide.layout, background: slide.background, backgroundImage: slide.backgroundImage, font: slide.font, textColor: slide.textColor } : item))}>Apply design to all {slide.kind} slides</button>}
             </div>
             </div>
-            <div hidden={editPanel !== "layout"} className="space-y-4">
+            <div hidden={activePanel !== "layout"} className="space-y-4">
             {!!currentTemplate.layouts && (
               <section className="space-y-3" aria-label="Content layouts">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -474,30 +507,38 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
               </section>
             )}
             </div>
-            <div hidden={editPanel !== "background"} className="space-y-4">
-            {!!currentTemplate.backgrounds?.length && (
+            <div hidden={activePanel !== "background"} className="space-y-4">
+            {hasBackgrounds ? (
               <section className="space-y-4" aria-label="Slide backgrounds">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <h3 className="display text-2xl">Background</h3>
                     <p className="text-sm text-stone-500">Choose artwork independently of the content layout.</p>
-                    {slide.background && (slide.background.templateId !== currentTemplate.id || !currentTemplate.backgrounds.some((b) => b.id === slide.background?.id)) && <p className="text-sm text-amber-700">The saved background is unavailable for this template; the automatic background is shown.</p>}
+                    {slide.background && (slide.background.templateId !== currentTemplate.id || !currentTemplate.backgrounds?.some((b) => b.id === slide.background?.id)) && <p className="text-sm text-amber-700">The saved background is unavailable for this template; the automatic background is shown.</p>}
                   </div>
                   <button className="btn btn-ghost" onClick={() => patch({ background: undefined })}>Use automatic</button>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {currentTemplate.backgrounds.map((background) => (
-                    <button key={background.id} type="button" aria-label={`Use ${background.name} background`} aria-pressed={currentBackground?.id === background.id} onClick={() => patch({ background: { templateId: currentTemplate.id, id: background.id } })} className={`h-full rounded-xl p-1 text-left ${currentBackground?.id === background.id ? "ring-2 ring-accent" : "ring-1 ring-stone-200 hover:ring-accent"}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`${currentTemplate.dir}/${background.src}`} alt="" loading="lazy" className="aspect-video w-full rounded-lg object-cover" />
-                      <span className="line-clamp-2 h-10 p-1 text-xs text-stone-600">{background.name}</span>
+                <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
+                  {currentTemplate.backgrounds?.map((background) => (
+                    <button key={background.id} type="button" aria-label={`Use ${background.name} background`} aria-pressed={currentBackground?.id === background.id} onClick={() => patch({ background: { templateId: currentTemplate.id, id: background.id } })} className={`min-w-0 h-full rounded-xl p-1 text-left ${currentBackground?.id === background.id ? "ring-2 ring-accent" : "ring-1 ring-stone-200 hover:ring-accent"}`}>
+                      <span className="relative block aspect-video overflow-hidden rounded-lg">
+                        <Image src={`${currentTemplate.dir}/${background.src}`} alt="" fill sizes={GALLERY_IMAGE_SIZES} className="object-cover" />
+                      </span>
+                      <span className="line-clamp-2 h-10 break-words p-1 text-xs text-stone-600">{background.name}</span>
                     </button>
                   ))}
                 </div>
               </section>
+            ) : (
+              <div className="py-8 text-center text-stone-500">
+                <p className="text-base font-medium text-stone-700">No background artwork</p>
+                <p className="mt-1 text-sm text-stone-500">
+                  The &ldquo;{currentTemplate.name}&rdquo; template uses a solid theme color and does not include background artwork variants. You can add a photo background in the Photos tab.
+                </p>
+              </div>
             )}
             </div>
-            <div hidden={editPanel !== "photos"} className="space-y-4">
+            <div hidden={activePanel !== "photos"} className="space-y-4">
             {!currentLayout?.image && (slide.image || slide.image2) && <p className="text-xs text-stone-500">Images are preserved but hidden in this layout.</p>}
             {currentLayout?.image && !currentLayout.image2 && slide.image2 && <p className="text-xs text-stone-500">Image 2 is preserved but hidden in this layout.</p>}
             {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
@@ -529,40 +570,30 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                 </div>
               )}
               <form onSubmit={(event) => void searchImages(event)} className="flex flex-wrap gap-2">
-                <label className="sr-only" htmlFor="photo-provider">Photo source</label>
-                <select
-                  id="photo-provider"
-                  className="input !w-auto"
-                  value={imageProvider}
-                  onChange={(event) => {
+                <Dropdown
+                  label="Photo source"
+                  className="w-full sm:w-48"
+                  selectedValue={imageProvider}
+                  items={imageProviders.map((provider) => ({ value: provider.id, label: provider.label }))}
+                  onSelect={(provider) => {
                     imageSearchId.current++;
-                    setImageProvider(event.target.value as ImageProvider);
+                    setImageProvider(provider);
                     setImageResults([]);
                     setImageNextCursor(null);
                     setImageError("");
                   }}
-                  aria-label="Photo source"
-                >
-                  {imageProviders.map((provider) => <option key={provider.id} value={provider.id}>{provider.label}</option>)}
-                </select>
+                />
                 {imageProvider === "library" ? (
-                  <>
-                    <label className="sr-only" htmlFor="photo-category">Photo category</label>
-                    <select
-                      id="photo-category"
-                      className="input !w-auto"
-                      value={libraryCategory}
-                      onChange={(event) => setLibraryCategory(event.target.value)}
-                      aria-label="Photo category"
-                    >
-                      {libraryCategories.map((category) => (
-                        <option key={category} value={category}>{category[0].toUpperCase() + category.slice(1)}</option>
-                      ))}
-                    </select>
-                  </>
+                  <Dropdown
+                    label="Photo category"
+                    className="w-full sm:w-40"
+                    selectedValue={libraryCategory}
+                    onSelect={setLibraryCategory}
+                    items={libraryCategories.map((category) => ({ value: category, label: category[0].toUpperCase() + category.slice(1) }))}
+                  />
                 ) : (
                   <input
-                    className="input min-w-48 flex-1"
+                    className="input min-w-0 flex-1"
                     aria-label="Search photos"
                     placeholder="Search images…"
                     value={imageQuery}
@@ -583,19 +614,23 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                 </p>
               )}
               {!!imageResults.length && (
-                <ul className="grid gap-3 sm:grid-cols-2">
+                <ul className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
                   {imageResults.map((image) => (
-                    <li key={image.id}>
+                    <li key={image.id} className="min-w-0">
                       <button
                         type="button"
                         disabled={!!imageDownloading}
                         onClick={() => void selectImage(image)}
                         className="w-full rounded-xl border border-stone-200 p-2 text-left transition hover:border-accent disabled:opacity-60"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image.thumbnailUrl} alt="" loading="lazy" className="aspect-video w-full rounded-lg object-cover" />
-                        <span className="mt-2 block truncate text-sm font-medium text-stone-800">{image.title}</span>
-                        <span className="block truncate text-xs text-stone-500">{image.artist} · {image.providerLabel} · {image.license}</span>
+                        {image.provider === "library" ? (
+                          <span className="relative block aspect-video overflow-hidden rounded-lg">
+                            <Image src={image.thumbnailUrl} alt="" fill sizes={GALLERY_IMAGE_SIZES} className="object-cover" />
+                          </span>
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={image.thumbnailUrl} alt="" loading="lazy" className="aspect-video w-full rounded-lg object-cover" />
+                        )}
                         {imageDownloading === image.id && <span className="mt-1 block text-xs text-accent">Saving image…</span>}
                       </button>
                     </li>

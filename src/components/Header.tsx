@@ -42,10 +42,12 @@ export function Header() {
           <span className="mx-1 h-5 w-px bg-stone-200" />
           <ThemeToggle />
         </div>
-        <Suspense fallback={null}><EditorHeaderActions assemblies={assemblies} /></Suspense>
-        <button type="button" className="icon-btn mobile-menu-trigger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>
-          <Icon name={open ? "close" : "menu"} />
-        </button>
+        <div className="flex items-center gap-1.5 sm:hidden">
+          <Suspense fallback={null}><EditorHeaderActions assemblies={assemblies} /></Suspense>
+          <button type="button" className="icon-btn mobile-menu-trigger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>
+            <Icon name={open ? "close" : "menu"} />
+          </button>
+        </div>
       </div>
       {open && <Modal labelledBy="mobile-menu-title" onClose={() => setOpen(false)} className="menu-drawer">
         <div id="mobile-menu" className="flex h-full flex-col p-6">
@@ -67,7 +69,6 @@ export function Header() {
 
 function EditorHeaderActions({ assemblies }: { assemblies: Assembly[] }) {
   const [exporting, setExporting] = useState(false);
-  const [presentRequest, setPresentRequest] = useState(0);
   const path = usePathname();
   const isEditor = path.startsWith("/assembly/");
   const currentAssembly = isEditor ? assemblies.find((assembly) => path === `/assembly/${assembly.id}`) : undefined;
@@ -81,21 +82,12 @@ function EditorHeaderActions({ assemblies }: { assemblies: Assembly[] }) {
   if (!isEditor) return null;
   return (
     <>
-      <div className="mr-2 flex items-center gap-1 sm:hidden">
-        <button type="button" className="btn btn-primary !gap-1 !px-2.5 !py-1.5 !text-xs" onClick={() => setPresentRequest((value) => value + 1)}><Icon name="present" /><span className="hidden min-[390px]:inline">Present</span></button>
+      <div className="flex items-center gap-1 sm:hidden">
+        <button type="button" aria-label="Present" className="btn btn-primary !gap-1 !px-2.5 !py-1.5 !text-xs" onClick={() => window.dispatchEvent(new CustomEvent("assembly:present"))}><Icon name="present" /><span className="hidden min-[390px]:inline">Present</span></button>
         <button type="button" className="icon-btn border border-stone-200 bg-surface" aria-label="Download PowerPoint" title="Download PowerPoint" disabled={exporting} onClick={() => void exportCurrent()}><Icon name="download" /></button>
       </div>
-      <PresentationRequestBridge request={presentRequest} />
     </>
   );
-}
-
-function PresentationRequestBridge({ request }: { request: number }) {
-  useEffect(() => {
-    if (!request) return;
-    window.dispatchEvent(new CustomEvent("assembly:present"));
-  }, [request]);
-  return null;
 }
 
 function ActiveNavigation({ onNavigate, vertical }: { onNavigate?: () => void; vertical?: boolean }) {

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAssemblies, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { exportPptx } from "@/lib/export";
 import type { Assembly } from "@/lib/types";
@@ -25,6 +25,7 @@ export function AssemblyEditor({ id }: { id: string }) {
   const [exportError, setExportError] = useState("");
   const [presentationError, setPresentationError] = useState("");
   const [presentRequest, setPresentRequest] = useState(0);
+  const handledPresentRequestRef = useRef(0);
   const a = assemblies.find((x) => x.id === id);
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export function AssemblyEditor({ id }: { id: string }) {
   };
   const requestPresentation = () => {
     setPresentationError("");
+    if (tab !== "Edit & Present") setTab("Edit & Present");
     setPresentRequest((request) => request + 1);
     if (document.fullscreenElement) return;
     const requestFullscreen = document.documentElement.requestFullscreen?.bind(document.documentElement);
@@ -108,14 +110,27 @@ export function AssemblyEditor({ id }: { id: string }) {
           <div>
             <h1 className="display mt-3 text-stone-900">{a.title || "New assembly"}</h1>
           </div>
-          {tab === "Edit & Present" && (
-            <div className="flex flex-wrap justify-start gap-2">
-              <button type="button" className="btn btn-primary" onClick={requestPresentation}><Icon name="present" />Present</button>
-              <button type="button" className="btn" disabled={exporting} onClick={() => void exportAssembly()}>
-                <Icon name="download" />{exporting ? "Preparing download…" : "Download PowerPoint"}
-              </button>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center justify-start gap-3">
+            <button
+              type="button"
+              className="btn btn-primary !px-5 !py-3 sm:!px-6 sm:!py-3.5 !text-base sm:!text-lg font-medium !gap-2.5 !rounded-xl shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+              onClick={requestPresentation}
+            >
+              <Icon name="present" className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span>Present</span>
+            </button>
+            <button
+              type="button"
+              className="btn !px-5 !py-3 sm:!px-6 sm:!py-3.5 !text-base sm:!text-lg font-medium !gap-2.5 !rounded-xl shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+              disabled={exporting}
+              onClick={() => void exportAssembly()}
+            >
+              <Icon name="download" className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span>{exporting ? "Preparing download…" : "Download PowerPoint"}</span>
+            </button>
+          </div>
+          {exportError && tab !== "Edit & Present" && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
+          {presentationError && tab !== "Edit & Present" && <p role="status" className="text-sm text-amber-700">{presentationError}</p>}
         </div>
       </div>
 
@@ -125,7 +140,10 @@ export function AssemblyEditor({ id }: { id: string }) {
             <button
               key={step}
               type="button"
-              onClick={() => setTab(step)}
+              onClick={() => {
+                handledPresentRequestRef.current = presentRequest;
+                setTab(step);
+              }}
               aria-current={tab === step ? "step" : undefined}
               className={`stepper-item relative z-10 flex min-w-0 cursor-pointer flex-col items-center gap-2 rounded-xl py-1 text-center text-xs transition sm:text-sm ${tab === step ? "is-current" : ""}`}
             >
@@ -138,7 +156,7 @@ export function AssemblyEditor({ id }: { id: string }) {
       {tab === "Template" && <DetailsTab a={a} update={update} />}
       {tab === "Content" && <ContentTab a={a} update={update} />}
       {tab === "Songs" && <SongsTab a={a} update={update} />}
-      {tab === "Edit & Present" && <ReviewTab a={a} update={update} exportError={exportError} presentationError={presentationError} presentRequest={presentRequest} />}
+      {tab === "Edit & Present" && <ReviewTab a={a} update={update} exportError={exportError} presentationError={presentationError} presentRequest={presentRequest} handledPresentRequestRef={handledPresentRequestRef} />}
 
       {tab !== "Edit & Present" && (
         <div className="flex justify-between border-t border-stone-200 pt-5">

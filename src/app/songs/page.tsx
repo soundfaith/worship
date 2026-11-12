@@ -11,6 +11,7 @@ import { Icon, IconButton } from "@/components/Icon";
 import { SongPreview } from "@/components/SongPreview";
 import { SongResult } from "@/components/SongResult";
 import { ConfirmDialog } from "@/components/Modal";
+import Dropdown from "@/components/ui/Dropdown";
 
 const letterOf = (label: string) => {
   const c = label.trim().charAt(0).toUpperCase();
@@ -50,7 +51,7 @@ export default function SongsPage() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 space-y-10">
       <div className="flex flex-col items-start gap-4">
         <div>
           <p className="eyebrow mb-2">Library</p>
@@ -129,11 +130,10 @@ export default function SongsPage() {
             <div className="space-y-5">
               <h2 className="display text-3xl text-stone-900">{open.title}</h2>
               <div className="flex flex-wrap items-end gap-3">
-                <label className="min-w-0 flex-1 text-sm text-stone-500">Template
-                  <select className="input mt-1" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
-                    {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
-                </label>
+                <div className="min-w-0 flex-1 text-sm text-stone-500">
+                  <span className="mb-1 block">Template</span>
+                  <Dropdown label="Template" selectedValue={templateId} onSelect={setTemplateId} items={TEMPLATES.map((t) => ({ value: t.id, label: t.name }))} />
+                </div>
                 <button className="btn btn-primary" disabled={busy} onClick={async () => {
                   setBusy(true);
                   setError("");

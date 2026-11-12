@@ -9,6 +9,7 @@ import { Modal } from "./Modal";
 import { Section, type TabProps } from "./ui";
 import { SongPreview } from "./SongPreview";
 import { SongResult } from "./SongResult";
+import { SongFilterPanel } from "./SongFilters";
 
 export function SongsTab({ a, update }: TabProps) {
   const [q, setQ] = useState("");
@@ -17,7 +18,7 @@ export function SongsTab({ a, update }: TabProps) {
   const [adding, setAdding] = useState("");
   const [error, setError] = useState("");
   const handleStart = useRef<number | null>(null);
-  const { results, total, searching, getSong, loading } = useSongSearch(q);
+  const { results, total, searching, searchError, getSong, loading, filters, setFilters } = useSongSearch(q);
   const template = getTemplate(a.sectionTemplates.song ?? a.templateId);
 
   useEffect(() => {
@@ -143,8 +144,12 @@ export function SongsTab({ a, update }: TabProps) {
                   onChange={(event) => setQ(event.target.value)}
                 />
               </div>
+              <div className="mt-2">
+                <SongFilterPanel filters={filters} onChange={setFilters} compact />
+              </div>
               <p className="mt-2 text-xs text-stone-500">{loading ? "Loading songs…" : `${total} songs`}</p>
               {error && <p role="alert" className="mt-2 text-sm text-red-600">{error}</p>}
+              {searchError && <p role="alert" className="mt-2 text-sm text-red-600">{searchError}</p>}
             </header>
             <ul className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4" aria-label="Available songs">
               {results.map((song) => {
@@ -164,7 +169,7 @@ export function SongsTab({ a, update }: TabProps) {
                   </li>
                 );
               })}
-              {!loading && !searching && results.length === 0 && <li className="py-8 text-center text-sm text-stone-400">No songs found.</li>}
+              {!loading && !searching && !searchError && results.length === 0 && <li className="py-8 text-center text-sm text-stone-400">No songs found.</li>}
               {searching && <li className="py-3 text-center text-sm text-stone-400">Searching…</li>}
             </ul>
             <footer className="shrink-0 border-t border-stone-200 px-5 py-3 text-xs text-stone-500 sm:px-6">{a.songs.length} selected</footer>

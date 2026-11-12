@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";import { useEffect, useState } from "react";
 import Image from "next/image";
 import { blankAssembly, duplicateAssembly, useAssemblies, useLogoPreference, usePreferredFont, useRecurring, useSoundFaithDiscoveryEligibility } from "@/lib/assemblies";
 import { coverSlide, formatDate } from "@/lib/slides";
@@ -9,7 +8,7 @@ import { getTemplate, TEMPLATES } from "@/lib/templates";
 import type { Assembly } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SlideView } from "@/components/SlideView";
-import { ConfirmDialog } from "@/components/Modal";
+import { ConfirmDialog, PromptDialog } from "@/components/Modal";
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +19,7 @@ export default function Home() {
   const [logoPreference] = useLogoPreference();
   const [q, setQ] = useState("");
   const [deleteAssembly, setDeleteAssembly] = useState<Assembly | null>(null);
+  const [duplicateTarget, setDuplicateTarget] = useState<Assembly | null>(null);
   const needle = q.trim().toLowerCase();
 
   useEffect(() => {
@@ -28,8 +28,9 @@ export default function Home() {
 
   const sorted = [...assemblies].sort((a, b) => b.date.localeCompare(a.date));
 
-  const create = (from?: Assembly) => {
+  const create = (from?: Assembly, title?: string) => {
     const a = from ? duplicateAssembly(from) : blankAssembly(preferredFont || undefined);
+    if (title) a.title = title;
     if (!from && logoPreference) {
       a.logo = structuredClone(logoPreference);
       a.showLogo = true;
@@ -114,7 +115,7 @@ export default function Home() {
                 <AssemblyCard
                   key={a.id}
                   a={a}
-                  onDuplicate={() => create(a)}
+                  onDuplicate={() => setDuplicateTarget(a)}
                   onDelete={() => setDeleteAssembly(a)}
                 />
               ))}
@@ -180,6 +181,19 @@ export default function Home() {
         setAssemblies((list) => list.filter((item) => item.id !== deleteAssembly.id));
         setDeleteAssembly(null);
       }} />}
+      {duplicateTarget && (
+        <PromptDialog
+          title="Duplicate assembly"
+          label="New title"
+          defaultValue={`${duplicateTarget.title || 'Untitled assembly'} (copy)`}
+          confirmLabel="Duplicate"
+          onCancel={() => setDuplicateTarget(null)}
+          onConfirm={(title) => {
+            create(duplicateTarget, title);
+            setDuplicateTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -201,9 +215,18 @@ function AssemblyCard({ a, onDuplicate, onDelete }: { a: Assembly; onDuplicate: 
         </div>
       </Link>
       <div className="flex items-center justify-between px-3 pb-3 pl-5 pt-1">
-        <span className="flex items-center gap-1.5 text-xs text-stone-400">
-          <Icon name="music" className="h-3.5 w-3.5" /> {count} {count === 1 ? "song" : "songs"}
-        </span>
+        <button
+          type="button"
+          className="btn btn-primary !gap-1 !px-3 !py-1.5 !text-xs"
+          aria-label={`Present ${a.title || "assembly"}`}
+          onClick={() => {
+            sessionStorage.setItem("assembly:autoPresent", a.id);
+            window.location.href = `/assembly/${a.id}`;
+          }}
+        >
+          <Icon name="present" className="h-3.5 w-3.5" />
+          Present
+        </button>
         <span className="flex">
           <IconButton icon="copy" label="Duplicate assembly" onClick={onDuplicate} />
           <IconButton icon="trash" label="Delete assembly" danger onClick={onDelete} />

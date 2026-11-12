@@ -6,10 +6,11 @@ import { DEFAULT_TEMPLATE, getTemplate, TEMPLATES } from "@/lib/templates";
 import { usePreferredFont } from "@/lib/assemblies";
 import { exportSlides } from "@/lib/export";
 import { songLabel, useSongSearch } from "@/lib/useSongs";
-import type { Song } from "@/lib/types";
+import type { Song, SongMetadata } from "@/lib/types";
 import { Icon, IconButton } from "@/components/Icon";
 import { SongPreview } from "@/components/SongPreview";
 import { SongResult } from "@/components/SongResult";
+import { SongFilterPanel } from "@/components/SongFilters";
 import { ConfirmDialog } from "@/components/Modal";
 import Dropdown from "@/components/ui/Dropdown";
 
@@ -20,14 +21,15 @@ const letterOf = (label: string) => {
 
 export default function SongsPage() {
   const [q, setQ] = useState("");
-  const { results, total, setCustom, getSong, loading, searching } = useSongSearch(q);
+  const { results, total, setCustom, getSong, loading, searching, searchError, filters, setFilters } = useSongSearch(q);
   const [open, setOpen] = useState<Song | null>(null);
   const [lines, setLines] = useState(DEFAULT_LINES);
   const [templateId, setTemplateId] = useState(DEFAULT_TEMPLATE);
   const [font] = usePreferredFont();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [draft, setDraft] = useState<{ id?: string; title: string; lyrics: string } | null>(null);
+  const [notice, setNotice] = useState("");
+  const [draft, setDraft] = useState<{ id?: string; title: string; lyrics: string; metadata?: SongMetadata } | null>(null);
   const [deleteSong, setDeleteSong] = useState<{ id: string; title: string } | null>(null);
   const searchingNow = q.trim().length > 0;
 
@@ -35,12 +37,18 @@ export default function SongsPage() {
 
   const toDraft = async (id: string, copy: boolean) => {
     const s = await getSong(id);
-    if (s) setDraft({ id: copy ? undefined : s.id, title: copy ? `${s.title} (copy)` : s.title, lyrics: s.slides.join("\n\n") });
+    if (s) setDraft({
+      id: copy ? undefined : s.id,
+      title: copy ? `${s.title} (copy)` : s.title,
+      lyrics: s.slides.join("\n\n"),
+      metadata: { language: s.language, tempo: s.tempo, energy: s.energy, tags: s.tags },
+    });
   };
 
   const save = () => {
     if (!draft || !draft.title.trim()) return;
     const song: Song = {
+      ...draft.metadata,
       id: draft.id ?? `custom-${uid()}`,
       title: draft.title.trim(),
       slides: splitLyrics(draft.lyrics),
@@ -48,6 +56,7 @@ export default function SongsPage() {
     };
     setCustom((l) => (draft.id ? l.map((x) => (x.id === draft.id ? song : x)) : [...l, song]));
     setDraft(null);
+    setNotice(!song.language && !filters.showOtherLanguages ? "Song saved. Turn on Show other languages in Filters to see songs without a language." : "");
   };
 
   return (
@@ -83,9 +92,14 @@ export default function SongsPage() {
         </div>
       )}
 
-      <div className="relative">
-        <Icon name="search" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
-        <input className="input !py-3 !pl-11" placeholder="Search by title or any line of the lyrics…" aria-label="Search songs" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="space-y-2">
+        <div className="relative">
+          <Icon name="search" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
+          <input className="input !py-3 !pl-11" placeholder="Search by title or any line of the lyrics…" aria-label="Search songs" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <SongFilterPanel filters={filters} onChange={setFilters} />
+        {notice && <p role="status" className="text-sm text-stone-600">{notice}</p>}
+        {searchError && <p role="alert" className="text-sm text-red-600">{searchError}</p>}
       </div>
 
       <div className="grid min-w-0 grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
@@ -116,7 +130,7 @@ export default function SongsPage() {
                 </Fragment>
               );
             })}
-            {!loading && !searching && results.length === 0 && <li className="p-6 text-center text-sm text-stone-400">No songs found.</li>}
+            {!loading && !searching && !searchError && results.length === 0 && <li className="p-6 text-center text-sm text-stone-400">No songs found.</li>}
           </ul>
         </div>
         {deleteSong && <ConfirmDialog title="Delete song?" message={`“${deleteSong.title}” will be permanently deleted from this browser's song library.`} confirmLabel="Delete song" onCancel={() => setDeleteSong(null)} onConfirm={() => {

@@ -33,7 +33,14 @@ export interface Slide {
   layout?: LayoutName; // overrides the page layout chosen from the slide kind
 }
 
-export interface SongIndexEntry {
+export interface SongMetadata {
+  language?: string;
+  tempo?: "slow" | "medium" | "fast";
+  energy?: number;
+  tags?: string[];
+}
+
+export interface SongIndexEntry extends SongMetadata {
   id: string;
   title: string;
   slideCount: number;
@@ -45,7 +52,7 @@ export interface SongIndexEntry {
   custom?: boolean;
 }
 
-export interface Song {
+export interface Song extends SongMetadata {
   id: string;
   title: string;
   slides: string[];

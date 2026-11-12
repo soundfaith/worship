@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 import { matchSong } from "@/lib/search";
+import { matchesSongFilters, songFiltersFromParams } from "@/lib/song-filters";
 import type { Song } from "@/lib/types";
 
 let cache: Song[] | null = null;
@@ -20,6 +21,10 @@ const entry = (s: Song) => ({
   slideCount: s.slides.length,
   version: s.version,
   versionCount: s.versionCount,
+  language: s.language,
+  tempo: s.tempo,
+  energy: s.energy,
+  tags: s.tags,
 });
 
 // ?id=… full song · ?q=… ranked search (title first, then lyrics) · no params: lightweight index.
@@ -34,7 +39,14 @@ export async function GET(req: Request) {
     return song ? NextResponse.json(song) : NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   if (q) {
+    let filters;
+    try {
+      filters = songFiltersFromParams(params);
+    } catch (error) {
+      return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid song filters." }, { status: 400 });
+    }
     const hits = songs
+      .filter((song) => matchesSongFilters(song, filters))
       .map((s) => ({ s, hit: matchSong(s.title, s.slides, q) }))
       .filter((x): x is { s: Song; hit: NonNullable<typeof x.hit> } => x.hit !== null)
       .sort((a, b) => a.hit.rank - b.hit.rank || a.s.title.localeCompare(b.s.title))

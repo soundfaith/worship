@@ -41,6 +41,22 @@ export function AssemblyEditor({ id }: { id: string }) {
     return () => window.removeEventListener("assembly:present", onPresent);
   }, [tab]);
 
+  // Auto-present when navigated here with ?present=1 or sessionStorage flag
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const flag = params.get("present") === "1" || sessionStorage.getItem("assembly:autoPresent") === id;
+    if (flag) {
+      sessionStorage.removeItem("assembly:autoPresent");
+      // Replace URL to remove ?present=1 without pushing history
+      const clean = window.location.pathname;
+      window.history.replaceState(null, "", clean);
+      // Small delay so the page finishes rendering
+      const t = setTimeout(() => window.dispatchEvent(new CustomEvent("assembly:present")), 300);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!a) {
     return (
       <p className="text-stone-500">
@@ -126,7 +142,8 @@ export function AssemblyEditor({ id }: { id: string }) {
               onClick={() => void exportAssembly()}
             >
               <Icon name="download" className="h-5 w-5 sm:h-6 sm:w-6" />
-              <span>{exporting ? "Preparing download…" : "Download PowerPoint"}</span>
+              <span className="sm:hidden">{exporting ? "Preparing…" : "Download"}</span>
+              <span className="hidden sm:inline">{exporting ? "Preparing download…" : "Download PowerPoint"}</span>
             </button>
           </div>
           {exportError && tab !== "Edit & Present" && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}

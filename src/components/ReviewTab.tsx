@@ -3,18 +3,23 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { buildSlides } from "@/lib/slides";
 import { gospelForAssembly } from "@/lib/gospel";
-import { GOSPEL_MIN_SIZE, readingFits } from "@/lib/layout";
+import { GOSPEL_MIN_SIZE, isReadingSlide, readingFits } from "@/lib/layout";
+import { groupRange, moveSlideRange, slideGroupKey } from "@/lib/slide-groups";
 import { uid } from "@/lib/store";
 import { backgroundFor, FONTS, LAYOUT_OPTIONS, layoutFor, layoutNameFor, presentationTemplate, songIndexes, TEMPLATES } from "@/lib/templates";
-import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, Template } from "@/lib/types";
+import type { ImageProvider, LayoutName, PhotoSearchResult, Rect, Slide, SlidePicture, SlideVideo, Template } from "@/lib/types";
 import { Icon, IconButton } from "./Icon";
 import { SlideView } from "./SlideView";
 import { Presentation } from "./Presentation";
+import { ImagePicker } from "./ImagePicker";
+import { VideoPicker } from "./VideoPicker";
 import { ConfirmDialog, Modal } from "./Modal";
 import Dropdown from "./ui/Dropdown";
 import type { TabProps } from "./ui";
 import { shrinkImage } from "@/lib/image";
+import { defaultPicture } from "@/lib/picture";
 import { useLogoPreference } from "@/lib/assemblies";
+import { captureVideoPoster, deleteVideoBlob, MAX_VIDEO_BYTES, parseYouTubeId, saveVideoBlob } from "@/lib/video";
 
 const NO_SLIDES: Slide[] = [];
 const GALLERY_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 320px";
@@ -27,11 +32,16 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
 }) {
   const [cur, setCur] = useState(0);
   const [error, setError] = useState("");
+  const [videoBusy, setVideoBusy] = useState(false);
+  const [videoError, setVideoError] = useState("");
+  const [pictureBusy, setPictureBusy] = useState(false);
+  const [pictureError, setPictureError] = useState("");
   const [regenerate, setRegenerate] = useState(false);
   const [deleteSlide, setDeleteSlide] = useState<Slide | null>(null);
   const [isPresenting, setIsPresenting] = useState(false);
-  const [editPanel, setEditPanel] = useState<"text" | "layout" | "background" | "photos">("text");
+  const [editPanel, setEditPanel] = useState<"text" | "layout" | "background" | "media">("text");
   const [pendingFont, setPendingFont] = useState<{ slideId: string; font: string } | null>(null);
+  const [pendingMove, setPendingMove] = useState<-1 | 1 | null>(null);
   const [, setLogoPreference] = useLogoPreference();
   const [imageQuery, setImageQuery] = useState("");
   const [imageProvider, setImageProvider] = useState<ImageProvider>("commons");
@@ -90,13 +100,19 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
     latestSlides.current = s;
   };
   const patch = (p: Partial<Slide>) => setSlides(slides.map((x, i) => (i === idx ? { ...x, ...p } : x)));
-  const move = (d: number) => {
-    const j = idx + d;
-    if (j < 0 || j >= slides.length) return;
-    const next = [...slides];
-    [next[idx], next[j]] = [next[j], next[idx]];
-    setSlides(next);
-    setCur(j);
+  const moveBy = (direction: -1 | 1, whole: boolean) => {
+    const range = whole ? groupRange(slides, idx) : { start: idx, end: idx + 1 };
+    // A grouped slide moved alone swaps with a single neighbor; an ungrouped slide never splits a group.
+    const wholeNeighbor = whole || slideGroupKey(slide) === null;
+    const result = moveSlideRange(slides, range.start, range.end, direction, wholeNeighbor);
+    if (!result) return;
+    setSlides(result.slides);
+    setCur(result.index);
+  };
+  const requestMove = (direction: -1 | 1) => {
+    const range = groupRange(slides, idx);
+    if (range.end - range.start > 1) setPendingMove(direction);
+    else moveBy(direction, false);
   };
   const tpl = (s: Slide) => presentationTemplate(a.sectionTemplates[s.kind] ?? a.templateId, a.backgroundColor);
   const updateLogoPosition = (position: { x: number; y: number }) => {
@@ -158,6 +174,77 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
       setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, [field]: data } : item));
     } catch (e) {
       setError(`Could not save the image: ${e instanceof Error ? e.message : "unknown error"}. Your browser may have run out of storage.`);
+    }
+  };
+
+  const setVideo = (slideId: string, video: SlideVideo | undefined) => {
+    setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, video } : item));
+  };
+  const setVideoFrame = (slideId: string, videoFrame: Rect) => {
+    setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, videoFrame } : item));
+  };
+  const attachVideoFile = async (file: File, slideId: string) => {
+    setVideoError("");
+    if (!file.type.startsWith("video/")) {
+      setVideoError("Choose a video file.");
+      return;
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      setVideoError(`Videos must be ${Math.round(MAX_VIDEO_BYTES / 1024 / 1024)} MB or smaller.`);
+      return;
+    }
+    setVideoBusy(true);
+    try {
+      const id = crypto.randomUUID();
+      const poster = await captureVideoPoster(file);
+      await saveVideoBlob(id, file);
+      const previous = latestSlides.current.find((item) => item.id === slideId)?.video;
+      setVideo(slideId, { kind: "file", id, name: file.name, poster });
+      if (previous?.kind === "file") await deleteVideoBlob(previous.id).catch(() => undefined);
+    } catch (e) {
+      setVideoError(`Could not add the video: ${e instanceof Error ? e.message : "unknown error"}.`);
+    } finally {
+      setVideoBusy(false);
+    }
+  };
+  const attachVideoLink = (url: string, slideId: string) => {
+    const videoId = parseYouTubeId(url);
+    if (!videoId) {
+      setVideoError("Enter a YouTube link.");
+      return;
+    }
+    setVideoError("");
+    const previous = latestSlides.current.find((item) => item.id === slideId)?.video;
+    setVideo(slideId, { kind: "link", url, videoId });
+    if (previous?.kind === "file") void deleteVideoBlob(previous.id).catch(() => undefined);
+  };
+  const removeVideo = (slideId: string) => {
+    const previous = latestSlides.current.find((item) => item.id === slideId)?.video;
+    setVideoError("");
+    setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, video: undefined, videoFrame: undefined } : item));
+    if (previous?.kind === "file") void deleteVideoBlob(previous.id).catch(() => undefined);
+  };
+
+  const setPicture = (slideId: string, picture: SlidePicture | undefined) => {
+    setSlides(latestSlides.current.map((item) => item.id === slideId ? { ...item, picture } : item));
+  };
+  const attachPicture = async (file: File, slideId: string) => {
+    setPictureError("");
+    if (!file.type.startsWith("image/")) {
+      setPictureError("Choose an image file.");
+      return;
+    }
+    setPictureBusy(true);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const ratio = bitmap.width / bitmap.height;
+      bitmap.close();
+      const data = await shrinkImage(file);
+      setPicture(slideId, defaultPicture(data, ratio));
+    } catch (e) {
+      setPictureError(`Could not add the image: ${e instanceof Error ? e.message : "unknown error"}.`);
+    } finally {
+      setPictureBusy(false);
     }
   };
 
@@ -271,6 +358,23 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
         </Modal>
       )}
 
+      {pendingMove && (() => {
+        const range = groupRange(slides, idx);
+        const label = slideGroupKey(slide)?.startsWith("song:") ? "song" : slideGroupKey(slide) === "gospel" ? "Gospel reading" : "long content";
+        const direction = pendingMove;
+        return (
+          <Modal labelledBy="move-scope-title" describedBy="move-scope-message" onClose={() => setPendingMove(null)} className="confirm-modal">
+            <h2 id="move-scope-title" className="display text-3xl text-stone-900">Move slide</h2>
+            <p id="move-scope-message" className="mt-3 text-sm leading-relaxed text-stone-600">This slide is part of a {label} with {range.end - range.start} slides. Move the whole {label} or only this slide?</p>
+            <div className="mt-7 flex flex-wrap justify-end gap-2">
+              <button type="button" className="btn" data-initial-focus onClick={() => setPendingMove(null)}>Cancel</button>
+              <button type="button" className="btn" onClick={() => { setPendingMove(null); moveBy(direction, false); }}>Only this slide</button>
+              <button type="button" className="btn btn-primary" onClick={() => { setPendingMove(null); moveBy(direction, true); }}>Whole {label}</button>
+            </div>
+          </Modal>
+        );
+      })()}
+
       <div className="flex min-h-[30rem] min-w-0 items-start gap-2 sm:min-h-[38rem] sm:gap-4">
         <nav
           ref={slideNavigationRef}
@@ -304,9 +408,9 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                   onClick={() => setCur(i)}
                   tabIndex={i === idx ? 0 : -1}
                   aria-current={i === idx ? "true" : undefined}
-                  className={`block w-full rounded-xl p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
+                  className={`block w-full rounded-md p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
                 >
-                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.showLogo === false ? undefined : a.logo} />
+                  <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.showLogo === false ? undefined : a.logo} className="!rounded-sm" />
                   <span className="block truncate px-1 pt-1 text-xs text-stone-500">{i + 1}. <span className="hidden sm:inline">{s.title}</span></span>
                 </button>
               </li>
@@ -314,29 +418,38 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
           </ol>
         </nav>
         <div className="flex min-w-0 flex-1 flex-col gap-5">
-          <div className="mx-auto w-full max-w-xl shrink-0">
-            <SlideView
-              slide={slide}
-              template={currentTemplate}
-              font={a.font}
-              songIndex={songPositions[idx]}
-              logo={a.showLogo === false ? undefined : a.logo}
-              onLogoPositionChange={a.logo && a.showLogo !== false ? updateLogoPosition : undefined}
-            />
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
+            <div className="w-full max-w-xl shrink-0">
+              <SlideView
+                slide={slide}
+                template={currentTemplate}
+                font={a.font}
+                songIndex={songPositions[idx]}
+                logo={a.showLogo === false ? undefined : a.logo}
+                onLogoPositionChange={a.logo && a.showLogo !== false ? updateLogoPosition : undefined}
+                onPictureChange={(picture) => setPicture(slide.id, picture)}
+                onVideoFrameChange={(videoFrame) => setVideoFrame(slide.id, videoFrame)}
+                play
+              />
+            </div>
+            <div className="flex shrink-0 flex-row gap-2 sm:flex-col">
+              <IconButton icon="up" label="Move slide earlier" disabled={idx === 0} onClick={() => requestMove(-1)} />
+              <IconButton icon="down" label="Move slide later" disabled={idx === slides.length - 1} onClick={() => requestMove(1)} />
+            </div>
           </div>
           <div role="tablist" aria-label="Slide editing sections" className="flex max-w-full w-fit gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1">
               {([
                 ["text", "Style"],
                 ["layout", "Layout"],
                 ...(hasBackgrounds ? [["background", "Background"] as const] : []),
-                ["photos", "Photos"],
+                ["media", "Media"],
               ] as const).map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   role="tab"
                   aria-selected={activePanel === id}
-                  onClick={() => setEditPanel(id as "text" | "layout" | "background" | "photos")}
+                  onClick={() => setEditPanel(id as "text" | "layout" | "background" | "media")}
                   className={`whitespace-nowrap rounded-lg px-3 py-2 text-base font-medium transition ${activePanel === id ? "bg-surface text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
                 >
                   {label}
@@ -348,12 +461,8 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
             <div hidden={activePanel !== "text"} className="space-y-4">
             <input className="input" aria-label="Slide title" value={slide.title} onChange={(e) => patch({ title: e.target.value })} />
             <textarea className="input h-36" aria-label="Slide text" value={slide.body} onChange={(e) => patch({ body: e.target.value })} />
-            {slide.kind === "gospel" && currentLayout && !currentLayout.hideBody && !readingFits(currentLayout.body, slide.body, GOSPEL_MIN_SIZE) && <p role="status" className="text-sm text-amber-700">This reading may not fit at the minimum readable font size. Shorten it or choose a larger text layout.</p>}
+            {isReadingSlide(slide) && currentLayout && !currentLayout.hideBody && !readingFits(currentLayout.body, slide.body, GOSPEL_MIN_SIZE) && <p role="status" className="text-sm text-amber-700">This reading may not fit at the minimum readable font size. Shorten it or choose a larger text layout.</p>}
             {currentLayout?.hideBody && slide.body && <p className="text-xs text-stone-500">This layout hides the slide text; it is preserved if you switch layouts.</p>}
-            <div className="flex flex-wrap items-center gap-2">
-              <IconButton icon="up" label="Move slide earlier" disabled={idx === 0} onClick={() => move(-1)} />
-              <IconButton icon="down" label="Move slide later" disabled={idx === slides.length - 1} onClick={() => move(1)} />
-            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="min-w-0">
                 <span className="mb-1 block text-xs text-stone-500">Slide template</span>
@@ -449,28 +558,13 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
               <div className="py-8 text-center text-stone-500">
                 <p className="text-base font-medium text-stone-700">No background artwork</p>
                 <p className="mt-1 text-sm text-stone-500">
-                  The &ldquo;{currentTemplate.name}&rdquo; template uses a solid theme color and does not include background artwork variants. You can add a photo background in the Photos tab.
+                  The &ldquo;{currentTemplate.name}&rdquo; template uses a solid theme color and does not include background artwork variants. You can add a photo background in the Media tab.
                 </p>
               </div>
             )}
             </div>
-            <div hidden={activePanel !== "photos"} className="space-y-4">
-            {!currentLayout?.image && (slide.image || slide.image2) && <p className="text-xs text-stone-500">Images are preserved but hidden in this layout.</p>}
-            {currentLayout?.image && !currentLayout.image2 && slide.image2 && <p className="text-xs text-stone-500">Image 2 is preserved but hidden in this layout.</p>}
-            {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
-              <div key={field} className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
-                <label className="btn cursor-pointer">
-                  {slide[field] ? `Replace ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}
-                  <input type="file" accept="image/*" aria-label={`Upload ${label.toLowerCase()}`} className="sr-only" onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) void upload(file, field, slide.id);
-                    event.target.value = "";
-                  }} />
-                </label>
-                {slide[field] && <button className="btn btn-ghost" onClick={() => patch({ [field]: undefined })}>Remove</button>}
-              </div>
-            ))}
-            <section className="space-y-4" aria-label="Photo backgrounds">
+            <div hidden={activePanel !== "media"} className="space-y-4">
+            <section className="card min-w-0 space-y-4 p-4 sm:p-6" aria-label="Photo backgrounds">
               <div>
                 <h3 className="display text-2xl">Photo background</h3>
                 <p className="text-sm text-stone-500">Choose a free photo. Soft blur and a subtle overlay help text stay readable.</p>
@@ -565,6 +659,46 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
               )}
               <p className="text-xs text-stone-500">Images and their attribution are saved with this slide. License terms vary by image; verify them before publishing.</p>
             </section>
+            <section className="card min-w-0 space-y-4 p-4 sm:p-6" aria-label="Images">
+              <div>
+                <h3 className="display text-2xl">Image</h3>
+                <p className="text-sm text-stone-500">Add your own picture and place it anywhere on the slide. Drag to move it and drag its corner to resize.</p>
+              </div>
+              {!currentLayout?.image && (slide.image || slide.image2) && <p className="text-xs text-stone-500">Images are preserved but hidden in this layout.</p>}
+              {currentLayout?.image && !currentLayout.image2 && slide.image2 && <p className="text-xs text-stone-500">Image 2 is preserved but hidden in this layout.</p>}
+              {[{ field: "image" as const, rect: currentLayout?.image, label: "Image 1" }, { field: "image2" as const, rect: currentLayout?.image2, label: "Image 2" }].filter((item) => item.rect).map(({ field, label }) => (
+                <div key={field} className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
+                  <label className="btn cursor-pointer">
+                    {slide[field] ? `Replace ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}
+                    <input type="file" accept="image/*" aria-label={`Upload ${label.toLowerCase()}`} className="sr-only" onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void upload(file, field, slide.id);
+                      event.target.value = "";
+                    }} />
+                  </label>
+                  {slide[field] && <button className="btn btn-ghost" onClick={() => patch({ [field]: undefined })}>Remove</button>}
+                </div>
+              ))}
+              <ImagePicker
+                key={slide.id}
+                picture={slide.picture}
+                busy={pictureBusy}
+                error={pictureError}
+                onFile={(file) => void attachPicture(file, slide.id)}
+                onRemove={() => setPicture(slide.id, undefined)}
+              />
+            </section>
+            <div className="card min-w-0 p-4 sm:p-6">
+              <VideoPicker
+                key={slide.id}
+                video={slide.video}
+                busy={videoBusy}
+                error={videoError}
+                onFile={(file) => void attachVideoFile(file, slide.id)}
+                onLink={(url) => attachVideoLink(url, slide.id)}
+                onRemove={() => removeVideo(slide.id)}
+              />
+            </div>
             </div>
           </div>
           <div className="my-4 flex flex-wrap items-center justify-between gap-3">
@@ -603,7 +737,7 @@ function LayoutDiagram({ template, slide, layout: name }: { template: Template; 
   const position = (r: Rect) => ({ left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%` });
   return (
     <span aria-hidden="true" className="relative block aspect-video overflow-hidden rounded-lg bg-stone-100">
-      <span className="absolute rounded-sm bg-stone-500/70" style={position(layout.title)} />
+      {!layout.hideTitle && <span className="absolute rounded-sm bg-stone-500/70" style={position(layout.title)} />}
       {!layout.hideBody && <span className="absolute rounded-sm border border-stone-400 bg-stone-300/50" style={position(layout.body)} />}
       {layout.image && <span className="absolute grid place-items-center rounded-sm bg-accent/30 text-xs text-accent" style={position(layout.image)}>▧</span>}
       {layout.image2 && <span className="absolute grid place-items-center rounded-sm bg-accent/30 text-xs text-accent" style={position(layout.image2)}>▧</span>}

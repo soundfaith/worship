@@ -54,7 +54,7 @@ test("groups legacy consecutive same-title song slides without changing saved da
 
 test("generated lyric slides retain their distinct assembly song identities", () => {
   let id = 0;
-  const { buildSlides } = load("slides.ts", { "./store": { uid: () => String(++id) }, "./lyrics": { chunkLines: (lines) => lines, DEFAULT_LINES: 4 }, "./gospel": { gospelForAssembly: () => ({ include: false }), paginateReading: () => [] } });
+  const { buildSlides } = load("slides.ts", { "./store": { uid: () => String(++id) }, "./lyrics": { chunkLines: (lines) => lines, DEFAULT_LINES: 4 }, "./gospel": { gospelForAssembly: () => ({ include: false }), paginateReading: () => [] }, "./slide-merge": { mergeSlides: (_prev, next) => next } });
   const a = { includeWelcome: false, includeTheme: false, includeClosing: false, openingPrayerText: "", prayerLeader: "", songs: [
     { uid: "first", title: "Same", slides: ["a", "b"] }, { uid: "second", title: "Same", slides: ["c"] },
   ], announcements: [], birthdays: [], anniversaries: [] };

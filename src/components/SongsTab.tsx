@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { DEFAULT_LINES } from "@/lib/lyrics";
 import { uid } from "@/lib/store";
 import { getTemplate } from "@/lib/templates";
+import { contentPatch } from "@/lib/slides";
 import { useSongSearch } from "@/lib/useSongs";
 import { Icon, IconButton } from "./Icon";
 import { Modal } from "./Modal";
@@ -53,7 +54,7 @@ export function SongsTab({ a, update }: TabProps) {
         return;
       }
       const selected = { uid: uid(), songId: song.id, title: song.title, slides: song.slides, lines: DEFAULT_LINES };
-      update({ songs: [...a.songs, selected], slides: null });
+      update(contentPatch(a, { songs: [...a.songs, selected] }));
       setOpenUid(selected.uid);
       setPickerOpen(false);
     } catch (cause) {
@@ -67,10 +68,10 @@ export function SongsTab({ a, update }: TabProps) {
     const target = index + direction;
     if (target < 0 || target >= next.length) return;
     [next[index], next[target]] = [next[target], next[index]];
-    update({ songs: next, slides: null });
+    update(contentPatch(a, { songs: next }));
   };
   const setLines = (songUid: string, lines: number) =>
-    update({ songs: a.songs.map((song) => song.uid === songUid ? { ...song, lines } : song), slides: null });
+    update(contentPatch(a, { songs: a.songs.map((song) => song.uid === songUid ? { ...song, lines } : song) }));
 
   return (
     <div className="space-y-5">
@@ -99,8 +100,7 @@ export function SongsTab({ a, update }: TabProps) {
                     </button>
                     <IconButton icon="up" label="Move up" onClick={() => move(index, -1)} disabled={index === 0} />
                     <IconButton icon="down" label="Move down" onClick={() => move(index, 1)} disabled={index === a.songs.length - 1} />
-                    <IconButton icon="close" label="Remove song" danger onClick={() => update({ songs: a.songs.filter((item) => item.uid !== song.uid), slides: null })} />
-                  </div>
+                    <IconButton icon="close" label="Remove song" danger                     onClick={() => update(contentPatch(a, { songs: a.songs.filter((item) => item.uid !== song.uid) }))} />                  </div>
                   {openUid === song.uid && (
                     <div className="border-t border-stone-200 p-3 sm:p-4">
                       <SongPreview title={song.title} source={song.slides} lines={song.lines ?? DEFAULT_LINES} onLines={(count) => setLines(song.uid, count)} template={template} font={a.font} songIndex={index} />

@@ -1,5 +1,5 @@
 import packs from "./templates.generated.json";
-import { GOSPEL_BODY } from "./layout";
+import { GOSPEL_BODY, isReadingSlide } from "./layout";
 import type { Fill, Layout, LayoutName, Shape, Slide, SlideKind, Template } from "./types";
 
 const importedTemplates = packs as Template[];
@@ -44,6 +44,7 @@ export const LAYOUT_OPTIONS: { id: LayoutName; label: string }[] = [
   { id: "title-image", label: "Title and image" },
   { id: "two-images", label: "Title and two images" },
   { id: "text-two-images", label: "Title, text and two images" },
+  { id: "blank", label: "Blank" },
 ];
 
 const box = (x: number, y: number, w: number, h: number, size: number, color: string, align: "left" | "center" = "left") =>
@@ -354,6 +355,10 @@ function contentLayout(name: LayoutName, color: string): Layout {
       result.image = { x: 0.06, y: 0.38, w: 0.42, h: 0.52 };
       result.image2 = { x: 0.52, y: 0.38, w: 0.42, h: 0.52 };
       break;
+    case "blank":
+      result.hideTitle = true;
+      result.hideBody = true;
+      break;
   }
   return result;
 }
@@ -362,11 +367,16 @@ export function layoutFor(t: Template, slide: Pick<Slide, "kind" | "image" | "la
   const name = layoutNameFor(slide);
   if (t.backgrounds?.length) {
     const layout = contentLayout(name, slide.textColor ?? t.fg);
-    if (slide.kind === "gospel" && name === "content") {
+    if (isReadingSlide(slide) && name === "content") {
       layout.title = { ...layout.title, y: 0.08, h: 0.15, size: 30 };
       layout.body = { ...GOSPEL_BODY, color: slide.textColor ?? t.fg };
     }
     return { name, layout };
+  }
+  // Blank keeps the template's content artwork without its text boxes.
+  if (name === "blank") {
+    const content = t.layouts?.content;
+    return content && { name: "content", layout: { ...content, hideTitle: true, hideBody: true } };
   }
   const layout = t.layouts?.[name] ?? t.layouts?.content;
   if (!layout) return null;

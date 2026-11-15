@@ -5,15 +5,43 @@ export type SlideKind =
   | "gospel"
   | "song"
   | "announcement"
+  | "story"
   | "birthday"
   | "anniversary"
   | "closing"
   | "custom";
 
+// A full-slide video. Local files live in IndexedDB under `id`; `poster` is a JPEG data URL.
+export type SlideVideo =
+  | { kind: "file"; id: string; name: string; poster?: string }
+  | { kind: "link"; url: string; videoId: string };
+
+// A free-placed picture. x, y and w are fractions of the slide; height follows from `ratio` (width / height).
+export interface SlidePicture {
+  data: string;
+  x: number;
+  y: number;
+  w: number;
+  ratio: number;
+}
+
+// Where a generated slide came from. `id` is stable across regenerations; title and body are what was generated.
+export interface SlideSource {
+  id: string;
+  title: string;
+  body: string;
+}
+
 export interface Slide {
   id: string;
   kind: SlideKind;
   songUid?: string;
+  groupId?: string; // ties the pages of one long content item together
+  source?: SlideSource; // undefined for slides added by hand
+  video?: SlideVideo;
+  videoFrame?: Rect; // where the video sits on the slide; undefined means full slide
+  picture?: SlidePicture;
+
   title: string;
   body: string;
   image?: string;
@@ -76,6 +104,13 @@ export interface Announcement {
   recurring: boolean;
 }
 
+export interface LongContent {
+  id: string;
+  title: string;
+  text: string;
+  show: boolean;
+}
+
 export interface Celebrant {
   id: string;
   name: string;
@@ -119,6 +154,7 @@ export interface Assembly {
   closingPrayerText: string;
   songs: AssemblySong[];
   announcements: Announcement[];
+  stories?: LongContent[];
   birthdays: Celebrant[];
   anniversaries: Celebrant[];
   slides: Slide[] | null;
@@ -172,7 +208,7 @@ export interface TemplateBackground {
   src: string;
 }
 
-export type LayoutName = "cover" | "song" | "content" | "image" | "image-left" | "two-images" | "text-two-images" | "title-image" | "title-only" | "centered";
+export type LayoutName = "cover" | "song" | "content" | "image" | "image-left" | "two-images" | "text-two-images" | "title-image" | "title-only" | "centered" | "blank";
 
 // Rect in fractions of the slide (0-1).
 export interface Rect {
@@ -217,5 +253,6 @@ export interface Layout {
   body: TextBox;
   image?: Rect;
   image2?: Rect;
+  hideTitle?: boolean;
   hideBody?: boolean;
 }

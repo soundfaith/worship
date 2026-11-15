@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { useAssemblies, useRecurring } from "@/lib/assemblies";
 import { gospelForAssembly } from "@/lib/gospel";
+import { contentPatch } from "@/lib/slides";
 import { uid } from "@/lib/store";
-import type { Announcement } from "@/lib/types";
+import type { Announcement, LongContent } from "@/lib/types";
 import { IconButton } from "./Icon";
 import { ConfirmDialog } from "./Modal";
 import { Field, Section, type TabProps } from "./ui";
@@ -23,7 +24,7 @@ export function ContentTab({ a, update }: TabProps) {
   const [recurring, setRecurring] = useRecurring();
   const [pendingGospelDate, setPendingGospelDate] = useState<string | null>(null);
   const [pendingAssemblyDate, setPendingAssemblyDate] = useState<string | null>(null);
-  const set = (patch: Parameters<TabProps["update"]>[0]) => update({ ...patch, slides: null });
+  const set = (patch: Parameters<TabProps["update"]>[0]) => update(contentPatch(a, patch));
   const gospel = gospelForAssembly(a);
   const changeGospelDate = (date: string) => {
     if (gospel.custom) setPendingGospelDate(date);
@@ -32,6 +33,16 @@ export function ContentTab({ a, update }: TabProps) {
   const loadGospelDate = (date: string) => set({ gospel: { include: gospel.include, date: date || undefined } });
 
   const setAnn = (list: Announcement[]) => set({ announcements: list });
+  const stories = a.stories ?? [];
+  const setStories = (list: LongContent[]) => set({ stories: list });
+  const moveStory = (i: number, d: number) => {
+    const next = [...stories];
+    const j = i + d;
+    if (j < 0 || j >= next.length) return;
+    [next[i], next[j]] = [next[j], next[i]];
+    setStories(next);
+  };
+  const updateStory = (id: string, patch: Partial<LongContent>) => setStories(stories.map((y) => (y.id === id ? { ...y, ...patch } : y)));
   const previous = all
     .filter((x) => x.id !== a.id)
     .flatMap((x) => x.announcements)
@@ -180,6 +191,22 @@ export function ContentTab({ a, update }: TabProps) {
         )}
       </Section>
 
+      <Section title="Long content" hint="Stories or other long text. Split automatically across as many slides as needed, like the Gospel.">
+        {stories.map((x, i) => (
+          <div key={x.id} className="space-y-2 rounded-xl border border-stone-200 bg-stone-50/60 p-3">
+            <input className="input" aria-label="Long content title" placeholder="Title (optional)" value={x.title} onChange={(e) => updateStory(x.id, { title: e.target.value })} />
+            <textarea className="input h-40" aria-label="Long content text" value={x.text} onChange={(e) => updateStory(x.id, { text: e.target.value })} />
+            <div className="flex flex-wrap items-center gap-4">
+              <Check label="Show" checked={x.show} onChange={(v) => updateStory(x.id, { show: v })} />
+              <span className="flex-1" />
+              <IconButton icon="up" label="Move up" disabled={i === 0} onClick={() => moveStory(i, -1)} />
+              <IconButton icon="down" label="Move down" disabled={i === stories.length - 1} onClick={() => moveStory(i, 1)} />
+              <IconButton icon="close" label="Remove" danger onClick={() => setStories(stories.filter((y) => y.id !== x.id))} />
+            </div>
+          </div>
+        ))}
+        <button className="btn" onClick={() => setStories([...stories, { id: uid(), title: "", text: "", show: true }])}>+ Add long content</button>
+      </Section>
         </div>
       </details>
     </div>

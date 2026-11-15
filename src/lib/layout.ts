@@ -1,6 +1,12 @@
-import type { TextBox } from "./types";
+import type { Slide, TextBox } from "./types";
+
+// Reading-style slides (Gospel and long content) use the reading text size and fitting rules.
+export function isReadingSlide(slide: Pick<Slide, "kind">): boolean {
+  return slide.kind === "gospel" || slide.kind === "story";
+}
 
 const SLIDE_W_PT = 720; // 10in
+
 const SLIDE_H_PT = 405; // 5.625in
 
 export const GOSPEL_MIN_SIZE = 22;

@@ -53,6 +53,7 @@ export function blankAssembly(font?: string): Assembly {
     closingPrayerText: "",
     songs: [],
     announcements: [],
+    stories: [],
     birthdays: [],
     anniversaries: [],
     slides: null,

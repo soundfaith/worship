@@ -107,6 +107,7 @@ export function Presentation({ assembly, slides, onClose, error }: {
               songIndex={songPositions[index]}
               logo={assembly.showLogo === false ? undefined : assembly.logo}
               className="!rounded-none !shadow-none !ring-0"
+              play
             />
           ) : (
             <div className="relative aspect-video w-full overflow-hidden p-[5%]" style={{ backgroundColor: `#${template.bg}`, containerType: "inline-size" }}>

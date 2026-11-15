@@ -1,11 +1,48 @@
-import { fitSize, readingFontSize } from "./layout";
+import { fitSize, isReadingSlide, readingFontSize } from "./layout";
 import { renderArt, renderBackground, renderPhotoBackground } from "./art";
+import { pictureHeight } from "./picture";
 import { backgroundFor, BLANK_TEMPLATE_ID, DEFAULT_FONT, layoutFor, presentationTemplate, songIndexes } from "./templates";
-import type { Assembly, Rect, Slide, SlideKind } from "./types";
+import { blobToDataUrl, loadVideoBlob, youtubeThumbnailUrl, youtubeWatchUrl } from "./video";
+import type { Assembly, Rect, Slide, SlideKind, SlidePicture, SlideVideo } from "./types";
+import type PptxGenJS from "pptxgenjs";
+
+type PptxSlide = ReturnType<PptxGenJS["addSlide"]>;
 
 const SW = 10;
 const SH = 5.625;
 const inch = (r: Rect) => ({ x: r.x * SW, y: r.y * SH, w: r.w * SW, h: r.h * SH });
+const FULL_SLIDE: Rect = { x: 0, y: 0, w: 1, h: 1 };
+
+function addPicture(slide: PptxSlide, picture: SlidePicture) {
+  const w = picture.w * SW;
+  slide.addImage({ data: picture.data.slice(5), x: picture.x * SW, y: picture.y * SH, w, h: pictureHeight(picture) * SH });
+}
+
+async function remoteDataUrl(url: string): Promise<string | undefined> {
+  try {
+    const response = await fetch(url);
+    return response.ok ? await blobToDataUrl(await response.blob()) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Local videos are embedded. A YouTube link becomes its thumbnail, linked to the video, because PowerPoint
+// often shows embedded online videos from generated files as an empty placeholder.
+async function addVideoSlide(slide: PptxSlide, video: SlideVideo, frame: Rect) {
+  const box = inch(frame);
+  if (video.kind === "link") {
+    const hyperlink = { url: youtubeWatchUrl(video.videoId), tooltip: "Play video" };
+    const cover = await remoteDataUrl(youtubeThumbnailUrl(video.videoId));
+    if (cover) slide.addImage({ data: cover.slice(5), ...box, hyperlink });
+    else slide.addText("Play video", { ...box, fill: { color: "000000" }, color: "FFFFFF", align: "center", valign: "middle", fontSize: 24, hyperlink });
+    return;
+  }
+  const blob = await loadVideoBlob(video.id);
+  if (!blob) throw new Error(`The video "${video.name}" is missing from this browser. Add it again in the Media tab.`);
+  const data = (await blobToDataUrl(blob)).replace(/^data:/, "");
+  slide.addMedia({ type: "video", data, ...box, ...(video.poster ? { cover: video.poster } : {}) });
+}
 
 export async function exportPptx(a: Assembly) {
   return exportSlides({ title: a.title, date: a.date, slides: a.slides ?? [], templateId: a.templateId, sectionTemplates: a.sectionTemplates, font: a.font, backgroundColor: a.backgroundColor, logo: a.showLogo === false ? undefined : a.logo });
@@ -31,6 +68,7 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
     const t = presentationTemplate(sectionTemplates[sl.kind] ?? templateId, backgroundColor);
     const found = layoutFor(t, sl);
     const slide = pres.addSlide();
+    slide.background = { color: t.bg };
 
     if (found) {
       const { layout } = found;
@@ -46,9 +84,10 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       }
       if (sl.image && layout.image) slide.addImage({ data: sl.image.slice(5), ...inch(layout.image), sizing: { type: "cover", ...inch(layout.image) } });
       if (sl.image2 && layout.image2) slide.addImage({ data: sl.image2.slice(5), ...inch(layout.image2), sizing: { type: "cover", ...inch(layout.image2) } });
+      if (sl.picture) addPicture(slide, sl.picture);
       for (const [box, text, boxFont, fit, reading] of [
-        [layout.title, sl.title, sl.font || font || t.fontTitle, !!layout.fitTitle, false],
-        ...(!layout.hideBody ? [[layout.body, sl.body, sl.font || font || t.fontBody, true, sl.kind === "gospel"] as const] : []),
+        ...(!layout.hideTitle ? [[layout.title, sl.title, sl.font || font || t.fontTitle, !!layout.fitTitle, false] as const] : []),
+        ...(!layout.hideBody ? [[layout.body, sl.body, sl.font || font || t.fontBody, true, isReadingSlide(sl)] as const] : []),
       ] as const) {
         const content = reading ? text.trim() : text;
         slide.addText(box.caps ? content.toUpperCase() : content, {
@@ -63,7 +102,8 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
           margin: 0,
         });
       }
-      if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
+      if (logo && !sl.video) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
+      if (sl.video) await addVideoSlide(slide, sl.video, sl.videoFrame ?? FULL_SLIDE);
       continue;
     }
 
@@ -73,6 +113,7 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
     const longest = Math.max(0, ...sl.body.split("\n").map((l) => l.length));
     const size = Math.max(20, Math.min(44, Math.floor(300 / Math.max(lines * 1.25, longest / 4, 5)) + 14));
 
+    if (sl.picture) addPicture(slide, sl.picture);
     slide.addText(sl.title, {
       x: 0.6, y: 0.3, w: 8.8, h: 0.7,
       fontFace: sl.font || font || t.fontTitle, fontSize: isSong ? 16 : 34, color: t.accent,
@@ -84,7 +125,8 @@ export async function exportSlides({ title, date, slides, templateId, sectionTem
       fontFace: sl.font || font || t.fontBody, fontSize: size, color: t.fg,
       align: "center", valign: "middle", fit: "shrink", lineSpacingMultiple: 1.1,
     });
-    if (logo) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
+    if (logo && !sl.video) slide.addImage({ data: logo.data.slice(5), ...inch({ x: logo.x, y: logo.y, w: logo.width, h: logo.height }) });
+    if (sl.video) await addVideoSlide(slide, sl.video, sl.videoFrame ?? FULL_SLIDE);
   }
   const photoCredits = [...new Map(
     slides.flatMap((item) => item.backgroundImage?.sourceUrl

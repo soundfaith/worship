@@ -130,6 +130,7 @@ test("builds editable Gospel slides and song title slides in order", () => {
     "./store": { uid: () => String(++next) },
     "./lyrics": { chunkLines: (lines) => lines, DEFAULT_LINES: 4 },
     "./gospel": { gospelForAssembly, paginateReading },
+    "./slide-merge": { mergeSlides: (_prev, next) => next },
   });
   const text = "Reading words ".repeat(80);
   const assembly = { date: "2026-11-06", includeWelcome: false, includeTheme: false, includeClosing: false,

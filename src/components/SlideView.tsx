@@ -133,11 +133,12 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
         )}
         {(art?.error || (backgroundSrc && failedSrc === backgroundSrc)) && <span className="absolute inset-0 z-10 grid place-items-center bg-red-900 p-4 text-center text-sm text-white">Unable to load slide background.</span>}
         {logo && !slide.video && (
-          <button
-            type="button"
+          <div
+            role={onLogoPositionChange ? "button" : undefined}
+            aria-label={onLogoPositionChange ? "Move logo; use arrow keys to position" : undefined}
+            tabIndex={onLogoPositionChange ? 0 : undefined}
             aria-label="Move logo; use arrow keys to position"
             title={onLogoPositionChange ? "Drag to move logo; use arrow keys to adjust" : undefined}
-            tabIndex={onLogoPositionChange ? 0 : -1}
             onPointerDown={(event) => {
               if (!onLogoPositionChange) return;
               event.preventDefault();
@@ -167,7 +168,7 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo.data} alt="" draggable={false} className="h-full w-full object-contain" />
-          </button>
+          </div>
         )}
         {slide.image && layout.image && (
           // eslint-disable-next-line @next/next/no-img-element

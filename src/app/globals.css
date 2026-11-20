@@ -5,15 +5,15 @@
 /* Design tokens. The stone scale is remapped so every existing stone-* utility flips with the theme. */
 :root {
   --canvas: #faf8f4;
-  --surface: #ffffff;
+  --surface: #fffefa;
   --accent: #a9863f;
-  --step-accent: #2563eb;
-  --step-accent-soft: #eff6ff;
-  --primary: #1c2744;
-  --primary-hover: #101a33;
+  --step-accent: var(--accent);
+  --step-accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --primary: #292722;
+  --primary-hover: #1c1a16;
   --primary-ink: #ffffff;
-  --shadow: 0 1px 2px rgb(40 30 10 / 0.04), 0 8px 24px -12px rgb(40 30 10 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(40 30 10 / 0.05), 0 18px 36px -14px rgb(40 30 10 / 0.22);
+  --shadow: 0 1px 2px rgb(40 30 10 / 0.025), 0 10px 28px -18px rgb(40 30 10 / 0.16);
+  --shadow-lift: 0 4px 8px rgb(40 30 10 / 0.04), 0 24px 48px -24px rgb(40 30 10 / 0.24);
   --st-50: #faf9f6;
   --st-100: #f4f2ed;
   --st-200: #e8e4db;
@@ -28,14 +28,14 @@
 }
 
 .dark {
-  --canvas: #0f0e0c;
-  --surface: #181613;
+  --canvas: #11100e;
+  --surface: #1a1815;
   --accent: #d9b46a;
-  --step-accent: #d9b46a;
-  --step-accent-soft: #2a251b;
+  --step-accent: var(--accent);
+  --step-accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
   --primary: #d9b46a;
   --primary-hover: #e6c47e;
-  --primary-ink: #16130d;
+  --primary-ink: #1b1913;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 36px -14px rgb(0 0 0 / 0.7);
   --st-50: #1c1a16;
@@ -77,7 +77,9 @@ body {
   background: var(--canvas);
   color: var(--st-800);
   font-family: var(--font-sans);
-  transition: background-color 0.25s, color 0.25s;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 .display {
@@ -99,6 +101,7 @@ h1.display {
   * {
     animation: none !important;
     transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -106,6 +109,14 @@ h1.display {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.assembly-card-enter { animation: card-enter 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
+.assembly-card-enter:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
 
 main > * {
   animation: fade-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -134,7 +145,8 @@ main > * {
   justify-content: center;
   gap: 0.4rem;
   border-radius: 0.75rem;
-  padding: 0.5rem 1.05rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.05rem;
   font-size: 0.9rem;
   border: 1px solid var(--st-200);
   background: var(--surface);
@@ -170,8 +182,8 @@ main > * {
 .icon-btn {
   display: inline-grid;
   place-items: center;
-  height: 2.15rem;
-  width: 2.15rem;
+  height: 2.75rem;
+  width: 2.75rem;
   border-radius: 9999px;
   color: var(--st-500);
   transition: background 0.15s, color 0.15s;
@@ -185,10 +197,18 @@ main > * {
 }
 
 .card {
-  border-radius: 1.1rem;
+  border-radius: 1.25rem;
   border: 1px solid var(--st-200);
   background: var(--surface);
   box-shadow: var(--shadow);
+}
+
+.assembly-mark { box-shadow: 0 3px 12px rgb(94 70 28 / 0.2), inset 0 1px rgb(255 255 255 / 0.3); }
+
+@media (max-width: 639px) {
+  .input { min-height: 2.9rem; }
+  .app-modal { overscroll-behavior: contain; }
+  main > * { animation-duration: 0.25s; }
 }
 
 .eyebrow {

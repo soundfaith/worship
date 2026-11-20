@@ -70,7 +70,7 @@ export function AssemblyEditor({ id }: { id: string }) {
     }
   };
   return (
-    <div className="space-y-14 sm:space-y-16">
+    <div className="space-y-8 sm:space-y-10">
       <div className="space-y-5">
         <Link href="/" className="text-sm text-stone-500 transition-colors hover:text-accent">← Assemblies</Link>
         <div className="flex flex-col items-start gap-4">
@@ -102,8 +102,8 @@ export function AssemblyEditor({ id }: { id: string }) {
         </div>
       </div>
 
-      <nav aria-label="Assembly steps" className="relative my-5 grid grid-cols-4 gap-1 py-6 sm:my-8 sm:gap-2 sm:py-8">
-        <span aria-hidden="true" className="absolute left-[12.5%] right-[12.5%] top-14 h-px bg-stone-200 sm:top-[4.25rem]" />
+      <nav aria-label="Assembly steps" className="relative my-3 grid grid-cols-4 gap-1 py-3 sm:my-6 sm:gap-2 sm:py-4">
+        <span aria-hidden="true" className="absolute left-[12.5%] right-[12.5%] top-[2.125rem] h-px bg-stone-200 sm:top-11" />
           {TABS.map((step, index) => (
             <button
               key={step}
@@ -113,9 +113,9 @@ export function AssemblyEditor({ id }: { id: string }) {
                 setTab(step);
               }}
               aria-current={tab === step ? "step" : undefined}
-              className={`stepper-item relative z-10 flex min-w-0 cursor-pointer flex-col items-center gap-2 rounded-xl py-1 text-center text-xs transition sm:text-sm ${tab === step ? "is-current" : ""}`}
+              className={`stepper-item relative z-10 flex min-w-0 cursor-pointer flex-col items-center gap-1.5 rounded-xl py-1 text-center text-[11px] transition sm:gap-2 sm:text-sm ${tab === step ? "is-current" : ""}`}
             >
-              <span className="stepper-number grid h-16 w-16 place-items-center rounded-full border-2 text-xl font-semibold tabular-nums sm:h-[4.5rem] sm:w-[4.5rem] sm:text-2xl">{index + 1}</span>
+              <span className="stepper-number grid h-9 w-9 place-items-center rounded-full border text-sm font-semibold tabular-nums sm:h-12 sm:w-12 sm:border-2 sm:text-lg">{index + 1}</span>
               <span className="max-w-full truncate">{step}</span>
             </button>
           ))}

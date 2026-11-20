@@ -95,12 +95,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 space-y-12">
+      <div className="mx-auto w-full max-w-6xl space-y-9 px-4 py-7 sm:space-y-12 sm:px-6 sm:py-12">
         <div className="flex flex-col items-start gap-4">
           <div>
-            <p className="eyebrow mb-2">SoundFaith</p>
+            <p className="eyebrow mb-2">SoundFaith · Assembly</p>
             <h1 className="display text-stone-900">Assemblies</h1>
-            <p className="mt-2 text-stone-500">Prepare a full presentation in a few minutes.</p>
+            <p className="mt-2 max-w-lg text-stone-500">Plan the readings, songs, and slides for your next gathering.</p>
           </div>
           <button
             className="btn btn-primary !px-5 !py-3 sm:!px-6 sm:!py-3.5 !text-base sm:!text-lg font-medium !gap-2.5 !rounded-xl shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
@@ -145,10 +145,11 @@ export default function Home() {
         ) : (
           <>
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {aHits.map((a) => (
+              {aHits.map((a, index) => (
                 <AssemblyCard
                   key={a.id}
                   a={a}
+                  style={{ animationDelay: `${Math.min(index, 8) * 55}ms` }}
                   onPresent={() => present(a)}
                   onDuplicate={() => setDuplicateTarget(a)}
                   onDelete={() => setDeleteAssembly(a)}
@@ -166,12 +167,12 @@ export default function Home() {
       </section>
       </div>
 
-      {!needle && discoveryEligible && (
+      {discoveryEligible && (
         <footer
           aria-labelledby="about-soundfaith-title"
-          className="mt-auto border-t border-stone-200 bg-surface"
+          className="mt-12 border-t border-stone-200/80 bg-surface"
         >
-          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="max-w-2xl">
                 <div className="mb-3 flex items-center gap-3">
@@ -234,11 +235,11 @@ export default function Home() {
   );
 }
 
-function AssemblyCard({ a, onPresent, onDuplicate, onDelete }: { a: Assembly; onPresent: () => void; onDuplicate: () => void; onDelete: () => void }) {
+function AssemblyCard({ a, onPresent, onDuplicate, onDelete, style }: { a: Assembly; onPresent: () => void; onDuplicate: () => void; onDelete: () => void; style?: React.CSSProperties }) {
   const template = getTemplate(a.sectionTemplates.welcome ?? a.templateId);
   const count = a.songs.length;
   return (
-    <li className="card group overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
+    <li style={style} className="card assembly-card-enter group overflow-hidden transition duration-300">
       <Link href={`/assembly/${a.id}`} className="block" aria-label={`Open ${a.title || "assembly"}`}>
         <div className="overflow-hidden p-2.5 pb-0">
           <SlideView slide={a.slides?.find((s) => s.kind === "welcome") ?? coverSlide(a)} template={template} font={a.font} className="!shadow-none transition duration-500 group-hover:scale-[1.015]" />

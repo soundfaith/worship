@@ -109,8 +109,8 @@ export function SongsTab({ a, update }: TabProps) {
                 </li>
               ))}
             </ol>
-            <div className="pt-1">
-              <button type="button" className="btn" onClick={() => setPickerOpen(true)}>
+            <div className="sticky bottom-3 z-10 pt-3">
+              <button type="button" className="btn btn-primary w-full shadow-lg sm:w-auto" onClick={() => setPickerOpen(true)}>
                 <Icon name="plus" className="h-4 w-4" />Add song
               </button>
             </div>

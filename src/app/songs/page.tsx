@@ -103,7 +103,7 @@ export default function SongsPage() {
       </div>
 
       <div className="grid min-w-0 grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <div className="card min-w-0 max-h-[38rem] overflow-y-auto p-2" tabIndex={0} role="region" aria-label="Songs list">
+        <div className="card min-w-0 p-2 lg:max-h-[38rem] lg:overflow-y-auto" tabIndex={0} role="region" aria-label="Songs list">
           <ul className="space-y-0.5">
             {results.map((s, i) => {
               const letter = letterOf(songLabel(s));

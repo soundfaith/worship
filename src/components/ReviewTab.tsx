@@ -325,15 +325,15 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-stone-500">Slide {idx + 1} of {slides.length} · use ← → to navigate</p>
-        <button className="btn" onClick={() => setRegenerate(true)}>Regenerate</button>
+        <span className="text-sm tabular-nums text-stone-500" aria-live="polite">{idx + 1} / {slides.length}</span>
+        <button className="btn" title="Rebuild generated slides from the current assembly content" onClick={() => setRegenerate(true)}>Rebuild slides</button>
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{error}</p>}
       {presentationError && <p role="status" className="text-sm text-amber-700">{presentationError}</p>}
       {exportError && <p role="alert" className="rounded-xl border border-red-500 p-3 text-sm text-red-600">{exportError}</p>}
       {gospel.include && !gospel.text.trim() && <p role="status" className="rounded-xl border border-amber-500 p-3 text-sm text-amber-700">No Gospel text is available for the selected date. Add a reading or turn it off in Content.</p>}
       {isPresenting && slides.length > 0 && <Presentation assembly={a} slides={slides} onClose={closePresentation} error={presentationError} />}
-      {regenerate && <ConfirmDialog title="Regenerate slides?" message="All manual slide edits will be lost. This cannot be undone." confirmLabel="Regenerate" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
+      {regenerate && <ConfirmDialog title="Rebuild slides from content?" message="This refreshes the deck from the current assembly content. Manual slide edits will be removed." confirmLabel="Rebuild slides" onCancel={() => setRegenerate(false)} onConfirm={() => { setRegenerate(false); update({ slides: null }); }} />}
       {deleteSlide && <ConfirmDialog title="Remove slide?" message={`“${deleteSlide.title || "Untitled slide"}” will be removed from this assembly.`} confirmLabel="Remove slide" onCancel={() => setDeleteSlide(null)} onConfirm={() => {
         const nextSlides = slides.filter((item) => item.id !== deleteSlide.id);
         setSlides(nextSlides);
@@ -375,7 +375,7 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
         );
       })()}
 
-      <div className="flex min-h-[30rem] min-w-0 items-start gap-2 sm:min-h-[38rem] sm:gap-4">
+      <div className="flex min-w-0 flex-col items-stretch gap-3 sm:min-h-[38rem] sm:flex-row sm:items-start sm:gap-4">
         <nav
           ref={slideNavigationRef}
           aria-label="Slide navigation"
@@ -396,9 +396,9 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                 ?.focus();
             });
           }}
-          className="slides-nav-scroll sticky top-20 w-16 shrink-0 max-h-[calc(100dvh-6rem)] sm:max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-xl p-1 pr-1.5 sm:w-32 lg:w-44"
+          className="slides-nav-scroll w-full shrink-0 overflow-x-auto rounded-xl sm:sticky sm:top-20 sm:max-h-[calc(100dvh-7rem)] sm:w-32 sm:overflow-y-auto sm:overflow-x-hidden sm:p-1 sm:pr-1.5 lg:w-44"
         >
-          <ol className="space-y-2">
+          <ol className="flex w-max gap-2 p-1 sm:w-auto sm:flex-col sm:space-y-2 sm:p-0">
             {slides.map((s, i) => (
               <li key={s.id}>
                 <button
@@ -408,10 +408,10 @@ export function ReviewTab({ a, update, exportError, presentationError, presentRe
                   onClick={() => setCur(i)}
                   tabIndex={i === idx ? 0 : -1}
                   aria-current={i === idx ? "true" : undefined}
-                  className={`block w-full rounded-md p-1 text-left transition ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
+                  className={`block w-24 rounded-lg p-1 text-left transition sm:w-full sm:rounded-md ${i === idx ? "ring-2 ring-accent" : "hover:ring-1 hover:ring-stone-300"}`}
                 >
                   <SlideView slide={s} template={tpl(s)} font={a.font} songIndex={songPositions[i]} logo={a.showLogo === false ? undefined : a.logo} className="!rounded-sm" />
-                  <span className="block truncate px-1 pt-1 text-xs text-stone-500">{i + 1}. <span className="hidden sm:inline">{s.title}</span></span>
+                  <span className="block truncate px-1 pt-1 text-[10px] text-stone-500 sm:text-xs">{i + 1}. <span className="sm:inline">{s.title}</span></span>
                 </button>
               </li>
             ))}

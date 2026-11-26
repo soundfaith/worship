@@ -91,7 +91,7 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
   const dragPositionRef = useRef<{ x: number; y: number } | null>(null);
   const logoDragRef = useRef<{ clientX: number; clientY: number; x: number; y: number; width: number; height: number } | null>(null);
 
-  const moveLogo = (event: PointerEvent<HTMLButtonElement>) => {
+  const moveLogo = (event: PointerEvent<HTMLDivElement>) => {
     const drag = logoDragRef.current;
     if (!logo || !drag || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
     const position = {
@@ -101,14 +101,14 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
     dragPositionRef.current = position;
     setDragPosition(position);
   };
-  const finishLogoMove = (event: PointerEvent<HTMLButtonElement>) => {
+  const finishLogoMove = (event: PointerEvent<HTMLDivElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     if (dragPositionRef.current) onLogoPositionChange?.(dragPositionRef.current);
     logoDragRef.current = null;
     dragPositionRef.current = null;
     setDragPosition(null);
   };
-  const nudgeLogo = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const nudgeLogo = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!logo || !onLogoPositionChange) return;
     const step = event.shiftKey ? 0.04 : 0.01;
     const positions = {
@@ -137,7 +137,6 @@ export function SlideView({ slide, template, className = "", font, songIndex = 0
             role={onLogoPositionChange ? "button" : undefined}
             aria-label={onLogoPositionChange ? "Move logo; use arrow keys to position" : undefined}
             tabIndex={onLogoPositionChange ? 0 : undefined}
-            aria-label="Move logo; use arrow keys to position"
             title={onLogoPositionChange ? "Drag to move logo; use arrow keys to adjust" : undefined}
             onPointerDown={(event) => {
               if (!onLogoPositionChange) return;
